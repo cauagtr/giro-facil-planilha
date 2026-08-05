@@ -735,21 +735,28 @@ function filtrarPorJanela(props) {
 // ============================================================
 // COLABORADORES
 // ============================================================
+// ── Equipe do Giro Fácil: dois papéis por proposta ──
+const ANALISTAS = ['BERNARDO','FABIANO','FERNANDO','JULIANA','NIVALDO']
+const ESTAGIARIOS = ['ANA PAULA','ANDRESSA','CICERA','ISABELA','LETICIA','MARCOS']
+
 const COLABORADORES = {
-  'ANA PAULA':       '#E06C75',
-  ANDRESSA:          '#C9A0DC',
-  FABIANO:           '#F4A460',
-  FERNANDO:          '#E88080',
-  ISABELA:           '#93C47D',
-  JULIANA:           '#EA9999',
-  JULIANO:           '#6FA8DC',
-  'LETÍCIA RATTMAN': '#9FC5E8',
-  'MARCOS PAULO':    '#D5A6E6',
-  NIVALDO:           '#F6B26B',
-  'N/A':             '#E0E0E0',
+  // Analistas (tons mais frios/escuros)
+  BERNARDO:    '#6FA8DC',
+  FABIANO:     '#4A90D9',
+  FERNANDO:    '#93C47D',
+  JULIANA:     '#76C7B7',
+  NIVALDO:     '#8E9FD4',
+  // Estagiários (tons mais quentes/claros)
+  'ANA PAULA': '#E06C75',
+  ANDRESSA:    '#C9A0DC',
+  CICERA:      '#D5A6E6',
+  ISABELA:     '#F4A460',
+  LETICIA:     '#EA9999',
+  MARCOS:      '#F6B26B',
+  'N/A':       '#E0E0E0',
 }
 // Ordem dos botões de filtro: colaboradores na ordem certa, depois Valério e N/A no final
-const COLAB_LIST = ['ANA PAULA','ANDRESSA','FABIANO','FERNANDO','ISABELA','JULIANA','JULIANO','LETÍCIA RATTMAN','MARCOS PAULO','NIVALDO','N/A']
+const COLAB_LIST = [...ANALISTAS, ...ESTAGIARIOS, 'N/A']
 
 // ── Etapas finalizadas (não estão mais em tratativa) ──
 const ETAPAS_FINALIZADAS = ['concedido','excluído','excluido','recusado']
@@ -1310,16 +1317,19 @@ function aplicarVlookup(rows, ref, mapaAtribuicoes = {}) {
         observacoesAnteriores: atrib.observacao || '',
         responsavel: atrib.responsavel,
         responsavelFinal: atrib.responsavel_final,
+        estagiario: atrib.estagiario || 'N/A',
       }
     }
     // Prioridade 2: referência do dia anterior
     const r = ref.find(x => String(x.codigo).trim() === String(row.codigo).trim())
     const resp = r && r.responsavel_final && r.responsavel_final !== 'N/A' ? r.responsavel_final : 'N/A'
+    const est = r && r.estagiario && r.estagiario !== 'N/A' ? r.estagiario : 'N/A'
     return {
       ...row,
       observacoesAnteriores: r ? (r.observacao || '') : '',
       responsavel: resp,
       responsavelFinal: resp,
+      estagiario: est,
     }
   })
 }
@@ -1365,7 +1375,7 @@ async function processarPlanilhas() {
     const merged = deduplicar(todas)
 
     // Buscar atribuições manuais já salvas no banco para preservá-las
-    const propostasExistentes = await sbAll('fgf_propostas?select=codigo,etapa,responsavel,responsavel_final,observacao')
+    const propostasExistentes = await sbAll('fgf_propostas?select=codigo,etapa,responsavel,responsavel_final,estagiario,observacao')
     const mapaAtribuicoes = {}
     if (propostasExistentes) {
       propostasExistentes.forEach(p => {
@@ -1383,6 +1393,7 @@ async function processarPlanilhas() {
 
     const propostas = comVlookup.map(r => ({
       responsavel: r.responsavel || 'N/A',
+      estagiario: r.estagiario || 'N/A',
       codigo: r.codigo,
       etapa: r.etapa,
       valor: parseValor(r.valor),
@@ -1424,7 +1435,8 @@ async function processarPlanilhas() {
     const novaRef = propostas.map(p => ({
       codigo: p.codigo,
       observacao: p.observacao,
-      responsavel_final: p.responsavel_final
+      responsavel_final: p.responsavel_final,
+      estagiario: p.estagiario
     }))
     await sb('fgf_referencia', {
       method: 'POST',
@@ -1608,9 +1620,11 @@ function aplicarFiltrosData(rows) {
 function getLinhasFiltradas() {
   let rows = [...todasPropostas]
   if (filtroColab === 'NOVAS') {
+    // Novas = ativas que ainda não têm analista OU não têm estagiário
     rows = rows.filter(p => {
-      const resp = (p.responsavel||'N/A').toUpperCase().trim()
-      return resp === 'N/A' && ehAtiva(p.etapa)
+      const a = (p.responsavel||'N/A').toUpperCase().trim()
+      const e = (p.estagiario||'N/A').toUpperCase().trim()
+      return (a === 'N/A' || e === 'N/A') && ehAtiva(p.etapa)
     })
   } else if (filtroColab === 'TODOS') {
     // Exige responsável apenas das ATIVAS. Finalizadas (concedido/recusado/excluído)
@@ -1619,8 +1633,18 @@ function getLinhasFiltradas() {
       if (ehFinalizada(p.etapa)) return true
       return (p.responsavel||'N/A').toUpperCase().trim() !== 'N/A'
     })
+  } else if (filtroColab === 'N/A') {
+    rows = rows.filter(p => {
+      const a = (p.responsavel||'N/A').toUpperCase().trim()
+      const e = (p.estagiario||'N/A').toUpperCase().trim()
+      return a === 'N/A' || e === 'N/A'
+    })
   } else {
-    rows = rows.filter(p => (p.responsavel||'N/A').toUpperCase().trim() === filtroColab)
+    // Clicar num nome mostra tudo daquela pessoa, seja como analista ou estagiário
+    rows = rows.filter(p =>
+      (p.responsavel||'N/A').toUpperCase().trim() === filtroColab ||
+      (p.estagiario||'N/A').toUpperCase().trim() === filtroColab
+    )
   }
   rows = aplicarFiltrosData(rows)
   // Esconde finalizadas (Concedido/Recusado/Excluído) do fluxo do dia a dia,
@@ -1847,7 +1871,8 @@ function renderTabelaPropostas() {
   const todasRows = getLinhasVisiveis()
 
   const cols = [
-    {key:'responsavel', label:'Responsável'},
+    {key:'responsavel', label:'Analista'},
+    {key:'estagiario', label:'Estagiário'},
     {key:'codigo', label:'Código da Operação'},
     {key:'linha_credito', label:'Linha'},
     {key:'municipio', label:'Município'},
@@ -1890,15 +1915,30 @@ function renderTabelaPropostas() {
     const fg = getTextColor(bg)
     const iniciais = getIniciais(resp)
 
+    // Célula do Analista (papel 'analista')
     const respCell = resp === 'N/A'
       ? `<td><div class="resp-cell"><span class="resp-tarja" style="background:#cbd5e1"></span>
-           <div class="dd-trigger" onclick="abrirDropdown(this, '${p.codigo}', 'N/A')">👤 Atribuir</div>
+           <div class="dd-trigger" onclick="abrirDropdown(this, '${p.codigo}', 'N/A', 'analista')">👤 Atribuir</div>
          </div></td>`
       : `<td><div class="resp-cell">
            <span class="resp-tarja" style="background:${bg}"></span>
            <span class="resp-avatar" style="background:${bg};color:${fg}">${iniciais}</span>
            <span class="resp-nome">${resp}</span>
-           <button class="btn-trocar-v2" title="Trocar responsável" onclick="abrirDropdown(this, '${p.codigo}', '${resp}')">✎</button>
+           <button class="btn-trocar-v2" title="Trocar analista" onclick="abrirDropdown(this, '${p.codigo}', '${resp}', 'analista')">✎</button>
+         </div></td>`
+
+    // Célula do Estagiário (papel 'estagiario')
+    const est = p.estagiario || 'N/A'
+    const bgE = getCorColab(est)
+    const fgE = getTextColor(bgE)
+    const estCell = est === 'N/A'
+      ? `<td><div class="resp-cell">
+           <div class="dd-trigger" onclick="abrirDropdown(this, '${p.codigo}', 'N/A', 'estagiario')">👤 Atribuir</div>
+         </div></td>`
+      : `<td><div class="resp-cell">
+           <span class="resp-avatar" style="background:${bgE};color:${fgE}">${getIniciais(est)}</span>
+           <span class="resp-nome">${est}</span>
+           <button class="btn-trocar-v2" title="Trocar estagiário" onclick="abrirDropdown(this, '${p.codigo}', '${est}', 'estagiario')">✎</button>
          </div></td>`
 
     const obs = p.observacao || ''
@@ -1922,6 +1962,7 @@ function renderTabelaPropostas() {
     return `<tr${trClass} data-codigo="${p.codigo}">
       <td class="check-col"><input type="checkbox" class="row-check" ${estaSel?'checked':''} onclick="toggleSelecionada('${p.codigo}', this.checked)"/></td>
       ${respCell}
+      ${estCell}
       <td class="td-cnpj" style="font-weight:700">${p.codigo||'—'}</td>
       <td>${linhaBadge(p.linha_credito)}</td>
       <td style="font-size:11.5px;color:#475569">${p.municipio || '—'}</td>
@@ -2006,6 +2047,7 @@ function setPagTamanho(v) {
 let dropdownAberto = null
 let modalRespCodigo = null
 let modalRespLote = false
+let modalRespPapel = 'analista'   // 'analista' ou 'estagiario'
 
 function fecharDropdown() {
   if (dropdownAberto) {
@@ -2022,11 +2064,13 @@ function handlerFecharFora(e) {
 }
 
 // ── Modal de seleção de responsável (substitui o dropdown inline) ──
-function abrirDropdown(anchor, codigo, respAtual) {
+function abrirDropdown(anchor, codigo, respAtual, papel = 'analista') {
   modalRespCodigo = String(codigo)
   modalRespLote = false
+  modalRespPapel = papel
   const p = todasPropostas.find(x => String(x.codigo) === String(codigo))
-  document.getElementById('mr-titulo').textContent = respAtual === 'N/A' ? 'Atribuir responsável' : 'Trocar responsável'
+  const nomePapel = papel === 'estagiario' ? 'estagiário' : 'analista'
+  document.getElementById('mr-titulo').textContent = (respAtual === 'N/A' ? 'Atribuir ' : 'Trocar ') + nomePapel
   document.getElementById('mr-sub').innerHTML = `Proposta <b>${codigo}</b>${p && p.etapa ? ' · ' + p.etapa : ''}`
   montarGridResp(respAtual)
   abrirModalRespUI()
@@ -2068,7 +2112,9 @@ function abrirModalRespLote() {
 }
 
 function montarGridResp(respAtual) {
-  document.getElementById('mr-grid').innerHTML = COLAB_LIST.filter(c => c !== 'N/A').map(c => {
+  // Mostra apenas as pessoas do papel selecionado
+  const lista = modalRespPapel === 'estagiario' ? ESTAGIARIOS : ANALISTAS
+  document.getElementById('mr-grid').innerHTML = lista.map(c => {
     const cor = getCorColab(c)
     const fgC = getTextColor(cor)
     const ehAtual = c === respAtual
@@ -2090,14 +2136,51 @@ function fecharModalResp(e) {
 async function escolherResp(novo) {
   const emLote = modalRespLote
   const codigo = modalRespCodigo
+  const papel = modalRespPapel
   document.getElementById('modal-resp').style.display = 'none'
   modalRespCodigo = null
   modalRespLote = false
 
   if (emLote) { await reatribuirLote(novo); return }
   const atual = todasPropostas.find(p => String(p.codigo) === String(codigo))
-  if (atual && atual.responsavel === novo) return
-  await atribuirResponsavel(codigo, novo, null)
+  if (papel === 'estagiario') {
+    if (atual && atual.estagiario === novo) return
+    await atribuirEstagiario(codigo, novo)
+  } else {
+    if (atual && atual.responsavel === novo) return
+    await atribuirResponsavel(codigo, novo, null)
+  }
+}
+
+// Salva o estagiário da proposta
+async function atribuirEstagiario(codigo, nome) {
+  if (!nome) return
+  try {
+    await sb(`fgf_propostas?codigo=eq.${encodeURIComponent(codigo)}`, {
+      method: 'PATCH', prefer: 'return=minimal',
+      body: { estagiario: nome }
+    })
+    // Atualiza também a referência, para persistir entre processamentos
+    const refs = await sb('fgf_referencia?select=id,dados&order=criado_em.desc&limit=1')
+    if (refs && refs[0]) {
+      const dados = refs[0].dados || []
+      const i = dados.findIndex(r => String(r.codigo).trim() === String(codigo).trim())
+      if (i !== -1) dados[i].estagiario = nome
+      else dados.push({ codigo: String(codigo).trim(), responsavel_final: 'N/A', estagiario: nome, observacao: '' })
+      await sb(`fgf_referencia?id=eq.${refs[0].id}`, { method: 'PATCH', prefer: 'return=minimal', body: { dados } })
+    }
+    const idx = todasPropostas.findIndex(p => String(p.codigo) === String(codigo))
+    if (idx !== -1) todasPropostas[idx].estagiario = nome
+    showToast(`✓ ${nome} definido como estagiário`)
+    renderTabelaPropostas()
+    renderStatsPropostas()
+    setTimeout(() => {
+      const tr = document.querySelector(`tr[data-codigo="${codigo}"]`)
+      if (tr) tr.classList.add('linha-salva')
+    }, 50)
+  } catch(e) {
+    showToast('Erro ao definir estagiário: ' + e.message, 'error')
+  }
 }
 
 async function atribuirResponsavel(codigo, resp, selectEl) {
