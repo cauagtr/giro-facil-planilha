@@ -1120,7 +1120,7 @@ function renderProcessar() {
       <div class="progress-bar"><div class="progress-fill" id="proc-progress-fill" style="width:0%"></div></div>
     </div>
     <button class="btn btn-primary" id="btn-processar" onclick="processarPlanilhas()" disabled>
-      ⚡ Gerar Planilha de Hoje
+      ⚡ Processar Planilhas
     </button>
   </div>
 
@@ -1252,7 +1252,7 @@ function atualizarBotaoProcessar() {
   const faltam = TIPOS_ARQUIVO.filter(t => !arquivos[t.id])
   status.innerHTML = faltam.length
     ? `✅ ${enviados.length} de 4 arquivos prontos. Pode processar assim mesmo — ou envie: <b>${faltam.map(t=>t.label).join(', ')}</b>`
-    : '✅ Os 4 arquivos validados. Clique em "Gerar Planilha de Hoje" para processar.'
+    : '✅ Os 4 arquivos validados. Clique em "Processar Planilhas" para processar.'
 }
 
 function lerPlanilha(file) {
@@ -1470,7 +1470,7 @@ async function processarPlanilhas() {
     showToast('Erro no processamento: ' + err.message, 'error')
   } finally {
     btn.disabled = false
-    btn.innerHTML = '⚡ Gerar Planilha de Hoje'
+    btn.innerHTML = '⚡ Processar Planilhas'
   }
 }
 
