@@ -140,6 +140,7 @@
   .mr-vazio { text-align: center; padding: 16px; color: var(--text-muted); font-size: 12.5px; }
   .mr-opt { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 9px; cursor: pointer; transition: all .12s; background: #fff; }
   .mr-opt:hover { border-color: var(--azul); background: #eef2ff; transform: translateY(-1px); }
+  .mr-opt-remover { border-style: dashed !important; }
   .mr-opt.atual { border-color: var(--azul); background: #eef2ff; }
   .mr-opt-avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; border: 2px solid rgba(0,0,0,.07); }
   .mr-opt-nome { font-size: 12.5px; font-weight: 600; color: var(--text); }
@@ -615,7 +616,7 @@
     <h1>FOMENTO PARANÁ — Fomento Giro Fácil</h1>
     <span>Processamento Automatizado — FGF</span>
   </div>
-  <span class="header-badge">FGF v1.3</span>
+  <span class="header-badge">FGF v1.6</span>
 </header>
 
 <nav>
@@ -742,6 +743,108 @@ function filtrarPorJanela(props) {
 // ── Equipe do Giro Fácil: dois papéis por proposta ──
 const ANALISTAS = ['BERNARDO','FABIANO','FERNANDO','JULIANA','NIVALDO']
 const ESTAGIARIOS = ['ANA PAULA','ANDRESSA','ISABELA','LETICIA','MARCOS']
+
+// ── Atribuição inicial de estagiários (fonte: lista oficial do gestor) ──
+// Usada como fallback: se uma proposta está sem estagiário no banco,
+// o sistema pega daqui e grava. CICERA já vem convertida em ANDRESSA.
+const ESTAGIARIO_INICIAL = {
+  '320330': 'MARCOS',
+  '328103': 'MARCOS',
+  '322919': 'LETICIA',
+  '324139': 'LETICIA',
+  '329556': 'ANA PAULA',
+  '329997': 'ANA PAULA',
+  '329991': 'ANA PAULA',
+  '331603': 'ISABELA',
+  '331815': 'LETICIA',
+  '332442': 'MARCOS',
+  '332655': 'LETICIA',
+  '328651': 'ANA PAULA',
+  '318918': 'LETICIA',
+  '319565': 'MARCOS',
+  '321657': 'ANA PAULA',
+  '329653': 'MARCOS',
+  '322657': 'ANA PAULA',
+  '322828': 'ANA PAULA',
+  '323042': 'LETICIA',
+  '324652': 'LETICIA',
+  '319586': 'ANA PAULA',
+  '326722': 'LETICIA',
+  '332444': 'MARCOS',
+  '318394': 'LETICIA',
+  '329824': 'ANA PAULA',
+  '328217': 'LETICIA',
+  '329028': 'MARCOS',
+  '328867': 'MARCOS',
+  '322409': 'LETICIA',
+  '323843': 'ANA PAULA',
+  '325190': 'ISABELA',
+  '329176': 'ANA PAULA',
+  '329799': 'ISABELA',
+  '331889': 'ANDRESSA',
+  '330120': 'ANA PAULA',
+  '329992': 'ISABELA',
+  '317936': 'ANA PAULA',
+  '321016': 'ANA PAULA',
+  '329637': 'ANA PAULA',
+  '323453': 'ANA PAULA',
+  '319731': 'ISABELA',
+  '314921': 'ANA PAULA',
+  '316869': 'ISABELA',
+  '323370': 'ANA PAULA',
+  '328453': 'ANA PAULA',
+  '328408': 'ANA PAULA',
+  '329800': 'ANA PAULA',
+  '329248': 'ANA PAULA',
+  '329794': 'ISABELA',
+  '323686': 'ANA PAULA',
+  '325711': 'ISABELA',
+  '332265': 'ANA PAULA',
+  '328421': 'ANA PAULA',
+  '328875': 'ANA PAULA',
+  '331529': 'LETICIA',
+  '328943': 'ANA PAULA',
+  '330131': 'ANA PAULA',
+  '328079': 'ISABELA',
+  '329811': 'ANA PAULA',
+  '325154': 'MARCOS',
+  '326847': 'ANA PAULA',
+  '326988': 'MARCOS',
+  '330262': 'ISABELA',
+  '329457': 'ANA PAULA',
+  '328648': 'ANA PAULA',
+  '330892': 'ANDRESSA',
+  '317745': 'ANA PAULA',
+  '320601': 'ANA PAULA',
+  '331292': 'ISABELA',
+  '328659': 'ANA PAULA',
+  '327427': 'ANA PAULA',
+  '328531': 'ANA PAULA',
+  '329944': 'ANA PAULA',
+  '329271': 'MARCOS',
+  '331541': 'ISABELA',
+  '321504': 'ANA PAULA',
+  '331869': 'LETICIA',
+  '332517': 'LETICIA',
+  '332550': 'MARCOS',
+  '326131': 'LETICIA',
+  '320719': 'LETICIA',
+  '317575': 'ISABELA',
+  '321983': 'LETICIA',
+  '330587': 'MARCOS',
+  '330820': 'LETICIA',
+  '322906': 'LETICIA',
+  '323498': 'LETICIA',
+  '331235': 'LETICIA',
+  '331414': 'MARCOS',
+  '331696': 'MARCOS',
+  '330716': 'LETICIA',
+}
+
+// Retorna o estagiário desta proposta pela lista oficial, se houver
+function estagiarioInicial(codigo) {
+  return ESTAGIARIO_INICIAL[String(codigo).trim()] || null
+}
 
 const COLABORADORES = {
   // Analistas (tons mais frios/escuros)
@@ -1334,6 +1437,7 @@ function aplicarVlookup(rows, ref, mapaAtribuicoes = {}) {
     let est = 'N/A'
     if (atrib && vale(atrib.estagiario)) est = atrib.estagiario
     else if (r && vale(r.estagiario)) est = r.estagiario
+    else if (estagiarioInicial(chave)) est = estagiarioInicial(chave)
 
     const obsAnt = (atrib && atrib.observacao) || (r && r.observacao) || ''
 
@@ -1596,12 +1700,56 @@ async function carregarPropostas() {
     const data = await sbAll('fgf_propostas?select=*&order=codigo.asc')
     // Mantém todas as ativas + finalizadas dos últimos 6 meses
     todasPropostas = filtrarPorJanela(data || [])
+    // Completa estagiários que estejam faltando, usando a lista oficial
+    await completarEstagiarios()
     popularSelectEtapas()
     renderTabelaPropostas()
     renderStatsPropostas()
     atualizarBadgeFiltros()
   } catch(e) {
     document.getElementById('tabela-propostas').innerHTML = `<div class="alert alert-danger">❌ Erro ao carregar: ${e.message}</div>`
+  }
+}
+
+// Preenche o estagiário das propostas que estão sem, usando a lista oficial,
+// e grava no banco para que a correção seja permanente.
+// Roda UMA ÚNICA VEZ. Depois de concluída, fica registrada em fgf_config
+// e nunca mais interfere: você pode trocar, remover ou reatribuir à vontade.
+const CHAVE_CARGA = 'estagiarios_carga_inicial'
+
+async function completarEstagiarios() {
+  try {
+    // Já rodou antes? Então não mexe em nada.
+    const marca = await sb(`fgf_config?chave=eq.${CHAVE_CARGA}&select=chave`)
+    if (marca && marca.length) return
+
+    const faltando = todasPropostas.filter(p => {
+      const atual = (p.estagiario || 'N/A').toUpperCase().trim()
+      return atual === 'N/A' && estagiarioInicial(p.codigo)
+    })
+
+    if (faltando.length) {
+      faltando.forEach(p => { p.estagiario = estagiarioInicial(p.codigo) })
+      for (const p of faltando) {
+        try {
+          await sb(`fgf_propostas?codigo=eq.${encodeURIComponent(p.codigo)}`, {
+            method: 'PATCH', prefer: 'return=minimal',
+            body: { estagiario: p.estagiario }
+          })
+        } catch(e) { /* segue mesmo se uma falhar */ }
+      }
+      showToast(`✓ Carga inicial: ${faltando.length} estagiários atribuídos`)
+    }
+
+    // Marca como concluída — a partir daqui o sistema não interfere mais
+    await sb('fgf_config', {
+      method: 'POST', prefer: 'return=minimal',
+      body: { chave: CHAVE_CARGA, valor: `${faltando.length} propostas` }
+    })
+    console.log(`[FGF] Carga inicial concluída (${faltando.length}). Não roda novamente.`)
+  } catch(e) {
+    // Se a tabela fgf_config ainda não existe, apenas ignora e segue
+    console.log('[FGF] Carga inicial ignorada:', e.message)
   }
 }
 
@@ -2132,7 +2280,14 @@ function abrirModalRespLote() {
 function montarGridResp(respAtual) {
   // Mostra apenas as pessoas do papel selecionado
   const lista = modalRespPapel === 'estagiario' ? ESTAGIARIOS : ANALISTAS
-  document.getElementById('mr-grid').innerHTML = lista.map(c => {
+  // Opção de desatribuir, quando já existe alguém
+  const opcaoRemover = (respAtual && respAtual !== 'N/A')
+    ? `<div class="mr-opt mr-opt-remover" data-nome="N/A" onclick="escolherResp('N/A')">
+         <span class="mr-opt-avatar" style="background:#f1f5f9;color:#94a3b8">✕</span>
+         <span class="mr-opt-nome" style="color:#64748b">Remover ${modalRespPapel === 'estagiario' ? 'estagiário' : 'analista'}</span>
+       </div>`
+    : ''
+  document.getElementById('mr-grid').innerHTML = opcaoRemover + lista.map(c => {
     const cor = getCorColab(c)
     const fgC = getTextColor(cor)
     const ehAtual = c === respAtual
@@ -2172,7 +2327,7 @@ async function escolherResp(novo) {
 
 // Salva o estagiário da proposta
 async function atribuirEstagiario(codigo, nome) {
-  if (!nome) return
+  if (!nome) return   // 'N/A' é permitido: significa desatribuir
   try {
     await sb(`fgf_propostas?codigo=eq.${encodeURIComponent(codigo)}`, {
       method: 'PATCH', prefer: 'return=minimal',
@@ -2189,7 +2344,7 @@ async function atribuirEstagiario(codigo, nome) {
     }
     const idx = todasPropostas.findIndex(p => String(p.codigo) === String(codigo))
     if (idx !== -1) todasPropostas[idx].estagiario = nome
-    showToast(`✓ ${nome} definido como estagiário`)
+    showToast(nome === 'N/A' ? '✓ Estagiário removido' : `✓ ${nome} definido como estagiário`)
     renderTabelaPropostas()
     renderStatsPropostas()
     setTimeout(() => {
@@ -2758,14 +2913,17 @@ function renderPainel() {
       ${rankParadas.length === 0
         ? `<div class="painel-empty">✅ Nenhuma proposta parada há mais de ${DIAS_LIMITE_PARADA} dias. Tudo em dia!</div>`
         : `<table class="rank-table">
-            <thead><tr><th>#</th><th>Responsável</th><th>Código</th><th>Etapa</th><th>Valor</th><th>Parada há</th><th>Observação</th></tr></thead>
+            <thead><tr><th>#</th><th>Analista</th><th>Estagiário</th><th>Código</th><th>Etapa</th><th>Valor</th><th>Parada há</th><th>Observação</th></tr></thead>
             <tbody>
               ${rankParadas.map((p, i) => {
                 const cor = getCorColab(p.responsavel || 'N/A'); const fg = getTextColor(cor)
                 const obs = (p.observacao || '').trim()
+                const estR = normalizarPessoa(p.estagiario) || 'N/A'
+                const corE = getCorColab(estR); const fgE2 = getTextColor(corE)
                 return `<tr>
                   <td class="rank-pos">${i+1}</td>
                   <td><span class="resp-avatar" style="background:${cor};color:${fg};width:24px;height:24px;font-size:9px">${getIniciais(p.responsavel||'N/A')}</span> <span style="font-size:12px;font-weight:600">${p.responsavel||'N/A'}</span></td>
+                  <td>${estR !== 'N/A' ? `<span class="resp-avatar" style="background:${corE};color:${fgE2};width:24px;height:24px;font-size:9px">${getIniciais(estR)}</span> <span style="font-size:12px;font-weight:600">${estR}</span>` : '<span style="color:#cbd5e1">—</span>'}</td>
                   <td style="font-family:'IBM Plex Mono',monospace;font-weight:700">${p.codigo}</td>
                   <td>${etapaBadge(p.etapa)}</td>
                   <td style="font-family:'IBM Plex Mono',monospace;font-size:11.5px">${formatValor(p.valor)}</td>
