@@ -1,0 +1,3101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Fomento Paraná — Fomento Giro Fácil</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --azul: #003366;
+    --azul-medio: #004080;
+    --dourado: #F5C400;
+    --dourado-escuro: #c49a00;
+    --bg: #f0f2f5;
+    --bg-card: #ffffff;
+    --border: #d0d5dd;
+    --text: #1a1a2e;
+    --text-muted: #6b7280;
+    --success: #166534;
+    --success-bg: #dcfce7;
+    --danger: #991b1b;
+    --danger-bg: #fee2e2;
+    --warn: #92400e;
+    --warn-bg: #fef3c7;
+    --radius: 8px;
+    --shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  body { font-family: 'IBM Plex Sans', sans-serif; background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.5; }
+
+  /* HEADER */
+  header { background: var(--azul); color: #fff; padding: 0 24px; display: flex; align-items: center; gap: 16px; height: 64px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); position: sticky; top: 0; z-index: 100; }
+  .header-brasao { background: var(--dourado); color: var(--azul); font-weight: 700; font-size: 13px; width: 40px; height: 40px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; letter-spacing: 0.5px; }
+  .header-divider { width: 1px; height: 36px; background: rgba(255,255,255,0.2); }
+  .header-info h1 { font-size: 15px; font-weight: 600; letter-spacing: 0.3px; }
+  .header-info span { font-size: 12px; color: rgba(255,255,255,0.65); }
+  .header-badge { margin-left: auto; background: var(--dourado); color: var(--azul); font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; letter-spacing: 0.5px; }
+
+  /* TABS */
+  nav { background: var(--azul-medio); display: flex; gap: 2px; padding: 0 20px; }
+  .tab-btn { background: transparent; border: none; color: rgba(255,255,255,0.65); padding: 14px 20px; font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; border-bottom: 3px solid transparent; transition: all .15s; }
+  .tab-btn:hover { color: #fff; background: rgba(255,255,255,0.08); }
+  .tab-btn.active { color: var(--dourado); border-bottom-color: var(--dourado); }
+
+  /* CONTAINER */
+  main { max-width: 1280px; margin: 0 auto; padding: 24px 20px; }
+
+  /* CARDS */
+  .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
+  .card + .card { margin-top: 16px; }
+  .card-title { font-size: 14px; font-weight: 600; color: var(--azul); margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+  /* FORMS */
+  label { font-size: 13px; font-weight: 500; color: var(--text); display: block; margin-bottom: 6px; }
+  .input-file-area { border: 2px dashed var(--border); border-radius: var(--radius); padding: 20px; text-align: center; cursor: pointer; transition: border-color .2s, background .2s; background: #fafafa; }
+  .input-file-area:hover, .input-file-area.over { border-color: var(--azul); background: #eef2ff; }
+  .input-file-area.has-file { border-color: #16a34a; background: #f0fdf4; border-style: solid; }
+  .input-file-area input[type=file] { display: none; }
+  .file-icon { font-size: 28px; margin-bottom: 8px; }
+  .file-label-main { font-size: 13px; font-weight: 500; }
+  .file-label-sub { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+  .file-name { font-size: 13px; color: #16a34a; font-weight: 600; margin-top: 6px; }
+
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: var(--radius); border: none; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .15s; text-decoration: none; }
+  .btn-primary { background: var(--azul); color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: var(--azul-medio); }
+  .btn-primary:disabled { background: #9ca3af; cursor: not-allowed; }
+  .btn-secondary { background: transparent; color: var(--azul); border: 1px solid var(--azul); }
+  .btn-secondary:hover { background: #eef2ff; }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+  .btn-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid #fca5a5; }
+  .btn-danger:hover { background: #fecaca; }
+
+  /* ALERTS */
+  .alert { padding: 12px 16px; border-radius: var(--radius); font-size: 13px; display: flex; align-items: flex-start; gap: 10px; }
+  .alert-info { background: #eff6ff; color: #1e40af; border: 1px solid #bfdbfe; }
+  .alert-success { background: var(--success-bg); color: var(--success); border: 1px solid #86efac; }
+  .alert-warn { background: var(--warn-bg); color: var(--warn); border: 1px solid #fde68a; }
+  .alert-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid #fca5a5; }
+
+  /* PROGRESS */
+  .progress-bar { height: 6px; background: #e5e7eb; border-radius: 3px; overflow: hidden; margin: 8px 0; }
+  .progress-fill { height: 100%; background: var(--azul); border-radius: 3px; transition: width .3s; }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { background: #f8fafc; color: var(--azul); font-weight: 600; padding: 12px 14px; text-align: left; border-bottom: 2px solid var(--border); white-space: nowrap; cursor: pointer; user-select: none; position: sticky; top: 0; transition: background .12s; }
+  thead th:hover { background: #e0e7ff; }
+  thead th .sort-icon { display: inline-flex; align-items: center; justify-content: center; opacity: .35; margin-left: 6px; font-size: 12px; width: 18px; height: 18px; border-radius: 4px; transition: all .12s; }
+  thead th:hover .sort-icon { opacity: .7; background: rgba(0,0,0,0.06); }
+  thead th.sorted .sort-icon { opacity: 1; color: var(--dourado-escuro); background: rgba(212,160,23,0.15); }
+  tbody tr { transition: filter .1s; }
+  tbody tr:hover { filter: brightness(0.96); }
+  tbody td { padding: 9px 12px; border-bottom: 1px solid rgba(0,0,0,0.06); }
+  .td-cnpj { font-family: 'IBM Plex Mono', monospace; font-size: 12px; white-space: nowrap; }
+  .td-valor { font-family: 'IBM Plex Mono', monospace; font-size: 12px; text-align: right; }
+  .td-etapa .etapa-badge { font-size: 11.5px; padding: 4px 12px; border-radius: 20px; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; border: 1px solid transparent; }
+  .etapa-badge .etapa-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .etapa-concedido { background: #dcfce7; color: #14532d; border-color: #86efac; }
+  .etapa-concedido .etapa-dot { background: #16a34a; }
+  .etapa-excluido, .etapa-excluído { background: #fee2e2; color: #7f1d1d; border-color: #fca5a5; }
+  .etapa-excluido .etapa-dot, .etapa-excluído .etapa-dot { background: #dc2626; }
+  .etapa-recusado { background: #fef3c7; color: #78350f; border-color: #fcd34d; }
+  .etapa-recusado .etapa-dot { background: #d97706; }
+  .etapa-default { background: #e0f2fe; color: #075985; border-color: #7dd3fc; }
+  .etapa-default .etapa-dot { background: #0284c7; }
+
+  /* ── TABELA REDESENHADA (Fase 1) ── */
+  .table-wrap { max-height: 640px; overflow-y: auto; overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
+  thead th { position: sticky; top: 0; z-index: 10; background: #f1f5f9; box-shadow: 0 2px 0 rgba(0,0,0,0.06); }
+  tbody tr { background: #fff; transition: background .12s; }
+  tbody tr:nth-child(even) { background: #fafbfc; }
+  tbody tr:hover { background: #f0f6ff; }
+  tbody td { padding: 10px 12px; border-bottom: 1px solid #eef0f3; color: var(--text); }
+
+  /* Célula do responsável com tarja lateral + avatar */
+  .resp-cell { display: flex; align-items: center; gap: 10px; white-space: nowrap; padding-left: 4px; position: relative; }
+  .resp-tarja { position: absolute; left: -12px; top: -10px; bottom: -10px; width: 4px; border-radius: 0 3px 3px 0; }
+  .resp-avatar { width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; border: 1.5px solid rgba(0,0,0,0.08); }
+  .resp-nome { font-size: 12.5px; font-weight: 600; color: var(--text); }
+  .btn-trocar-v2 { background: transparent; border: none; border-radius: 5px; padding: 3px 6px; cursor: pointer; font-size: 12px; color: #9ca3af; transition: all .15s; }
+  .btn-trocar-v2:hover { background: #eef2ff; color: var(--azul); }
+  tr:hover .btn-trocar-v2 { color: #6b7280; }
+
+  /* ══ MODAL DE SELEÇÃO DE RESPONSÁVEL ══ */
+  .modal-resp-box { background: #fff; border-radius: 14px; width: 100%; max-width: 440px; box-shadow: 0 20px 60px rgba(0,0,0,.3); overflow: hidden; animation: modalIn .16s ease; }
+  @keyframes modalIn { from { opacity: 0; transform: scale(.96) translateY(-8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+  .mr-header { background: var(--azul); color: #fff; padding: 16px 20px; border-bottom: 3px solid var(--dourado); }
+  .mr-titulo { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+  .mr-sub { font-size: 12px; color: rgba(255,255,255,.7); }
+  .mr-sub b { color: var(--dourado); font-family: 'IBM Plex Mono', monospace; }
+  .mr-body { padding: 14px; max-height: 400px; overflow-y: auto; }
+  .mr-busca { width: 100%; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; margin-bottom: 12px; }
+  .mr-busca:focus { outline: none; border-color: var(--azul); box-shadow: 0 0 0 3px rgba(0,51,102,.1); }
+  .mr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+  .mr-opt.hidden { display: none; }
+  .mr-vazio { text-align: center; padding: 16px; color: var(--text-muted); font-size: 12.5px; }
+  .mr-opt { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: 9px; cursor: pointer; transition: all .12s; background: #fff; }
+  .mr-opt:hover { border-color: var(--azul); background: #eef2ff; transform: translateY(-1px); }
+  .mr-opt.atual { border-color: var(--azul); background: #eef2ff; }
+  .mr-opt-avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; border: 2px solid rgba(0,0,0,.07); }
+  .mr-opt-nome { font-size: 12.5px; font-weight: 600; color: var(--text); }
+  .mr-opt-check { margin-left: auto; color: var(--azul); font-weight: 700; }
+  .mr-footer { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #f8fafc; }
+  .mr-hint { font-size: 11px; color: var(--text-muted); }
+
+  .linha-badge { font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap; border: 1px solid transparent; display: inline-block; }
+
+  /* Upload de 4 arquivos */
+  .upload-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
+  .upload-grid-4 label { display: block; font-size: 12px; font-weight: 700; color: var(--azul); margin-bottom: 6px; }
+  .tag-filtro { font-size: 9px; font-weight: 700; color: #92400E; background: #FEF3C7; padding: 2px 6px; border-radius: 8px; margin-left: 6px; border: 1px solid #FCD34D; text-transform: none; letter-spacing: 0; }
+  .upload-grid-4 .input-file-area { padding: 16px 12px; }
+  .upload-grid-4 .file-icon { font-size: 22px; }
+  .upload-grid-4 .file-label-main { font-size: 12px; }
+  .upload-grid-4 .file-label-sub { font-size: 10px; }
+
+  /* Seletor de turno */
+  .turno-box { display: flex; align-items: center; gap: 12px; margin-top: 16px; padding: 12px 16px; background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; flex-wrap: wrap; }
+  .turno-lbl { font-size: 12.5px; font-weight: 700; color: var(--azul); }
+  .turno-opts { display: flex; gap: 6px; }
+  .turno-btn { padding: 7px 16px; border: 1.5px solid var(--border); background: #fff; border-radius: 8px; font-family: inherit; font-size: 12.5px; font-weight: 600; color: #64748b; cursor: pointer; transition: all .12s; }
+  .turno-btn:hover { border-color: var(--azul); color: var(--azul); }
+  .turno-btn.ativo { background: var(--azul); border-color: var(--azul); color: #fff; }
+  .turno-hint { font-size: 11px; color: var(--text-muted); margin-left: auto; }
+
+  /* ══ TOOLTIPS DE AJUDA ══ */
+  .ajuda { position: relative; display: inline-flex; align-items: center; justify-content: center;
+    width: 15px; height: 15px; min-width: 15px; border-radius: 50%; background: rgba(100,116,139,.2);
+    color: #64748b; font-size: 10px; font-weight: 700; cursor: help; margin-left: 5px;
+    vertical-align: middle; transition: background .12s, color .12s; flex-shrink: 0;
+    font-family: 'IBM Plex Sans', sans-serif; line-height: 1; }
+  .ajuda:hover { background: var(--azul); color: #fff; }
+  .ajuda::after {
+    content: attr(data-ajuda);
+    position: absolute; bottom: calc(100% + 9px); left: 50%;
+    margin-left: -125px; width: 250px;
+    background: #1e293b; color: #f1f5f9; font-size: 11.5px; font-weight: 400; line-height: 1.5;
+    padding: 9px 12px; border-radius: 8px;
+    text-align: left; white-space: normal; box-shadow: 0 6px 20px rgba(0,0,0,.3);
+    opacity: 0; visibility: hidden; pointer-events: none; transition: opacity .14s;
+    z-index: 9000; }
+  .ajuda::before {
+    content: ''; position: absolute; bottom: calc(100% + 3px); left: 50%; margin-left: -6px;
+    border: 6px solid transparent; border-top-color: #1e293b;
+    opacity: 0; visibility: hidden; transition: opacity .14s; z-index: 9001; }
+  .ajuda:hover::after, .ajuda:hover::before { opacity: 1; visibility: visible; }
+  /* Perto da borda esquerda: abre para a direita */
+  .ajuda.ajuda-dir::after { left: 0; margin-left: -8px; }
+  .ajuda.ajuda-dir::before { left: 14px; margin-left: 0; }
+  /* Perto da borda direita: abre para a esquerda */
+  .ajuda.ajuda-esq::after { left: auto; right: 0; margin-left: 0; margin-right: -8px; }
+  .ajuda.ajuda-esq::before { left: auto; right: 14px; margin-left: 0; }
+  /* Abre para baixo (quando o elemento esta no topo) */
+  .ajuda.ajuda-baixo::after { bottom: auto; top: calc(100% + 9px); }
+  .ajuda.ajuda-baixo::before { bottom: auto; top: calc(100% + 3px);
+    border-top-color: transparent; border-bottom-color: #1e293b; }
+  /* Dentro de cabecalho de tabela */
+  th .ajuda { background: rgba(0,51,102,.15); color: var(--azul); }
+  th .ajuda:hover { background: var(--azul); color: #fff; }
+  /* Dentro de card do dashboard */
+  .dash-label .ajuda { width: 14px; height: 14px; min-width: 14px; font-size: 9px; }
+  /* Dentro de titulo de secao do painel */
+  .painel-secao-titulo .ajuda, .card-title .ajuda { background: rgba(0,51,102,.13); color: var(--azul); }
+  .painel-secao-titulo .ajuda:hover, .card-title .ajuda:hover { background: var(--azul); color: #fff; }
+
+  /* ══ PAGINAÇÃO + LOTE + VALIDAÇÃO (Fase 6) ══ */
+  .pag-wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 4px 0; flex-wrap: wrap; }
+  .pag-info { font-size: 12px; color: var(--text-muted); }
+  .pag-info b { color: var(--text); }
+  .pag-ctrl { display: flex; align-items: center; gap: 4px; }
+  .pag-btn { min-width: 32px; height: 32px; padding: 0 8px; border: 1px solid var(--border); background: #fff; border-radius: 6px; font-family: inherit; font-size: 12.5px; font-weight: 600; color: var(--text); cursor: pointer; transition: all .12s; }
+  .pag-btn:hover:not(:disabled) { border-color: var(--azul); background: #eef2ff; color: var(--azul); }
+  .pag-btn:disabled { opacity: .35; cursor: not-allowed; }
+  .pag-btn.ativo { background: var(--azul); border-color: var(--azul); color: #fff; }
+  .pag-dots { color: var(--text-muted); padding: 0 2px; font-size: 12px; }
+  .pag-size { padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 12px; background: #fff; cursor: pointer; }
+
+  /* Seleção em lote */
+  .check-col { width: 36px; text-align: center; }
+  .row-check { width: 15px; height: 15px; cursor: pointer; accent-color: #003366; }
+  tbody tr.selecionada { background: #eef2ff !important; }
+  tbody tr.selecionada:hover { background: #e0e7ff !important; }
+  .lote-bar { display: none; align-items: center; gap: 12px; background: var(--azul); color: #fff; padding: 10px 16px; border-radius: 10px; margin-bottom: 12px; box-shadow: 0 3px 10px rgba(0,51,102,.25); animation: ddIn .15s ease; flex-wrap: wrap; }
+  .lote-bar.ativo { display: flex; }
+  .lote-count { font-size: 13px; font-weight: 700; }
+  .lote-count small { font-weight: 400; opacity: .8; }
+  .lote-acoes { display: flex; gap: 8px; margin-left: auto; align-items: center; flex-wrap: wrap; }
+  .btn-lote { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); color: #fff; padding: 6px 12px; border-radius: 6px; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .12s; }
+  .btn-lote:hover { background: rgba(255,255,255,.28); }
+  .btn-lote.primario { background: var(--dourado); border-color: var(--dourado); color: var(--azul); }
+  .btn-lote.primario:hover { background: #ffd633; }
+
+  /* Validação de arquivo */
+  .file-preview { margin-top: 10px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 10px 12px; text-align: left; animation: ddIn .15s ease; }
+  .file-preview.erro { background: #fee2e2; border-color: #fca5a5; }
+  .fp-linha { display: flex; align-items: center; gap: 7px; font-size: 11.5px; color: #166534; margin-bottom: 3px; }
+  .fp-linha:last-child { margin-bottom: 0; }
+  .file-preview.erro .fp-linha { color: #991b1b; }
+  .fp-icone { font-size: 12px; flex-shrink: 0; }
+  .fp-cols { font-size: 10.5px; color: #6b7280; margin-top: 5px; padding-top: 5px; border-top: 1px solid rgba(0,0,0,.06); line-height: 1.5; }
+  .fp-col-ok { color: #16a34a; font-weight: 600; }
+  .fp-col-faltando { color: #dc2626; font-weight: 600; }
+
+  /* ══ FILTROS AVANÇADOS + EXPORT (Fase 5) ══ */
+  .filtros-avancados { background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; display: none; }
+  .filtros-avancados.aberto { display: block; animation: ddIn .15s ease; }
+  .fa-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; align-items: end; }
+  .fa-campo label { display: block; font-size: 11px; font-weight: 700; color: var(--azul); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 5px; }
+  .fa-inputs { display: flex; align-items: center; gap: 6px; }
+  .fa-input { flex: 1; min-width: 0; padding: 7px 9px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 12.5px; background: #fff; }
+  .fa-input:focus { outline: none; border-color: var(--azul); box-shadow: 0 0 0 3px rgba(0,51,102,0.08); }
+  .fa-sep { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+  .fa-acoes { display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .btn-filtro-toggle { position: relative; }
+  .filtro-badge-count { position: absolute; top: -5px; right: -5px; background: #dc2626; color: #fff; font-size: 9px; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .export-group { display: inline-flex; gap: 6px; }
+
+  /* ══ PAINEL GERENCIAL (Fase 4) ══ */
+  .painel-secao { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; margin-bottom: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .painel-secao-titulo { font-size: 15px; font-weight: 700; color: #003366; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .painel-secao-sub { font-size: 12px; color: #9ca3af; font-weight: 400; margin-left: auto; }
+
+  /* Funil */
+  .funil-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+  .funil-label { min-width: 200px; text-align: right; font-size: 12.5px; font-weight: 600; color: #374151; display: flex; align-items: center; gap: 6px; justify-content: flex-end; }
+  .funil-label .funil-dot { width: 9px; height: 9px; border-radius: 50%; }
+  .funil-track { flex: 1; height: 30px; background: #f3f4f6; border-radius: 8px; overflow: hidden; position: relative; }
+  .funil-fill { height: 100%; border-radius: 8px; display: flex; align-items: center; padding-left: 12px; color: #fff; font-weight: 700; font-size: 13px; transition: width .5s ease; min-width: 40px; }
+  .funil-valor { min-width: 130px; font-size: 12px; color: #6b7280; }
+  .funil-valor strong { color: #1a1a2e; font-size: 13px; }
+
+  /* Carga por responsável */
+  .carga-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+  .carga-card { border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px; display: flex; align-items: center; gap: 12px; transition: box-shadow .15s; }
+  .carga-card:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.08); }
+  .carga-avatar { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; border: 2px solid rgba(0,0,0,0.06); }
+  .carga-info { flex: 1; min-width: 0; }
+  .carga-nome { font-size: 13px; font-weight: 700; color: #1a1a2e; }
+  .carga-stats { font-size: 11.5px; color: #6b7280; margin-top: 2px; }
+  .carga-barra { height: 5px; background: #f3f4f6; border-radius: 3px; margin-top: 6px; overflow: hidden; }
+  .carga-barra-fill { height: 100%; border-radius: 3px; }
+  .carga-num { font-size: 22px; font-weight: 700; color: #003366; }
+
+  /* Ranking de paradas */
+  .ranking-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; margin-bottom: 6px; background: #fafbfc; border: 1px solid #eef0f3; }
+  .ranking-item.critico { background: #fef6f6; border-color: #fecaca; }
+  .ranking-pos { width: 26px; height: 26px; border-radius: 50%; background: #e5e7eb; color: #374151; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .ranking-item.critico .ranking-pos { background: #dc2626; color: #fff; }
+  .ranking-cod { font-family: 'IBM Plex Mono', monospace; font-weight: 700; font-size: 13px; color: #1a1a2e; }
+  .ranking-etapa { font-size: 11px; color: #6b7280; }
+  .ranking-resp { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .ranking-dias { font-size: 13px; font-weight: 700; color: #dc2626; white-space: nowrap; }
+  .ranking-avatar-sm { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; border: 1.5px solid rgba(0,0,0,0.08); }
+
+  /* Evolução (histórico) */
+  .evolucao-chart { display: flex; align-items: flex-end; gap: 10px; height: 160px; padding: 10px 0; border-bottom: 2px solid #e5e7eb; }
+  .evolucao-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; height: 100%; justify-content: flex-end; }
+  .evolucao-bar { width: 100%; max-width: 44px; background: linear-gradient(180deg, #004A99, #003366); border-radius: 6px 6px 0 0; transition: height .5s ease; min-height: 4px; position: relative; }
+  .evolucao-bar:hover { background: linear-gradient(180deg, #F5C400, #d4a017); }
+  .evolucao-bar-num { font-size: 11px; font-weight: 700; color: #003366; }
+  .evolucao-bar-data { font-size: 10px; color: #9ca3af; text-align: center; white-space: nowrap; }
+  .painel-empty { text-align: center; padding: 30px; color: #9ca3af; font-size: 13px; }
+
+  /* KPIs topo do painel */
+  .painel-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 18px; }
+  .kpi-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px 18px; position: relative; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px; background: var(--kpi-cor, #003366); }
+  .kpi-label { font-size: 11px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+  .kpi-valor { font-size: 26px; font-weight: 700; color: #1a1a2e; margin-top: 6px; line-height: 1.1; }
+  .kpi-sub { font-size: 11px; color: #9ca3af; margin-top: 3px; }
+
+  /* Alerta de proposta parada (Fase 2) */
+  .data-parada { display: flex; align-items: center; gap: 8px; }
+  .parada-icon { font-size: 15px; flex-shrink: 0; }
+  .data-parada-info { display: flex; flex-direction: column; gap: 1px; }
+  .data-parada-txt { font-size: 12px; color: #991b1b; font-weight: 600; }
+  .parada-badge { font-size: 10px; font-weight: 700; color: #991b1b; background: #fee2e2; padding: 1px 7px; border-radius: 10px; width: fit-content; border: 1px solid #fca5a5; }
+  .data-normal { font-size: 12px; }
+  .dias-sutil { font-size: 11px; color: #9ca3af; }
+  tbody tr.linha-parada { background: #fef6f6; }
+  tbody tr.linha-parada:hover { background: #fdeeee; }
+
+  /* Indicador de observação */
+  .obs-indicator { display: inline-flex; align-items: center; gap: 4px; }
+  .obs-dot { width: 6px; height: 6px; border-radius: 50%; background: #16a34a; display: inline-block; }
+
+  /* RESPONSAVEL */
+  .resp-badge { display: inline-block; font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 4px; }
+
+  /* FILTROS */
+  .filtros-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 16px; }
+  .filtro-btn { padding: 5px 14px; border-radius: 20px; border: 2px solid transparent; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; }
+  .filtro-btn.active { border-color: var(--azul) !important; }
+  .search-input { padding: 7px 12px; border: 1px solid var(--border); border-radius: var(--radius); font-family: inherit; font-size: 13px; min-width: 220px; }
+  .search-input:focus { outline: none; border-color: var(--azul); }
+
+  /* MODAL */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+  .modal-box { background: #fff; border-radius: 12px; padding: 24px; width: 100%; max-width: 520px; box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
+  .modal-title { font-size: 15px; font-weight: 600; color: var(--azul); margin-bottom: 16px; }
+  .modal-info { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
+  textarea { width: 100%; border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; resize: vertical; min-height: 100px; }
+  textarea:focus { outline: none; border-color: var(--azul); }
+  .obs-antiga { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius); padding: 10px; font-size: 12px; color: var(--text-muted); margin-bottom: 12px; max-height: 80px; overflow-y: auto; }
+
+  /* HISTÓRICO */
+  .hist-item { display: flex; align-items: center; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+  .hist-item:last-child { border-bottom: none; }
+  .hist-icon { width: 36px; height: 36px; background: #eff6ff; color: var(--azul); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .hist-info { flex: 1; }
+  .hist-data { font-size: 13px; font-weight: 600; }
+  .hist-detalhe { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .hist-badge { font-size: 12px; background: #eff6ff; color: var(--azul); padding: 4px 10px; border-radius: 20px; font-weight: 600; }
+
+  /* STATS */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .stat-card { background: #f8fafc; border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+  .stat-label { font-size: 11px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-value { font-size: 22px; font-weight: 600; color: var(--azul); margin-top: 4px; }
+  .stat-sub { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+  /* GRID UPLOAD */
+  .upload-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 640px) { .upload-grid { grid-template-columns: 1fr; } header { padding: 0 12px; } .tab-btn { padding: 12px 14px; font-size: 12px; } }
+
+  /* RESPONSAVEL COLOR */
+
+  /* DASHBOARD */
+  .dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 18px; }
+  .dash-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); position: relative; }
+  .dash-card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--accent, #003366); }
+  .dash-card .dash-label { font-size: 11px; color: #6b7280; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .dash-card .dash-value { font-size: 26px; font-weight: 700; color: #1a1a2e; line-height: 1.1; }
+  .dash-card .dash-sub { font-size: 11px; color: #9ca3af; margin-top: 4px; }
+  .dash-card.accent-azul { --accent: #003366; }
+  .dash-card.accent-verde { --accent: #16a34a; }
+  .dash-card.accent-dourado { --accent: #d4a017; }
+  .dash-card.accent-vermelho { --accent: #dc2626; }
+  .dash-card.accent-parada { --accent: #ea580c; background: #fff7ed; }
+  .dash-card.accent-cinza { --accent: #64748b; }
+  .dash-card.accent-roxo { --accent: #7c3aed; }
+
+  .dash-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+  .dash-title { font-size: 15px; font-weight: 700; color: #003366; display: flex; align-items: center; gap: 8px; }
+  .dash-context { font-size: 12px; font-weight: 600; padding: 4px 12px; border-radius: 20px; background: #eff6ff; color: #1e40af; }
+
+  /* GRÁFICO DE ETAPAS */
+  .etapa-chart { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 18px; margin-bottom: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .etapa-chart-title { font-size: 13px; font-weight: 700; color: #003366; margin-bottom: 14px; }
+  .etapa-bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .etapa-bar-label { font-size: 12px; color: #374151; min-width: 180px; text-align: right; font-weight: 500; }
+  .etapa-bar-track { flex: 1; height: 22px; background: #f3f4f6; border-radius: 6px; overflow: hidden; position: relative; }
+  .etapa-bar-fill { height: 100%; border-radius: 6px; transition: width .4s ease; min-width: 2px; }
+  .etapa-bar-count { font-size: 12px; font-weight: 700; color: #1a1a2e; min-width: 60px; }
+  .etapa-bar-count small { font-weight: 400; color: #9ca3af; }
+  .btn-trocar { background: rgba(0,0,0,0.12); border: none; border-radius: 4px; padding: 2px 7px; cursor: pointer; font-size: 13px; color: inherit; transition: background .15s; vertical-align: middle; }
+  .btn-trocar:hover { background: rgba(0,0,0,0.25); }
+
+  /* Dropdown customizado (Fase 3) */
+  .dd-wrap { position: relative; display: inline-block; }
+  .dd-trigger { display: inline-flex; align-items: center; gap: 6px; font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; font-weight: 600; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 5px 10px; cursor: pointer; background: #f8fafc; color: #64748b; transition: all .15s; }
+  .dd-trigger:hover { border-color: var(--azul); background: #eef2ff; color: var(--azul); }
+  .dd-trigger .dd-arrow { font-size: 9px; opacity: .6; }
+  .dd-menu { position: absolute; z-index: 200; top: calc(100% + 4px); left: 0; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); padding: 5px; min-width: 160px; max-height: 280px; overflow-y: auto; animation: ddIn .12s ease; }
+  @keyframes ddIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+  .dd-option { display: flex; align-items: center; gap: 9px; padding: 7px 10px; border-radius: 6px; cursor: pointer; font-size: 12.5px; font-weight: 600; color: #374151; transition: background .1s; }
+  .dd-option:hover { background: #f1f5f9; }
+  .dd-option.selected { background: #eef2ff; }
+  .dd-option-avatar { width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; flex-shrink: 0; border: 1.5px solid rgba(0,0,0,0.08); }
+  .dd-option .dd-check { margin-left: auto; color: var(--azul); font-size: 12px; }
+
+
+  /* ══ MODAL DE SELEÇÃO DE RESPONSÁVEL ══ */
+  .sel-header { background: var(--azul); color: #fff; padding: 16px 20px; border-bottom: 3px solid var(--dourado); }
+  .sel-titulo { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+  .sel-sub { font-size: 12px; color: #cbd5e1; }
+  .sel-sub b { color: var(--dourado); font-family: 'IBM Plex Mono', monospace; }
+  .sel-body { padding: 14px; max-height: 60vh; overflow-y: auto; }
+  .sel-busca { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; margin-bottom: 12px; }
+  .sel-busca:focus { outline: none; border-color: var(--azul); box-shadow: 0 0 0 3px rgba(0,51,102,.1); }
+  .sel-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+  .sel-item { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1.5px solid #e5e7eb; border-radius: 9px; cursor: pointer; transition: all .12s; background: #fff; }
+  .sel-item:hover { border-color: var(--azul); background: #f0f6ff; transform: translateY(-1px); box-shadow: 0 3px 8px rgba(0,0,0,.07); }
+  .sel-item.atual { border-color: var(--azul); background: #eef2ff; }
+  .sel-item.hidden { display: none; }
+  .sel-avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; border: 2px solid rgba(0,0,0,.07); }
+  .sel-nome { font-size: 13px; font-weight: 600; color: var(--text); flex: 1; }
+  .sel-check { color: var(--azul); font-size: 14px; font-weight: 700; }
+  .sel-footer { padding: 12px 20px; background: #f8fafc; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+  .sel-hint { font-size: 11px; color: var(--text-muted); }
+  .sel-vazio { text-align: center; padding: 20px; color: var(--text-muted); font-size: 13px; }
+
+  .linha-badge { font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap; border: 1px solid transparent; display: inline-block; }
+
+  /* ══ PAGINAÇÃO + LOTE + VALIDAÇÃO (Fase 6) ══ */
+  .pag-wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 4px 0; flex-wrap: wrap; }
+  .pag-info { font-size: 12px; color: var(--text-muted); }
+  .pag-info b { color: var(--text); }
+  .pag-ctrl { display: flex; align-items: center; gap: 4px; }
+  .pag-btn { min-width: 32px; height: 32px; padding: 0 8px; border: 1px solid var(--border); background: #fff; border-radius: 6px; font-family: inherit; font-size: 12.5px; font-weight: 600; color: var(--text); cursor: pointer; transition: all .12s; }
+  .pag-btn:hover:not(:disabled) { border-color: var(--azul); background: #eef2ff; color: var(--azul); }
+  .pag-btn:disabled { opacity: .35; cursor: not-allowed; }
+  .pag-btn.ativo { background: var(--azul); border-color: var(--azul); color: #fff; }
+  .pag-dots { color: var(--text-muted); padding: 0 2px; font-size: 12px; }
+  .pag-size { padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 12px; background: #fff; cursor: pointer; }
+
+  /* Seleção em lote */
+  .check-col { width: 36px; text-align: center; }
+  .row-check { width: 15px; height: 15px; cursor: pointer; accent-color: #003366; }
+  tbody tr.selecionada { background: #eef2ff !important; }
+  tbody tr.selecionada:hover { background: #e0e7ff !important; }
+  .lote-bar { display: none; align-items: center; gap: 12px; background: var(--azul); color: #fff; padding: 10px 16px; border-radius: 10px; margin-bottom: 12px; box-shadow: 0 3px 10px rgba(0,51,102,.25); animation: ddIn .15s ease; flex-wrap: wrap; }
+  .lote-bar.ativo { display: flex; }
+  .lote-count { font-size: 13px; font-weight: 700; }
+  .lote-count small { font-weight: 400; opacity: .8; }
+  .lote-acoes { display: flex; gap: 8px; margin-left: auto; align-items: center; flex-wrap: wrap; }
+  .btn-lote { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); color: #fff; padding: 6px 12px; border-radius: 6px; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .12s; }
+  .btn-lote:hover { background: rgba(255,255,255,.28); }
+  .btn-lote.primario { background: var(--dourado); border-color: var(--dourado); color: var(--azul); }
+  .btn-lote.primario:hover { background: #ffd633; }
+
+  /* Validação de arquivo */
+  .file-preview { margin-top: 10px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 10px 12px; text-align: left; animation: ddIn .15s ease; }
+  .file-preview.erro { background: #fee2e2; border-color: #fca5a5; }
+  .fp-linha { display: flex; align-items: center; gap: 7px; font-size: 11.5px; color: #166534; margin-bottom: 3px; }
+  .fp-linha:last-child { margin-bottom: 0; }
+  .file-preview.erro .fp-linha { color: #991b1b; }
+  .fp-icone { font-size: 12px; flex-shrink: 0; }
+  .fp-cols { font-size: 10.5px; color: #6b7280; margin-top: 5px; padding-top: 5px; border-top: 1px solid rgba(0,0,0,.06); line-height: 1.5; }
+  .fp-col-ok { color: #16a34a; font-weight: 600; }
+  .fp-col-faltando { color: #dc2626; font-weight: 600; }
+
+  /* ══ FILTROS AVANÇADOS + EXPORT (Fase 5) ══ */
+  .filtros-avancados { background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; display: none; }
+  .filtros-avancados.aberto { display: block; animation: ddIn .15s ease; }
+  .fa-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; align-items: end; }
+  .fa-campo label { display: block; font-size: 11px; font-weight: 700; color: var(--azul); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 5px; }
+  .fa-inputs { display: flex; align-items: center; gap: 6px; }
+  .fa-input { flex: 1; min-width: 0; padding: 7px 9px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 12.5px; background: #fff; }
+  .fa-input:focus { outline: none; border-color: var(--azul); box-shadow: 0 0 0 3px rgba(0,51,102,0.08); }
+  .fa-sep { font-size: 11px; color: var(--text-muted); font-weight: 600; }
+  .fa-acoes { display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .btn-filtro-toggle { position: relative; }
+  .filtro-badge-count { position: absolute; top: -5px; right: -5px; background: #dc2626; color: #fff; font-size: 9px; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .export-group { display: inline-flex; gap: 6px; }
+
+  /* ══ PAINEL GERENCIAL (Fase 4) ══ */
+  .painel-secao { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  .painel-secao-titulo { font-size: 14px; font-weight: 700; color: var(--azul); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+  .painel-secao-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+
+  /* Funil */
+  .funil-wrap { display: flex; flex-direction: column; gap: 6px; }
+  .funil-row { display: flex; align-items: center; gap: 12px; }
+  .funil-label { font-size: 12px; font-weight: 600; color: #374151; min-width: 190px; text-align: right; }
+  .funil-bar-wrap { flex: 1; display: flex; align-items: center; gap: 10px; }
+  .funil-bar { height: 30px; border-radius: 6px; display: flex; align-items: center; justify-content: flex-end; padding-right: 10px; font-size: 12px; font-weight: 700; color: #fff; transition: width .5s ease; min-width: 34px; }
+  .funil-pct { font-size: 11px; color: #9ca3af; font-weight: 600; min-width: 42px; }
+  .funil-valor { font-size: 11px; color: #6b7280; font-family: 'IBM Plex Mono', monospace; min-width: 110px; text-align: right; }
+
+  /* Carga por responsável */
+  .carga-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+  .carga-card { border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px; display: flex; align-items: center; gap: 12px; position: relative; overflow: hidden; transition: transform .12s, box-shadow .12s; }
+  .carga-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .carga-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--cor-colab); }
+  .carga-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; border: 2px solid rgba(0,0,0,0.06); }
+  .carga-info { flex: 1; min-width: 0; }
+  .carga-nome { font-size: 12.5px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+  .carga-nums { display: flex; gap: 10px; font-size: 11px; color: var(--text-muted); }
+  .carga-nums b { color: var(--text); font-size: 14px; }
+  .carga-alerta { font-size: 10px; font-weight: 700; color: #dc2626; background: #fee2e2; padding: 1px 6px; border-radius: 8px; margin-top: 3px; display: inline-block; }
+  .carga-valor { font-size: 11px; color: #6b7280; font-family: 'IBM Plex Mono', monospace; margin-top: 2px; }
+
+  /* Ranking de paradas */
+  .rank-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  .rank-table th { background: #f8fafc; color: var(--azul); font-weight: 700; padding: 9px 12px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: .4px; border-bottom: 2px solid var(--border); }
+  .rank-table td { padding: 9px 12px; border-bottom: 1px solid #eef0f3; }
+  .rank-table tr:hover { background: #fef6f6; }
+  .rank-pos { font-weight: 700; color: #9ca3af; width: 30px; }
+  .rank-dias { font-weight: 700; color: #991b1b; }
+  .rank-dias-badge { background: #fee2e2; padding: 2px 8px; border-radius: 10px; border: 1px solid #fca5a5; font-size: 11px; }
+
+  /* Evolução */
+  .evo-wrap { display: flex; align-items: flex-end; gap: 8px; height: 140px; padding: 0 4px; }
+  .evo-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .evo-bar { width: 100%; max-width: 44px; background: linear-gradient(180deg, #3b82f6, #1d4ed8); border-radius: 5px 5px 0 0; transition: height .4s ease; position: relative; min-height: 3px; }
+  .evo-bar:hover { filter: brightness(1.15); }
+  .evo-val { font-size: 10px; font-weight: 700; color: var(--azul); }
+  .evo-data { font-size: 9.5px; color: var(--text-muted); white-space: nowrap; }
+
+  .painel-empty { text-align: center; padding: 30px; color: var(--text-muted); font-size: 13px; }
+
+  /* Filtros do painel */
+  .painel-filtros { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+  .painel-filtros .fa-input { max-width: 240px; }
+
+  /* Separador do funil */
+  .funil-sep { font-size: 10.5px; font-weight: 700; color: #9ca3af; text-transform: uppercase; letter-spacing: .5px; margin: 10px 0 4px; padding-top: 8px; border-top: 1px dashed var(--border); }
+
+  /* Funil de vendas visual (trapézios centralizados que afunilam) */
+  .funilv-wrap { display: flex; flex-direction: column; align-items: stretch; gap: 3px; padding: 8px 0; }
+  .funilv-fase { display: flex; align-items: center; gap: 14px; }
+  .funilv-info-esq { flex: 0 0 210px; text-align: right; font-size: 11.5px; font-weight: 600; color: #334155; line-height: 1.2; }
+  .funilv-barra-area { flex: 1; display: flex; justify-content: center; align-items: center; min-width: 0; }
+  .funilv-info-dir { flex: 0 0 52px; font-size: 11.5px; font-weight: 700; color: #94a3b8; }
+  .funilv-trapezio {
+    height: 34px; display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(180deg, var(--cor), var(--cor-prox));
+    color: #fff; font-weight: 700; font-size: 13px;
+    clip-path: polygon(0 0, 100% 0, calc(100% - 11px) 100%, 11px 100%);
+    transition: width .5s cubic-bezier(.4,0,.2,1);
+    box-shadow: 0 2px 5px rgba(0,0,0,.12);
+  }
+  .funilv-valor { text-shadow: 0 1px 2px rgba(0,0,0,.25); }
+  .funilv-valor-fora { font-size: 12px; font-weight: 700; margin-left: 7px; }
+
+  /* Seção Etapas — duas colunas estilo FomentoNet */
+  .etapas-colunas { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 900px) { .etapas-colunas { grid-template-columns: 1fr; } }
+  .etapas-col-titulo { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 2px solid #e5e7eb; }
+  .etapa-linha { display: flex; align-items: center; gap: 10px; padding: 6px 0; }
+  .etapa-nome { font-size: 11.5px; color: #1e3a8a; font-weight: 500; flex: 0 0 auto; width: 200px; line-height: 1.3; }
+  .etapa-qtd { color: #64748b; font-weight: 400; }
+  .etapa-barra-track { flex: 1; height: 5px; background: #f1f5f9; border-radius: 3px; overflow: hidden; min-width: 30px; }
+  .etapa-barra-fill { height: 100%; border-radius: 3px; transition: width .5s ease; }
+  .etapa-pct { flex: 0 0 auto; min-width: 52px; text-align: center; font-size: 10.5px; font-weight: 700; color: #fff; padding: 2px 6px; border-radius: 4px; }
+
+  /* Cards de linha de crédito */
+  .linha-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
+  .linha-card { border: 1.5px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .linha-card-top { padding: 8px 12px; font-size: 12px; font-weight: 700; }
+  .linha-card-num { padding: 10px 12px 2px; font-size: 26px; font-weight: 700; color: var(--text); display: flex; align-items: baseline; gap: 8px; }
+  .linha-card-pct { font-size: 12px; font-weight: 600; color: #9ca3af; }
+  .linha-card-val { padding: 0 12px 12px; font-size: 12px; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; }
+
+  /* Resumo da evolução */
+  .evo-resumo { display: flex; gap: 24px; margin-bottom: 16px; }
+  .evo-resumo-item { display: flex; flex-direction: column; }
+  .evo-resumo-num { font-size: 24px; font-weight: 700; color: var(--azul); }
+  .evo-resumo-lbl { font-size: 11px; color: var(--text-muted); }
+
+  /* Feedback de salvamento inline */
+  .salvo-flash { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: #16a34a; animation: flashIn .2s ease; }
+  @keyframes flashIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+  tr.linha-salva { animation: highlightSave 1.2s ease; }
+  @keyframes highlightSave { 0% { background: #dcfce7; } 100% { background: transparent; } }
+
+  /* SPINNER */
+  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* EMPTY STATE */
+  .empty { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+  .empty-icon { font-size: 40px; margin-bottom: 12px; }
+  .empty p { font-size: 14px; }
+
+  /* RESPONSAVEL CHIP */
+  .resp-chip { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 4px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-brasao">PR</div>
+  <div class="header-divider"></div>
+  <div class="header-info">
+    <h1>FOMENTO PARANÁ — Fomento Giro Fácil</h1>
+    <span>Processamento Automatizado — FGF</span>
+  </div>
+  <span class="header-badge">v3.0</span>
+</header>
+
+<nav>
+  <button class="tab-btn active" onclick="setTab('processar')" id="tab-processar">⚙ Processar</button>
+  <button class="tab-btn" onclick="setTab('propostas')" id="tab-propostas">📋 Propostas</button>
+  <button class="tab-btn" onclick="setTab('painel')" id="tab-painel">📊 Painel Gerencial</button>
+  <button class="tab-btn" onclick="setTab('historico')" id="tab-historico">🕒 Histórico</button>
+</nav>
+
+<main id="main-content">
+  <div id="view-processar"></div>
+  <div id="view-propostas" style="display:none"></div>
+  <div id="view-painel" style="display:none"></div>
+  <div id="view-historico" style="display:none"></div>
+</main>
+
+<!-- MODAL SELEÇÃO DE RESPONSÁVEL -->
+<div class="modal-overlay" id="modal-resp" style="display:none" onclick="fecharModalResp(event)">
+  <div class="modal-resp-box" onclick="event.stopPropagation()">
+    <div class="mr-header">
+      <div class="mr-titulo" id="mr-titulo">Selecionar responsável</div>
+      <div class="mr-sub" id="mr-sub"></div>
+    </div>
+    <div class="mr-body">
+      <input type="text" class="mr-busca" id="mr-busca" placeholder="🔍 Digite para filtrar..." oninput="filtrarModalResp(this.value)" autocomplete="off"/>
+      <div class="mr-grid" id="mr-grid"></div>
+      <div class="mr-vazio" id="mr-vazio" style="display:none">Nenhum colaborador encontrado</div>
+    </div>
+    <div class="mr-footer">
+      <span class="mr-hint">Clique em um colaborador · Esc para fechar</span>
+      <button class="btn btn-secondary btn-sm" onclick="fecharModalResp()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL OBSERVAÇÃO -->
+<div class="modal-overlay" id="modal-obs" style="display:none" onclick="fecharModal(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-title" id="modal-title">Observação</div>
+    <div class="modal-info" id="modal-info"></div>
+    <div style="margin-bottom:10px">
+      <label style="font-size:12px;color:var(--text-muted);margin-bottom:4px">Observação anterior</label>
+      <div class="obs-antiga" id="modal-obs-antiga">—</div>
+    </div>
+    <label style="margin-bottom:6px">Nova observação</label>
+    <textarea id="modal-textarea" rows="4" placeholder="Digite a observação..."></textarea>
+    <div style="display:flex;gap:10px;margin-top:16px;justify-content:flex-end">
+      <button class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarObservacao()" id="btn-salvar-obs">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// CONFIGURAÇÃO SUPABASE
+// ============================================================
+const SUPABASE_URL = 'https://byvqsjhslfdblmiymksf.supabase.co'
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ5dnFzamhzbGZkYmxtaXlta3NmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzMTI1OTIsImV4cCI6MjA5MTg4ODU5Mn0.DcwRiV_CePS4KmOG9I7SmqMl83pLQthNvNYQClLdL_4'
+
+async function sb(path, opts={}) {
+  const url = `${SUPABASE_URL}/rest/v1/${path}`
+  const headers = {
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${SUPABASE_KEY}`,
+    'Content-Type': 'application/json',
+    'Prefer': opts.prefer || '',
+    ...(opts.headers || {})
+  }
+  const res = await fetch(url, { method: opts.method || 'GET', headers, body: opts.body ? JSON.stringify(opts.body) : undefined })
+  if (!res.ok) {
+    const txt = await res.text()
+    throw new Error(`Supabase ${res.status}: ${txt}`)
+  }
+  const ct = res.headers.get('content-type') || ''
+  if (ct.includes('json') && res.status !== 204) return res.json()
+  return null
+}
+
+// Busca TODAS as linhas de uma consulta, contornando o teto de 1000 do Supabase.
+// O PostgREST limita cada resposta a 1000 registros mesmo com limit maior,
+// então paginamos com o header Range até acabar.
+async function sbAll(path, pageSize = 1000, maxPaginas = 50) {
+  const sep = path.includes('?') ? '&' : '?'
+  let todos = []
+  for (let p = 0; p < maxPaginas; p++) {
+    const de = p * pageSize
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}${sep}limit=${pageSize}&offset=${de}`, {
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+      }
+    })
+    if (!res.ok) throw new Error(`Supabase ${res.status}: ${await res.text()}`)
+    const lote = await res.json()
+    todos = todos.concat(lote)
+    if (!lote.length || lote.length < pageSize) break
+  }
+  return todos
+}
+
+// Data de corte para propostas finalizadas: só as dos últimos N meses entram no sistema
+const MESES_HISTORICO = 6
+function dataCorteHistorico() {
+  const d = new Date()
+  d.setMonth(d.getMonth() - MESES_HISTORICO)
+  return d.toISOString().split('T')[0]
+}
+
+// Mantém todas as ativas + as finalizadas dos últimos 6 meses
+function filtrarPorJanela(props) {
+  const corte = dataCorteHistorico()
+  return props.filter(p => {
+    if (ehAtiva(p.etapa)) return true            // ativa: sempre entra
+    const d = p.na_etapa_desde ? String(p.na_etapa_desde).split('T')[0] : ''
+    return d && d >= corte                        // finalizada: só se for recente
+  })
+}
+
+// ============================================================
+// COLABORADORES
+// ============================================================
+const COLABORADORES = {
+  'ANA PAULA':       '#E06C75',
+  ANDRESSA:          '#C9A0DC',
+  FABIANO:           '#F4A460',
+  FERNANDO:          '#E88080',
+  ISABELA:           '#93C47D',
+  JULIANA:           '#EA9999',
+  JULIANO:           '#6FA8DC',
+  'LETÍCIA RATTMAN': '#9FC5E8',
+  'MARCOS PAULO':    '#D5A6E6',
+  NIVALDO:           '#F6B26B',
+  'N/A':             '#E0E0E0',
+}
+// Ordem dos botões de filtro: colaboradores na ordem certa, depois Valério e N/A no final
+const COLAB_LIST = ['ANA PAULA','ANDRESSA','FABIANO','FERNANDO','ISABELA','JULIANA','JULIANO','LETÍCIA RATTMAN','MARCOS PAULO','NIVALDO','N/A']
+
+// ── Etapas finalizadas (não estão mais em tratativa) ──
+const ETAPAS_FINALIZADAS = ['concedido','excluído','excluido','recusado']
+function ehFinalizada(etapa) {
+  return ETAPAS_FINALIZADAS.includes((etapa||'').toLowerCase().trim())
+}
+function ehAtiva(etapa) { return !ehFinalizada(etapa) }
+
+// ── Linhas de crédito (coluna C da planilha) ──
+// Normaliza o texto da planilha para um rótulo padrão
+const LINHAS_CREDITO = ['FNT Giro Fácil', 'Fungetur']
+function normalizarLinhaCredito(txt) {
+  const t = (txt||'').toString().toUpperCase().trim()
+  if (!t) return ''
+  if (t.includes('FUNGETUR')) return 'Fungetur'
+  if (t.includes('GIRO')) return 'FNT Giro Fácil'
+  return txt.toString().trim()  // mantém original se não reconhecer
+}
+function corLinhaCredito(linha) {
+  if (linha === 'FNT Giro Fácil') return '#2563EB'
+  if (linha === 'Fungetur') return '#059669'
+  return '#94A3B8'
+}
+
+// ── Etapas oficiais do fluxo de microcrédito ──
+// Coluna esquerda: números inteiros (1 a 13) na ordem oficial de avanço
+const ETAPAS_INTEIRAS = [
+  '1 - Cadastramento',
+  '2 - Consulta Cadastral',
+  '3 - Preparação / Recepção de Documentos',
+  '4 - Análise Cadastral',
+  '5 - Aprovação Cadastral',
+  '6 - Análise de Garantias',
+  '7 - Análise Econômica-Financeira',
+  '8 - Aprovação do Crédito',
+  '9 - Aprovação do Gerente',
+  '10 - Aprovação do Diretor',
+  '11 - Emissão e Envio do Contrato',
+  '12 - Conferência do Contrato',
+  '13 - Liberação ao Financeiro',
+]
+// Coluna direita: extensões (subetapas de regularização/alteração)
+const ETAPAS_EXTENSOES = [
+  '1.1 - Alteração de Envolvidos',
+  '2.1 - Regularização de Restrições',
+  '4.1 - Regularização de Documentos',
+  '6.1 - Regularização de Garantias',
+  '7.1 - Regularização da Proposta',
+  '12.1 - Regularização do Contrato e/ou Conta Corrente',
+]
+// Lista completa na ordem de avanço (para ordenação geral)
+const FUNIL_ETAPAS = [
+  '1 - Cadastramento',
+  '1.1 - Alteração de Envolvidos',
+  '2 - Consulta Cadastral',
+  '2.1 - Regularização de Restrições',
+  '3 - Preparação / Recepção de Documentos',
+  '4 - Análise Cadastral',
+  '4.1 - Regularização de Documentos',
+  '5 - Aprovação Cadastral',
+  '6 - Análise de Garantias',
+  '6.1 - Regularização de Garantias',
+  '7 - Análise Econômica-Financeira',
+  '7.1 - Regularização da Proposta',
+  '8 - Aprovação do Crédito',
+  '9 - Aprovação do Gerente',
+  '10 - Aprovação do Diretor',
+  '11 - Emissão e Envio do Contrato',
+  '12 - Conferência do Contrato',
+  '12.1 - Regularização do Contrato e/ou Conta Corrente',
+  '13 - Liberação ao Financeiro',
+]
+
+// Normaliza nomes de etapa que podem vir de formas diferentes na planilha.
+// Ex: "Análise Cadastral" (sem número) -> "4 - Análise Cadastral"
+function normalizarNomeEtapa(etapa) {
+  const e = (etapa||'').trim()
+  if (!e) return e
+  // Match direto na lista oficial
+  const direto = FUNIL_ETAPAS.find(f => f.toLowerCase() === e.toLowerCase())
+  if (direto) return direto
+  // Match pelo texto após o número (ex: "Análise Cadastral" casa com "4 - Análise Cadastral")
+  const semNum = e.replace(/^\d+(\.\d+)?\s*-\s*/, '').toLowerCase().trim()
+  const porTexto = FUNIL_ETAPAS.find(f => f.replace(/^\d+(\.\d+)?\s*-\s*/, '').toLowerCase().trim() === semNum)
+  if (porTexto) return porTexto
+  return e
+}
+
+// Retorna a posição da etapa no funil (para ordenar); -1 se não achar
+function posicaoFunil(etapa) {
+  const norm = normalizarNomeEtapa(etapa)
+  return FUNIL_ETAPAS.findIndex(f => f.toLowerCase().trim() === norm.toLowerCase().trim())
+}
+
+
+function getCorColab(nome) {
+  if (!nome || nome === 'N/A') return COLABORADORES['N/A']
+  const up = nome.toUpperCase().trim()
+  for (const k of Object.keys(COLABORADORES)) {
+    if (k === 'N/A') continue
+    if (up === k || up === k.normalize('NFD').replace(/[\u0300-\u036f]/g,'')) return COLABORADORES[k]
+  }
+  return COLABORADORES['N/A']
+}
+
+function getLuminance(hex) {
+  const c = hex.replace('#','')
+  const r = parseInt(c.substr(0,2),16)/255
+  const g = parseInt(c.substr(2,2),16)/255
+  const b = parseInt(c.substr(4,2),16)/255
+  const toL = x => x<=0.03928 ? x/12.92 : Math.pow((x+0.055)/1.055,2.4)
+  return 0.2126*toL(r)+0.7152*toL(g)+0.0722*toL(b)
+}
+
+function getTextColor(bg) {
+  return getLuminance(bg) > 0.55 ? '#1a1a2e' : '#fff'
+}
+
+// ============================================================
+// UTILITÁRIOS
+// ============================================================
+function normCNPJ(v) { return v ? String(v).replace(/\D/g,'') : '' }
+
+function formatCNPJ(v) {
+  const d = normCNPJ(v)
+  if (d.length === 14) return d.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/,'$1.$2.$3/$4-$5')
+  if (d.length === 11) return d.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,'$1.$2.$3-$4')
+  return v
+}
+
+// Corrige valores que vieram divididos por 1000 de processamentos antigos.
+// Regra: se o valor for 81 ou menos (e maior que zero), multiplica por 1000.
+// Ex: 20 -> 20.000 ; 6 -> 6.000 ; 66,55 -> 66.550 ; 81 -> 81.000 ; 76352 fica como está.
+function corrigirValor(n) {
+  if (n === null || n === undefined || isNaN(n)) return n
+  if (n > 0 && n <= 81) return n * 1000
+  return n
+}
+
+function formatValor(v) {
+  if (v === null || v === undefined || v === '') return '—'
+  let n = typeof v === 'number' ? v : parseFloat(String(v).replace(/\./g,'').replace(',','.'))
+  if (isNaN(n)) return String(v)
+  n = corrigirValor(n)
+  return n.toLocaleString('pt-BR', { style:'currency', currency:'BRL', minimumFractionDigits:2 })
+}
+
+function formatData(v) {
+  if (!v) return '—'
+  if (typeof v === 'string' && v.match(/^\d{4}-\d{2}-\d{2}/)) {
+    const [y,m,d] = v.split('T')[0].split('-')
+    return `${d}/${m}/${y}`
+  }
+  return v
+}
+
+// Calcula há quantos dias a proposta está na etapa atual
+function diasParados(v) {
+  if (!v) return null
+  let d
+  if (typeof v === 'string' && v.match(/^\d{4}-\d{2}-\d{2}/)) {
+    const [y,m,dia] = v.split('T')[0].split('-')
+    d = new Date(Number(y), Number(m)-1, Number(dia))
+  } else {
+    d = parseData(v)
+  }
+  if (!d || isNaN(d.getTime())) return null
+  const hoje = new Date()
+  hoje.setHours(0,0,0,0)
+  d.setHours(0,0,0,0)
+  const diff = Math.floor((hoje - d) / (1000*60*60*24))
+  return diff >= 0 ? diff : null
+}
+
+const DIAS_LIMITE_PARADA = 15
+
+// Renderiza a célula de data com alerta se estiver parada há muito tempo (só para ativas)
+function celulaData(p) {
+  const ativa = ehAtiva(p.etapa)
+  const dias = diasParados(p.na_etapa_desde)
+  const dataFmt = formatData(p.na_etapa_desde)
+
+  if (ativa && dias !== null && dias >= DIAS_LIMITE_PARADA) {
+    return `<td><div class="data-parada">
+      <span class="parada-icon" title="Parada há ${dias} dias">⚠️</span>
+      <div class="data-parada-info">
+        <span class="data-parada-txt">${dataFmt}</span>
+        <span class="parada-badge">${dias} dias parada</span>
+      </div>
+    </div></td>`
+  }
+  if (ativa && dias !== null) {
+    return `<td><span class="data-normal">${dataFmt}</span> <span class="dias-sutil">(${dias}d)</span></td>`
+  }
+  return `<td>${dataFmt}</td>`
+}
+
+function parseData(val) {
+  if (!val || val === '') return null
+  // Já é Date válido
+  if (val instanceof Date) return isNaN(val.getTime()) ? null : val
+  const s = String(val).trim()
+  if (!s) return null
+  // Formato brasileiro DD/MM/AAAA ou DD-MM-AAAA (mais comum nas planilhas)
+  const mBR = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/)
+  if (mBR) {
+    const [,d,mo,y] = mBR
+    const yr = y.length===2?`20${y}`:y
+    const dt = new Date(`${yr}-${mo.padStart(2,'0')}-${d.padStart(2,'0')}T12:00:00`)
+    return isNaN(dt.getTime()) ? null : dt
+  }
+  // Formato ISO AAAA-MM-DD
+  const mISO = s.match(/^(\d{4})-(\d{2})-(\d{2})/)
+  if (mISO) {
+    const dt = new Date(`${mISO[0]}T12:00:00`)
+    return isNaN(dt.getTime()) ? null : dt
+  }
+  // Número serial do Excel (dias desde 01/01/1900)
+  if (s.match(/^\d+$/) && Number(s) > 40000 && Number(s) < 60000) {
+    const dt = new Date((Number(s) - 25569) * 86400 * 1000)
+    return isNaN(dt.getTime()) ? null : dt
+  }
+  // Tentativa genérica
+  const dt = new Date(s)
+  return isNaN(dt.getTime()) ? null : dt
+}
+
+function parseValor(v) {
+  if (v === null || v === undefined || v === '') return null
+  // raw:false entrega string formatada do Excel (ex: "20.000,00" = R$ 20.000,00)
+  if (typeof v === 'number') return Math.round(v * 100) / 100
+  const s = String(v).trim().replace(/R\$\s?/g,'').replace(/\s/g,'')
+  if (!s || s === '-') return null
+  // Formato brasileiro com milhar: "20.000,00" ou "20.000" → 20000
+  if (s.includes(',')) return parseFloat(s.replace(/\./g,'').replace(',','.')) || null
+  // Formato sem vírgula mas com ponto de milhar: "20.000" → 20000
+  if (s.match(/^\d{1,3}(\.\d{3})+$/)) return parseFloat(s.replace(/\./g,'')) || null
+  // Número puro ou americano: "20000" ou "20000.00"
+  return parseFloat(s) || null
+}
+
+function getCol(row, ...names) {
+  for (const n of names) {
+    if (row[n] !== undefined && row[n] !== null && row[n] !== '') return row[n]
+    const k = Object.keys(row).find(kk => kk.trim().toLowerCase() === n.toLowerCase())
+    if (k !== undefined && row[k] !== undefined && row[k] !== null && row[k] !== '') return row[k]
+  }
+  return ''
+}
+
+function etapaBadge(etapa) {
+  const e = (etapa||'').toLowerCase().trim()
+  let cls = 'etapa-default'
+  if (e === 'concedido') cls = 'etapa-concedido'
+  else if (e === 'excluído' || e === 'excluido') cls = 'etapa-excluido'
+  else if (e === 'recusado') cls = 'etapa-recusado'
+  return `<span class="etapa-badge ${cls}"><span class="etapa-dot"></span>${etapa||'—'}</span>`
+}
+
+// Badge da linha de crédito
+function linhaBadge(linha) {
+  const l = normalizarLinhaCredito(linha)
+  if (!l) return '<span style="color:#cbd5e1;font-size:11px">—</span>'
+  const cor = corLinhaCredito(l)
+  return `<span class="linha-badge" style="background:${cor}15;color:${cor};border-color:${cor}55">${l}</span>`
+}
+
+// Gera as iniciais do colaborador para o avatar
+function getIniciais(nome) {
+  if (!nome || nome === 'N/A') return '?'
+  const partes = nome.trim().split(/\s+/)
+  if (partes.length === 1) return partes[0].substring(0,2).toUpperCase()
+  return (partes[0][0] + partes[partes.length-1][0]).toUpperCase()
+}
+
+function showToast(msg, type='success') {
+  const t = document.createElement('div')
+  t.style.cssText = `position:fixed;bottom:24px;right:24px;z-index:9999;padding:12px 20px;border-radius:8px;font-size:13px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,0.2);transition:opacity .3s;`
+  if (type==='success') t.style.cssText += 'background:#166534;color:#fff;'
+  else if (type==='error') t.style.cssText += 'background:#991b1b;color:#fff;'
+  else t.style.cssText += 'background:#1e40af;color:#fff;'
+  t.textContent = msg
+  document.body.appendChild(t)
+  setTimeout(()=>{ t.style.opacity='0'; setTimeout(()=>t.remove(),300) }, 2800)
+}
+
+// ============================================================
+// NAVEGAÇÃO
+// ============================================================
+let tabAtual = 'processar'
+function setTab(tab) {
+  tabAtual = tab
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'))
+  document.getElementById(`tab-${tab}`).classList.add('active')
+  document.getElementById('view-processar').style.display = tab==='processar' ? '' : 'none'
+  document.getElementById('view-propostas').style.display = tab==='propostas' ? '' : 'none'
+  document.getElementById('view-painel').style.display = tab==='painel' ? '' : 'none'
+  document.getElementById('view-historico').style.display = tab==='historico' ? '' : 'none'
+  if (tab === 'propostas') carregarPropostas()
+  if (tab === 'painel') carregarPainel()
+  if (tab === 'historico') carregarHistorico()
+}
+
+// ============================================================
+// ABA PROCESSAR
+// ============================================================
+// Os 4 arquivos do Giro Fácil
+const TIPOS_ARQUIVO = [
+  { id: 'andamento',      label: 'Projetos em Andamento',  icone: '📊', finalizado: false },
+  { id: 'transferencias', label: 'Fomento Transferências', icone: '🔄', finalizado: false },
+  { id: 'concedido',      label: 'Fomento Concedido',      icone: '✅', finalizado: true  },
+  { id: 'recusado',       label: 'Fomento Recusado',       icone: '❌', finalizado: true  },
+]
+const arquivos = { andamento: null, transferencias: null, concedido: null, recusado: null }
+
+// Turno do processamento (sugere pelo horário, mas pode trocar)
+let turnoAtual = new Date().getHours() < 12 ? 'Manhã' : 'Tarde'
+
+function setTurno(t) {
+  turnoAtual = t
+  document.querySelectorAll('.turno-btn').forEach(b => b.classList.toggle('ativo', b.textContent.includes(t)))
+}
+
+function renderProcessar() {
+  document.getElementById('view-processar').innerHTML = `
+  <div class="card">
+    <div class="card-title">📂 Upload das Planilhas<span class="ajuda ajuda-baixo ajuda-dir" data-ajuda="A planilha PRECISA ter: Codigo da Operacao, Etapa, Valor Solicitado, Na Etapa Desde, Linha de Credito e Municipio. NAO pode ter Nome, CPF/CNPJ nem Email. Concedido e Recusado sao filtrados automaticamente pelos 2 ultimos meses.">?</span></div>
+    <div class="upload-grid-4">
+      ${TIPOS_ARQUIVO.map(t => `
+      <div>
+        <label>${t.label}${t.finalizado ? '<span class="tag-filtro">filtra 2 meses</span>' : ''}</label>
+        <div class="input-file-area" id="drop-${t.id}" onclick="document.getElementById('file-${t.id}').click()"
+          ondragover="event.preventDefault();this.classList.add('over')"
+          ondragleave="this.classList.remove('over')"
+          ondrop="handleDrop(event,'${t.id}')">
+          <input type="file" id="file-${t.id}" accept=".xlsx,.xls,.csv" onchange="handleFile(event,'${t.id}')"/>
+          <div class="file-icon">${t.icone}</div>
+          <div class="file-label-main">Clique ou arraste</div>
+          <div class="file-label-sub">.xlsx, .xls ou .csv</div>
+          <div class="file-name" id="nome-${t.id}"></div>
+        </div>
+      </div>`).join('')}
+    </div>
+    <div class="turno-box">
+      <span class="turno-lbl">🕐 Turno do processamento</span>
+      <div class="turno-opts">
+        <button class="turno-btn ${turnoAtual==='Manhã'?'ativo':''}" onclick="setTurno('Manhã')">☀️ Manhã</button>
+        <button class="turno-btn ${turnoAtual==='Tarde'?'ativo':''}" onclick="setTurno('Tarde')">🌆 Tarde</button>
+      </div>
+      <span class="turno-hint">Fica registrado no histórico</span>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <div class="card-title">⚙ Processamento</div>
+    <div id="proc-status" class="alert alert-info" style="margin-bottom:16px">
+      ℹ Envie as planilhas para começar. Nem todas são obrigatórias.
+    </div>
+    <div id="proc-progress" style="display:none">
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:4px" id="proc-progress-label">Aguardando...</div>
+      <div class="progress-bar"><div class="progress-fill" id="proc-progress-fill" style="width:0%"></div></div>
+    </div>
+    <button class="btn btn-primary" id="btn-processar" onclick="processarPlanilhas()" disabled>
+      ⚡ Gerar Planilha de Hoje
+    </button>
+  </div>
+
+  <div class="card" id="card-resultado" style="display:none;margin-top:16px">
+    <div class="card-title">✅ Resultado do Processamento</div>
+    <div id="resultado-content"></div>
+  </div>`
+}
+
+function handleDrop(e, tipo) {
+  e.preventDefault()
+  document.getElementById(`drop-${tipo}`).classList.remove('over')
+  const file = e.dataTransfer.files[0]
+  if (file) processarArquivo(file, tipo)
+}
+
+function handleFile(e, tipo) {
+  const file = e.target.files[0]
+  if (file) processarArquivo(file, tipo)
+}
+
+// Colunas obrigatórias que o sistema precisa encontrar na planilha
+const COLUNAS_NECESSARIAS = [
+  { nomes: ['Código da Operação','Codigo da Operação','Codigo da Operacao','Código da Operacao'], label: 'Código da Operação' },
+  { nomes: ['Etapa'], label: 'Etapa' },
+  { nomes: ['Valor Solicitado','Valor'], label: 'Valor Solicitado' },
+  { nomes: ['Na Etapa Desde','Na Etapa De'], label: 'Na Etapa Desde' },
+]
+
+// Colunas que NÃO devem estar presentes (dados pessoais)
+const COLUNAS_PROIBIDAS = [
+  { nomes: ['Nome do Cliente','Razão Social','Razao Social'], label: 'Nome do Cliente' },
+  { nomes: ['CPF/CNPJ','CNPJ','CPF'], label: 'CPF/CNPJ' },
+  { nomes: ['Email','E-mail'], label: 'Email' },
+]
+
+function achouColuna(cabecalhos, nomes) {
+  return nomes.some(n => cabecalhos.some(c => c.trim().toLowerCase() === n.toLowerCase()))
+}
+
+async function validarPlanilha(file) {
+  try {
+    const rows = await lerPlanilha(file)
+    if (!rows.length) return { ok: false, erro: 'A planilha está vazia (nenhuma linha de dados).' }
+
+    const cabecalhos = Object.keys(rows[0])
+    const faltando = COLUNAS_NECESSARIAS.filter(c => !achouColuna(cabecalhos, c.nomes)).map(c => c.label)
+    const proibidas = COLUNAS_PROIBIDAS.filter(c => achouColuna(cabecalhos, c.nomes)).map(c => c.label)
+    const encontradas = COLUNAS_NECESSARIAS.filter(c => achouColuna(cabecalhos, c.nomes)).map(c => c.label)
+
+    return {
+      ok: faltando.length === 0,
+      linhas: rows.length,
+      colunas: cabecalhos.length,
+      faltando, proibidas, encontradas,
+      erro: faltando.length ? `Coluna${faltando.length>1?'s':''} obrigatória${faltando.length>1?'s':''} não encontrada${faltando.length>1?'s':''}` : null
+    }
+  } catch(e) {
+    return { ok: false, erro: 'Não foi possível ler o arquivo: ' + e.message }
+  }
+}
+
+async function processarArquivo(file, tipo) {
+  arquivos[tipo] = file
+
+  const nome = document.getElementById(`nome-${tipo}`)
+  nome.textContent = '✔ ' + file.name
+  document.getElementById(`drop-${tipo}`).classList.add('has-file')
+
+  // Preview de validação
+  const prevId = `preview-${tipo}`
+  let prev = document.getElementById(prevId)
+  if (!prev) {
+    prev = document.createElement('div')
+    prev.id = prevId
+    nome.parentElement.appendChild(prev)
+  }
+  prev.className = 'file-preview'
+  prev.innerHTML = `<div class="fp-linha"><span class="fp-icone">⏳</span> Lendo arquivo...</div>`
+
+  const v = await validarPlanilha(file)
+
+  if (!v.ok) {
+    prev.className = 'file-preview erro'
+    prev.innerHTML = `
+      <div class="fp-linha"><span class="fp-icone">❌</span> <b>${v.erro}</b></div>
+      ${v.faltando && v.faltando.length ? `<div class="fp-cols">Faltando: <span class="fp-col-faltando">${v.faltando.join(', ')}</span></div>` : ''}`
+    document.getElementById('btn-processar').disabled = true
+    return
+  }
+
+  prev.className = 'file-preview'
+  prev.innerHTML = `
+    <div class="fp-linha"><span class="fp-icone">✅</span> <b>${v.linhas}</b> linha${v.linhas!==1?'s':''} · <b>${v.colunas}</b> coluna${v.colunas!==1?'s':''}</div>
+    ${v.proibidas.length
+      ? `<div class="fp-linha" style="color:#92400e"><span class="fp-icone">⚠️</span> Contém dados pessoais: <b>${v.proibidas.join(', ')}</b> — remova antes de enviar</div>`
+      : `<div class="fp-linha"><span class="fp-icone">🔒</span> Sem dados pessoais — OK</div>`}
+    <div class="fp-cols">Colunas encontradas: <span class="fp-col-ok">${v.encontradas.join(', ')}</span></div>`
+
+  atualizarBotaoProcessar()
+}
+
+// Libera o processamento quando houver pelo menos 1 arquivo válido.
+// Nem sempre os 4 têm dados (ex: Transferências pode vir vazio).
+function atualizarBotaoProcessar() {
+  const enviados = TIPOS_ARQUIVO.filter(t => arquivos[t.id])
+  const comErro = enviados.filter(t => {
+    const p = document.getElementById(`preview-${t.id}`)
+    return p && p.classList.contains('erro')
+  })
+  const btn = document.getElementById('btn-processar')
+  const status = document.getElementById('proc-status')
+  if (!btn || !status) return
+
+  if (!enviados.length) {
+    btn.disabled = true
+    status.className = 'alert alert-info'
+    status.textContent = 'Envie as planilhas para começar.'
+    return
+  }
+  if (comErro.length) {
+    btn.disabled = true
+    status.className = 'alert alert-danger'
+    status.textContent = `❌ Corrija ${comErro.length === 1 ? 'o arquivo' : 'os arquivos'}: ${comErro.map(t=>t.label).join(', ')}`
+    return
+  }
+  btn.disabled = false
+  status.className = 'alert alert-success'
+  const faltam = TIPOS_ARQUIVO.filter(t => !arquivos[t.id])
+  status.innerHTML = faltam.length
+    ? `✅ ${enviados.length} de 4 arquivos prontos. Pode processar assim mesmo — ou envie: <b>${faltam.map(t=>t.label).join(', ')}</b>`
+    : '✅ Os 4 arquivos validados. Clique em "Gerar Planilha de Hoje" para processar.'
+}
+
+function lerPlanilha(file) {
+  return new Promise((res, rej) => {
+    const reader = new FileReader()
+    reader.onload = e => {
+      try {
+        const wb = XLSX.read(e.target.result, { type:'binary', cellDates:true, cellNF:false, cellText:false })
+        const ws = wb.Sheets[wb.SheetNames[0]]
+        const rows = XLSX.utils.sheet_to_json(ws, { defval:'', raw:false })
+        res(rows)
+      } catch(err) { rej(err) }
+    }
+    reader.onerror = rej
+    reader.readAsBinaryString(file)
+  })
+}
+
+function transformar(rows) {
+  return rows.map(row => ({
+    codigo: String(getCol(row,'Código da Operação','Codigo da Operação','Codigo da Operacao','Código da Operacao')).trim(),
+    etapa: getCol(row,'Etapa'),
+    valor: getCol(row,'Valor Solicitado','Valor'),
+    naEtapaDe: parseData(getCol(row,'Na Etapa Desde','Na Etapa De')),
+    linhaCredito: normalizarLinhaCredito(getCol(row,'Linha de Crédito','Linha de Credito','Linha do Crédito','Linha')),
+    municipio: String(getCol(row,'Município','Municipio','Cidade')||'').trim(),
+  }))
+}
+
+// Mantém apenas os registros dos 2 últimos meses, pela data "Na Etapa Desde".
+// Regra do processo: se hoje for antes do dia 15, inclui também o mês retrasado.
+function filtrarUltimosMeses(rows) {
+  const hoje = new Date()
+  const mesesParaTras = hoje.getDate() < 15 ? 3 : 2
+  const corte = new Date(hoje.getFullYear(), hoje.getMonth() - (mesesParaTras - 1), 1)
+  corte.setHours(0,0,0,0)
+  return rows.filter(r => {
+    const d = r.naEtapaDe
+    if (!d || isNaN(d.getTime())) return true   // sem data: mantém, para não perder registro
+    return d >= corte
+  })
+}
+
+function deduplicar(rows) {
+  const visto = new Set()
+  return rows.filter(r => {
+    const k = String(r.codigo).trim()
+    if (!k) return false
+    if (visto.has(k)) return false
+    visto.add(k); return true
+  })
+}
+
+function aplicarVlookup(rows, ref, mapaAtribuicoes = {}) {
+  return rows.map(row => {
+    const chave = String(row.codigo).trim()
+    // Prioridade 1: atribuição manual já salva no banco
+    const atrib = mapaAtribuicoes[chave]
+    if (atrib) {
+      return {
+        ...row,
+        observacoesAnteriores: atrib.observacao || '',
+        responsavel: atrib.responsavel,
+        responsavelFinal: atrib.responsavel_final,
+      }
+    }
+    // Prioridade 2: referência do dia anterior
+    const r = ref.find(x => String(x.codigo).trim() === String(row.codigo).trim())
+    const resp = r && r.responsavel_final && r.responsavel_final !== 'N/A' ? r.responsavel_final : 'N/A'
+    return {
+      ...row,
+      observacoesAnteriores: r ? (r.observacao || '') : '',
+      responsavel: resp,
+      responsavelFinal: resp,
+    }
+  })
+}
+
+function setProgresso(pct, label) {
+  document.getElementById('proc-progress').style.display = ''
+  document.getElementById('proc-progress-fill').style.width = pct + '%'
+  document.getElementById('proc-progress-label').textContent = label
+}
+
+async function processarPlanilhas() {
+  const btn = document.getElementById('btn-processar')
+  btn.disabled = true
+  btn.innerHTML = '<span class="spinner"></span> Processando...'
+  document.getElementById('proc-status').className = 'alert alert-info'
+  document.getElementById('proc-status').textContent = '⏳ Processando planilhas...'
+  document.getElementById('card-resultado').style.display = 'none'
+
+  try {
+    setProgresso(10, 'Lendo planilhas...')
+    // Lê apenas os arquivos que foram enviados (nem todos são obrigatórios)
+    const enviados = TIPOS_ARQUIVO.filter(t => arquivos[t.id])
+    const lidos = await Promise.all(enviados.map(t => lerPlanilha(arquivos[t.id])))
+
+    setProgresso(25, 'Buscando referência no Supabase...')
+    const refs = await sb('fgf_referencia?select=dados&order=criado_em.desc&limit=1')
+    const referencia = (refs && refs[0] && refs[0].dados) ? refs[0].dados : []
+
+    setProgresso(40, 'Processando dados...')
+    // Junta os 4 arquivos. Nos de finalizados (Concedido/Recusado) aplica
+    // automaticamente o corte dos 2 últimos meses pela data "Na Etapa Desde".
+    let todas = []
+    let cortadas = 0
+    enviados.forEach((t, i) => {
+      let linhas = transformar(lidos[i])
+      if (t.finalizado) {
+        const antes = linhas.length
+        linhas = filtrarUltimosMeses(linhas)
+        cortadas += antes - linhas.length
+      }
+      todas = todas.concat(linhas)
+    })
+    const merged = deduplicar(todas)
+
+    // Buscar atribuições manuais já salvas no banco para preservá-las
+    const propostasExistentes = await sbAll('fgf_propostas?select=codigo,etapa,responsavel,responsavel_final,observacao')
+    const mapaAtribuicoes = {}
+    if (propostasExistentes) {
+      propostasExistentes.forEach(p => {
+        if (p.responsavel && p.responsavel !== 'N/A') {
+          mapaAtribuicoes[String(p.codigo).trim()] = {
+            responsavel: p.responsavel,
+            responsavel_final: p.responsavel_final,
+            observacao: p.observacao || ''
+          }
+        }
+      })
+    }
+
+    const comVlookup = aplicarVlookup(merged, referencia, mapaAtribuicoes)
+
+    const propostas = comVlookup.map(r => ({
+      responsavel: r.responsavel || 'N/A',
+      codigo: r.codigo,
+      etapa: r.etapa,
+      valor: parseValor(r.valor),
+      linha_credito: r.linhaCredito || '',
+      municipio: r.municipio || '',
+      na_etapa_desde: (() => {
+        try { return r.naEtapaDe && !isNaN(r.naEtapaDe.getTime()) ? r.naEtapaDe.toISOString().split('T')[0] : null }
+        catch(e) { return null }
+      })(),
+      observacoes_anteriores: r.observacoesAnteriores || '',
+      observacao: '',
+      responsavel_final: r.responsavelFinal || 'N/A',
+    }))
+
+    setProgresso(55, `Salvando ${propostas.length} propostas...`)
+    let salvas = 0
+    for (const p of propostas) {
+      await sb('fgf_propostas?on_conflict=codigo', {
+        method: 'POST',
+        prefer: 'resolution=merge-duplicates',
+        body: p
+      })
+      salvas++
+      if (salvas % 10 === 0) setProgresso(55 + Math.round((salvas/propostas.length)*30), `Salvando... ${salvas}/${propostas.length}`)
+    }
+
+    setProgresso(88, 'Salvando histórico...')
+    await sb('fgf_historico', {
+      method: 'POST',
+      prefer: 'return=minimal',
+      body: {
+        arquivos_enviados: enviados.map(t => arquivos[t.id].name),
+        turno: turnoAtual,
+        total_propostas: propostas.length
+      }
+    })
+
+    setProgresso(94, 'Salvando referência para amanhã...')
+    const novaRef = propostas.map(p => ({
+      codigo: p.codigo,
+      observacao: p.observacao,
+      responsavel_final: p.responsavel_final
+    }))
+    await sb('fgf_referencia', {
+      method: 'POST',
+      prefer: 'return=minimal',
+      body: { dados: novaRef }
+    })
+
+    setProgresso(100, 'Concluído!')
+    document.getElementById('proc-status').className = 'alert alert-success'
+    document.getElementById('proc-status').textContent = `✅ Processamento concluído! ${propostas.length} propostas salvas.`
+
+    const naAtrib = propostas.filter(p => p.responsavel === 'N/A').length
+    const comResp = propostas.filter(p => p.responsavel !== 'N/A').length
+    document.getElementById('card-resultado').style.display = ''
+    document.getElementById('resultado-content').innerHTML = `
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Total</div><div class="stat-value">${propostas.length}</div><div class="stat-sub">propostas</div></div>
+        <div class="stat-card"><div class="stat-label">Com Responsável</div><div class="stat-value" style="color:#166534">${comResp}</div></div>
+        <div class="stat-card"><div class="stat-label">Propostas Antigas</div><div class="stat-value" style="color:${naAtrib>0?'#92400e':'#166534'}">${naAtrib}</div></div>
+        <div class="stat-card"><div class="stat-label">Andamento</div><div class="stat-value">${and.length}</div></div>
+        <div class="stat-card"><div class="stat-label">Finalizados</div><div class="stat-value">${fin.length}</div></div>
+      </div>
+      <button class="btn btn-primary" onclick="setTab('propostas');carregarPropostas()">Ver Propostas →</button>`
+
+    showToast(`${propostas.length} propostas processadas com sucesso!`)
+
+  } catch(err) {
+    console.error(err)
+    document.getElementById('proc-status').className = 'alert alert-danger'
+    document.getElementById('proc-status').textContent = '❌ Erro: ' + err.message
+    showToast('Erro no processamento: ' + err.message, 'error')
+  } finally {
+    btn.disabled = false
+    btn.innerHTML = '⚡ Gerar Planilha de Hoje'
+  }
+}
+
+// ============================================================
+// ABA PROPOSTAS
+// ============================================================
+let todasPropostas = []
+let filtroColab = 'TODOS'
+let mostrarFinalizadas = false  // por padrão, esconde as finalizadas do fluxo do dia a dia
+let filtroEtapa = ''
+let filtroLinhaCredito = ''
+let filtroSearch = ''
+let filtroDataIni = ''
+let filtroDataFim = ''
+let filtroValorMin = ''
+let filtroValorMax = ''
+let pagAtual = 1
+let pagTamanho = 50
+let selecionadas = new Set()
+let sortCol = 'codigo'
+let sortDir = 1
+let modalCodigo = null
+
+function renderPropostas() {
+  document.getElementById('view-propostas').innerHTML = `
+  <div class="card">
+    <div class="card-title">📋 Propostas</div>
+    <div class="filtros-row">
+      <button class="filtro-btn active" id="filtro-TODOS" style="background:#003366;color:#fff;border-color:#003366" onclick="setFiltroColab('TODOS')">Todos<span class="ajuda ajuda-dir" style="background:rgba(255,255,255,.25);color:#fff" data-ajuda="Mostra apenas propostas que já têm um responsável atribuído. As sem responsável aparecem nos filtros 'Novas' e 'N/A'." onclick="event.stopPropagation()">?</span></button>
+      ${COLAB_LIST.filter(c => c !== 'N/A').map(c => {
+        const bg = getCorColab(c)
+        const fg = getTextColor(bg)
+        return `<button class="filtro-btn" id="filtro-${c}" style="background:${bg};color:${fg};border-color:${bg}" onclick="setFiltroColab('${c}')">${c}</button>`
+      }).join('')}
+      <button class="filtro-btn" id="filtro-NOVAS" style="background:#f0fdf4;color:#166534;border:2px solid #86efac" onclick="setFiltroColab('NOVAS')">🆕 Novas<span class="ajuda" data-ajuda="Propostas sem responsável QUE AINDA ESTÃO EM ANDAMENTO. Não inclui Concedido, Excluído nem Recusado — são as que precisam de atribuição hoje." onclick="event.stopPropagation()">?</span></button>
+      ${['N/A'].map(c => {
+        const bg = COLABORADORES[c]
+        const fg = getTextColor(bg)
+        return `<button class="filtro-btn" id="filtro-${c}" style="background:${bg};color:${fg};border:1.5px solid #d0d5dd" onclick="setFiltroColab('${c}')">${c}</button>`
+      }).join('')}
+    </div>
+    <div class="filtros-row">
+      <input type="text" class="search-input" placeholder="🔍 Buscar por código ou etapa..." oninput="setSearch(this.value)" value="${filtroSearch}"/>
+      <button class="btn btn-secondary btn-sm btn-filtro-toggle" id="btn-fa-toggle" onclick="toggleFiltrosAvancados()">
+        ⚙ Filtros <span id="fa-badge"></span>
+      </button>
+      <button class="btn btn-secondary btn-sm" id="btn-finalizadas" onclick="toggleFinalizadas()" title="Mostrar ou esconder propostas concedidas, recusadas e excluídas">
+        <span id="lbl-finalizadas">👁 Mostrar finalizadas</span>
+      </button>
+      <div class="export-group">
+        <button class="btn btn-secondary btn-sm" onclick="exportarExcel()" title="Exportar para Excel">📊 Excel</button>
+        <button class="btn btn-secondary btn-sm" onclick="exportarPDF()" title="Exportar para PDF">📄 PDF</button>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="carregarPropostas()">↺ Atualizar</button>
+    </div>
+
+    <div class="filtros-avancados" id="filtros-avancados">
+      <div class="fa-grid">
+        <div class="fa-campo">
+          <label>📅 Na Etapa Desde</label>
+          <div class="fa-inputs">
+            <input type="date" class="fa-input" id="fa-data-ini" value="${filtroDataIni}" onchange="aplicarFiltrosAvancados()"/>
+            <span class="fa-sep">até</span>
+            <input type="date" class="fa-input" id="fa-data-fim" value="${filtroDataFim}" onchange="aplicarFiltrosAvancados()"/>
+          </div>
+        </div>
+        <div class="fa-campo">
+          <label>💰 Faixa de Valor (R$)</label>
+          <div class="fa-inputs">
+            <input type="number" class="fa-input" id="fa-valor-min" placeholder="Mínimo" value="${filtroValorMin}" oninput="aplicarFiltrosAvancados()"/>
+            <span class="fa-sep">até</span>
+            <input type="number" class="fa-input" id="fa-valor-max" placeholder="Máximo" value="${filtroValorMax}" oninput="aplicarFiltrosAvancados()"/>
+          </div>
+        </div>
+        <div class="fa-campo">
+          <label>📊 Etapa</label>
+          <select class="fa-input" id="fa-etapa" onchange="aplicarFiltrosAvancados()">
+            <option value="">Todas as etapas</option>
+            ${opcoesEtapas()}
+          </select>
+        </div>
+        <div class="fa-campo">
+          <label>🏷️ Linha de Crédito</label>
+          <select class="fa-input" id="fa-linha" onchange="aplicarFiltrosAvancados()">
+            <option value="">Todas as linhas</option>
+            ${LINHAS_CREDITO.map(l => `<option value="${l}" ${filtroLinhaCredito===l?'selected':''}>${l}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+      <div class="fa-acoes">
+        <button class="btn btn-secondary btn-sm" onclick="limparFiltrosAvancados()">✕ Limpar filtros</button>
+        <span style="font-size:12px;color:var(--text-muted);align-self:center" id="fa-info"></span>
+      </div>
+    </div>
+
+    <div id="dashboard-propostas"></div>
+    <div id="tabela-propostas">
+      <div class="empty"><div class="empty-icon">⏳</div><p>Carregando propostas...</p></div>
+    </div>
+  </div>`
+}
+
+async function carregarPropostas() {
+  try {
+    const data = await sbAll('fgf_propostas?select=*&order=codigo.asc')
+    // Mantém todas as ativas + finalizadas dos últimos 6 meses
+    todasPropostas = filtrarPorJanela(data || [])
+    popularSelectEtapas()
+    renderTabelaPropostas()
+    renderStatsPropostas()
+    atualizarBadgeFiltros()
+  } catch(e) {
+    document.getElementById('tabela-propostas').innerHTML = `<div class="alert alert-danger">❌ Erro ao carregar: ${e.message}</div>`
+  }
+}
+
+// Aplica os filtros avançados (período e faixa de valor)
+function aplicarFiltrosData(rows) {
+  if (filtroDataIni) {
+    rows = rows.filter(p => {
+      if (!p.na_etapa_desde) return false
+      return String(p.na_etapa_desde).split('T')[0] >= filtroDataIni
+    })
+  }
+  if (filtroDataFim) {
+    rows = rows.filter(p => {
+      if (!p.na_etapa_desde) return false
+      return String(p.na_etapa_desde).split('T')[0] <= filtroDataFim
+    })
+  }
+  if (filtroValorMin !== '' && !isNaN(Number(filtroValorMin))) {
+    rows = rows.filter(p => valorNum(p) >= Number(filtroValorMin))
+  }
+  if (filtroValorMax !== '' && !isNaN(Number(filtroValorMax))) {
+    rows = rows.filter(p => valorNum(p) <= Number(filtroValorMax))
+  }
+  if (filtroEtapa) {
+    rows = rows.filter(p => (p.etapa||'').trim() === filtroEtapa)
+  }
+  if (filtroLinhaCredito) {
+    rows = rows.filter(p => normalizarLinhaCredito(p.linha_credito) === filtroLinhaCredito)
+  }
+  return rows
+}
+
+// Retorna as linhas conforme o filtro de colaborador ativo + filtros avançados (sem busca textual)
+function getLinhasFiltradas() {
+  let rows = [...todasPropostas]
+  if (filtroColab === 'NOVAS') {
+    rows = rows.filter(p => {
+      const resp = (p.responsavel||'N/A').toUpperCase().trim()
+      return resp === 'N/A' && ehAtiva(p.etapa)
+    })
+  } else if (filtroColab === 'TODOS') {
+    // Exige responsável apenas das ATIVAS. Finalizadas (concedido/recusado/excluído)
+    // são histórico e não precisam de responsável para aparecer.
+    rows = rows.filter(p => {
+      if (ehFinalizada(p.etapa)) return true
+      return (p.responsavel||'N/A').toUpperCase().trim() !== 'N/A'
+    })
+  } else {
+    rows = rows.filter(p => (p.responsavel||'N/A').toUpperCase().trim() === filtroColab)
+  }
+  rows = aplicarFiltrosData(rows)
+  // Esconde finalizadas (Concedido/Recusado/Excluído) do fluxo do dia a dia,
+  // exceto quando: o botão "Mostrar finalizadas" está ativo, o usuário
+  // filtrou explicitamente por uma etapa finalizada, OU há uma busca textual ativa
+  // (a busca deve encontrar qualquer proposta, inclusive finalizadas).
+  const filtrouEtapaFinalizada = filtroEtapa && ehFinalizada(filtroEtapa)
+  const temBusca = filtroSearch.trim().length > 0
+  if (!mostrarFinalizadas && !filtrouEtapaFinalizada && !temBusca) {
+    rows = rows.filter(p => ehAtiva(p.etapa))
+  }
+  return rows
+}
+
+// Retorna as linhas exatamente como exibidas na tabela (com busca e ordenação)
+function getLinhasVisiveis() {
+  let rows = getLinhasFiltradas()
+  if (filtroSearch.trim()) {
+    const q = filtroSearch.toLowerCase()
+    rows = rows.filter(p =>
+      String(p.codigo||'').toLowerCase().includes(q) ||
+      (p.etapa||'').toLowerCase().includes(q)
+    )
+  }
+  rows.sort((a,b) => {
+    let va = a[sortCol] ?? '', vb = b[sortCol] ?? ''
+    if (typeof va === 'number' && typeof vb === 'number') return (va-vb)*sortDir
+    return String(va).localeCompare(String(vb), 'pt-BR') * sortDir
+  })
+  return rows
+}
+
+// ── Controle dos filtros avançados ──
+function toggleFiltrosAvancados() {
+  const el = document.getElementById('filtros-avancados')
+  el.classList.toggle('aberto')
+}
+
+// ── Mostrar / esconder propostas finalizadas ──
+function toggleFinalizadas() {
+  mostrarFinalizadas = !mostrarFinalizadas
+  pagAtual = 1
+  const btn = document.getElementById('btn-finalizadas')
+  const lbl = document.getElementById('lbl-finalizadas')
+  if (mostrarFinalizadas) {
+    lbl.textContent = '🙈 Esconder finalizadas'
+    btn.style.background = '#003366'
+    btn.style.color = '#fff'
+    btn.style.borderColor = '#003366'
+  } else {
+    lbl.textContent = '👁 Mostrar finalizadas'
+    btn.style.background = ''
+    btn.style.color = ''
+    btn.style.borderColor = ''
+  }
+  renderTabelaPropostas()
+  renderStatsPropostas()
+}
+
+function contarFiltrosAtivos() {
+  let n = 0
+  if (filtroDataIni) n++
+  if (filtroDataFim) n++
+  if (filtroValorMin !== '') n++
+  if (filtroValorMax !== '') n++
+  if (filtroEtapa) n++
+  if (filtroLinhaCredito) n++
+  return n
+}
+
+// Gera as opções de etapa a partir das propostas carregadas, ordenadas pelo funil
+// Preenche o select de etapas depois que as propostas foram carregadas.
+// Necessario porque o HTML do filtro e montado no INIT, antes dos dados chegarem.
+function popularSelectEtapas() {
+  const sel = document.getElementById('fa-etapa')
+  if (!sel) return
+  const atual = filtroEtapa
+  sel.innerHTML = '<option value="">Todas as etapas</option>' + opcoesEtapas()
+  sel.value = atual || ''
+}
+
+function opcoesEtapas() {
+  const etapasSet = new Set()
+  todasPropostas.forEach(p => { const e = (p.etapa||'').trim(); if (e) etapasSet.add(e) })
+  const etapas = [...etapasSet].sort((a,b) => {
+    const pa = posicaoFunil(a), pb = posicaoFunil(b)
+    if (pa === -1 && pb === -1) return a.localeCompare(b,'pt-BR')
+    if (pa === -1) return 1
+    if (pb === -1) return -1
+    return pa - pb
+  })
+  return etapas.map(e => `<option value="${e}" ${filtroEtapa===e?'selected':''}>${e}</option>`).join('')
+}
+
+function atualizarBadgeFiltros() {
+  const badge = document.getElementById('fa-badge')
+  const info = document.getElementById('fa-info')
+  if (!badge) return
+  const n = contarFiltrosAtivos()
+  badge.innerHTML = n > 0 ? `<span class="filtro-badge-count">${n}</span>` : ''
+  if (info) {
+    const visiveis = getLinhasVisiveis().length
+    info.textContent = n > 0 ? `${visiveis} proposta${visiveis!==1?'s':''} após filtros` : ''
+  }
+}
+
+function aplicarFiltrosAvancados() {
+  pagAtual = 1
+  filtroDataIni = document.getElementById('fa-data-ini')?.value || ''
+  filtroDataFim = document.getElementById('fa-data-fim')?.value || ''
+  filtroValorMin = document.getElementById('fa-valor-min')?.value || ''
+  filtroValorMax = document.getElementById('fa-valor-max')?.value || ''
+  filtroEtapa = document.getElementById('fa-etapa')?.value || ''
+  filtroLinhaCredito = document.getElementById('fa-linha')?.value || ''
+  renderTabelaPropostas()
+  renderStatsPropostas()
+  atualizarBadgeFiltros()
+}
+
+function limparFiltrosAvancados() {
+  pagAtual = 1
+  filtroDataIni = ''; filtroDataFim = ''; filtroValorMin = ''; filtroValorMax = ''
+  filtroEtapa = ''; filtroLinhaCredito = ''
+  const ids = ['fa-data-ini','fa-data-fim','fa-valor-min','fa-valor-max','fa-etapa','fa-linha']
+  ids.forEach(id => { const e = document.getElementById(id); if (e) e.value = '' })
+  renderTabelaPropostas()
+  renderStatsPropostas()
+  atualizarBadgeFiltros()
+  showToast('Filtros limpos')
+}
+
+function valorNum(p) {
+  let n
+  if (typeof p.valor === 'number') n = p.valor
+  else n = parseFloat(String(p.valor||'0').replace(/[^0-9.,]/g,'').replace(/\.(?=\d{3})/g,'').replace(',','.'))
+  if (isNaN(n)) return 0
+  return corrigirValor(n)
+}
+
+function renderStatsPropostas() {
+  const el = document.getElementById('dashboard-propostas')
+  if (!el) return
+
+  const linhas = getLinhasFiltradas()
+
+  // Contexto do filtro
+  let ctx = []
+  if (filtroColab === 'NOVAS') ctx.push('Propostas novas')
+  else if (filtroColab === 'N/A') ctx.push('Sem responsável')
+  else if (filtroColab !== 'TODOS') ctx.push(filtroColab)
+  else ctx.push('Todos os responsáveis')
+  if (filtroEtapa) ctx.push(filtroEtapa)
+  if (filtroLinhaCredito) ctx.push(filtroLinhaCredito)
+  const contexto = ctx.join(' · ')
+
+  // Métricas
+  const total = linhas.length
+  const ativas = linhas.filter(p => ehAtiva(p.etapa))
+  const totalAtivas = ativas.length
+  const valorAtivo = ativas.reduce((s,p) => s + valorNum(p), 0)
+  const valorTotal = linhas.reduce((s,p) => s + valorNum(p), 0)
+  const concedidas = linhas.filter(p => (p.etapa||'').toLowerCase().trim() === 'concedido').length
+  // Recusado + Excluído somados (100% juntos)
+  const naoConcedidas = linhas.filter(p => {
+    const e = (p.etapa||'').toLowerCase().trim()
+    return e === 'recusado' || e === 'excluído' || e === 'excluido'
+  }).length
+
+  // Propostas ativas paradas há 15+ dias
+  const paradasList = ativas.filter(p => {
+    const d = diasParados(p.na_etapa_desde)
+    return d !== null && d >= DIAS_LIMITE_PARADA
+  })
+  const paradas = paradasList.length
+
+  // Média de dias parados (só ativas com data válida)
+  const diasArr = ativas.map(p => diasParados(p.na_etapa_desde)).filter(d => d !== null)
+  const mediaDias = diasArr.length ? Math.round(diasArr.reduce((s,d) => s+d, 0) / diasArr.length) : 0
+
+  // Cards — sempre acompanham os filtros ativos
+  const ehGeral = (filtroColab === 'TODOS' || filtroColab === 'N/A' || filtroColab === 'NOVAS')
+  const rotuloTotal = ehGeral ? 'Total de Propostas' : `Propostas de ${filtroColab}`
+
+  let cards = `
+    <div class="dash-card accent-azul"><div class="dash-label">${rotuloTotal}</div><div class="dash-value">${total}</div></div>
+    <div class="dash-card accent-verde"><div class="dash-label">Ativas</div><div class="dash-value">${totalAtivas}</div><div class="dash-sub">em tratativa</div></div>
+    <div class="dash-card accent-dourado"><div class="dash-label">Valor em Tratativa<span class="ajuda ajuda-baixo" data-ajuda="Soma do valor apenas das propostas ATIVAS (em andamento). Não inclui Concedido, Recusado nem Excluído.">?</span></div><div class="dash-value" style="font-size:19px">${formatValor(valorAtivo)}</div><div class="dash-sub">só propostas ativas</div></div>
+    <div class="dash-card accent-roxo"><div class="dash-label">Valor Total<span class="ajuda ajuda-baixo" data-ajuda="Soma do valor de TODAS as propostas do filtro atual, incluindo as já finalizadas.">?</span></div><div class="dash-value" style="font-size:19px">${formatValor(valorTotal)}</div><div class="dash-sub">todas as propostas</div></div>
+    <div class="dash-card accent-parada"><div class="dash-label">⚠️ Paradas 15+ dias<span class="ajuda ajuda-baixo" data-ajuda="Propostas ativas que estão há 15 dias ou mais na mesma etapa sem avançar. Só conta propostas em andamento.">?</span></div><div class="dash-value" style="color:${paradas>0?'#dc2626':'#16a34a'}">${paradas}</div><div class="dash-sub">propostas ativas</div></div>
+    <div class="dash-card accent-cinza"><div class="dash-label">Média de Dias Parados<span class="ajuda ajuda-baixo ajuda-esq" data-ajuda="Média de quantos dias as propostas ativas estão paradas na etapa atual. Ajuda a medir a velocidade de andamento.">?</span></div><div class="dash-value">${mediaDias}<span style="font-size:14px;font-weight:600;color:#9ca3af"> dias</span></div><div class="dash-sub">média das ativas na etapa</div></div>`
+
+  el.innerHTML = `
+    <div class="dash-header">
+      <div class="dash-title">📈 Painel de Indicadores</div>
+      <div class="dash-context">${contexto}</div>
+    </div>
+    <div class="dash-grid">${cards}</div>`
+}
+
+function setFiltroColab(c) {
+  filtroColab = c
+  pagAtual = 1
+  document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'))
+  const btn = document.getElementById(`filtro-${c}`)
+  if (btn) {
+    btn.classList.add('active')
+    if (c === 'NOVAS') btn.style.borderColor = '#003366'
+  }
+  renderTabelaPropostas()
+  renderStatsPropostas()
+  atualizarBadgeFiltros()
+}
+
+function setSearch(v) { filtroSearch = v; pagAtual = 1; renderTabelaPropostas(); atualizarBadgeFiltros() }
+
+function setSort(col) {
+  if (sortCol === col) sortDir *= -1
+  else { sortCol = col; sortDir = 1 }
+  pagAtual = 1
+  renderTabelaPropostas()
+}
+
+function renderTabelaPropostas() {
+  const todasRows = getLinhasVisiveis()
+
+  const cols = [
+    {key:'responsavel', label:'Responsável'},
+    {key:'codigo', label:'Código da Operação'},
+    {key:'linha_credito', label:'Linha'},
+    {key:'municipio', label:'Município'},
+    {key:'etapa', label:'Etapa'},
+    {key:'valor', label:'Valor', align:'right'},
+    {key:'na_etapa_desde', label:'Na Etapa Desde', ajuda:'Data em que a proposta entrou na etapa atual. O icone de alerta e os dias entre parenteses mostram ha quanto tempo esta parada.'},
+    {key:'observacao', label:'Observação'},
+  ]
+
+  if (!todasRows.length) {
+    document.getElementById('tabela-propostas').innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><p>Nenhuma proposta encontrada.</p></div>`
+    renderBarraLote()
+    return
+  }
+
+  // ── Paginação ──
+  const totalPags = Math.max(1, Math.ceil(todasRows.length / pagTamanho))
+  if (pagAtual > totalPags) pagAtual = totalPags
+  if (pagAtual < 1) pagAtual = 1
+  const ini = (pagAtual - 1) * pagTamanho
+  const rows = todasRows.slice(ini, ini + pagTamanho)
+
+  // Códigos visíveis na página (para o "selecionar todos")
+  const codigosPagina = rows.map(p => String(p.codigo))
+  const todosSelecionados = codigosPagina.length > 0 && codigosPagina.every(c => selecionadas.has(c))
+
+  const th = `<th class="check-col"><input type="checkbox" class="row-check" ${todosSelecionados?'checked':''} onclick="toggleSelecionarPagina(this.checked)" title="Selecionar todos desta página"/></th>` +
+    cols.map(c => {
+      const isSorted = sortCol === c.key
+      const icon = isSorted ? (sortDir===1?'↑':'↓') : '↕'
+      const tip = c.ajuda ? `<span class="ajuda ajuda-baixo ajuda-esq" data-ajuda="${c.ajuda}" onclick="event.stopPropagation()">?</span>` : ''
+      return `<th class="${isSorted?'sorted':''}" onclick="setSort('${c.key}')" style="${c.align?'text-align:'+c.align:''}">
+        ${c.label}${tip} <span class="sort-icon">${icon}</span>
+      </th>`
+    }).join('')
+
+  const trs = rows.map(p => {
+    const resp = p.responsavel || 'N/A'
+    const bg = getCorColab(resp)
+    const fg = getTextColor(bg)
+    const iniciais = getIniciais(resp)
+
+    const respCell = resp === 'N/A'
+      ? `<td><div class="resp-cell"><span class="resp-tarja" style="background:#cbd5e1"></span>
+           <div class="dd-trigger" onclick="abrirDropdown(this, '${p.codigo}', 'N/A')">👤 Atribuir</div>
+         </div></td>`
+      : `<td><div class="resp-cell">
+           <span class="resp-tarja" style="background:${bg}"></span>
+           <span class="resp-avatar" style="background:${bg};color:${fg}">${iniciais}</span>
+           <span class="resp-nome">${resp}</span>
+           <button class="btn-trocar-v2" title="Trocar responsável" onclick="abrirDropdown(this, '${p.codigo}', '${resp}')">✎</button>
+         </div></td>`
+
+    const obs = p.observacao || ''
+    const obsCell = obs
+      ? `<td><button class="btn btn-secondary btn-sm" onclick="abrirModal('${p.codigo}','${(obs).replace(/'/g,"\\'")}','${(p.observacoes_anteriores||'').replace(/'/g,"\\'")}')">
+           <span class="obs-indicator"><span class="obs-dot"></span>✏ Ver/Editar</span>
+         </button></td>`
+      : `<td><button class="btn btn-secondary btn-sm" style="color:#9ca3af" onclick="abrirModal('${p.codigo}','','${(p.observacoes_anteriores||'').replace(/'/g,"\\'")}')">
+           + Adicionar
+         </button></td>`
+
+    const etapasFin = ['concedido','excluído','excluido','recusado']
+    const ehAtiva = !etapasFin.includes((p.etapa||'').toLowerCase().trim())
+    const dias = diasParados(p.na_etapa_desde)
+    const paradaClass = (ehAtiva && dias !== null && dias >= DIAS_LIMITE_PARADA) ? ' class="linha-parada"' : ''
+
+    const estaSel = selecionadas.has(String(p.codigo))
+    const classes = [paradaClass.replace(' class="','').replace('"',''), estaSel ? 'selecionada' : ''].filter(Boolean).join(' ')
+    const trClass = classes ? ` class="${classes}"` : ''
+
+    return `<tr${trClass} data-codigo="${p.codigo}">
+      <td class="check-col"><input type="checkbox" class="row-check" ${estaSel?'checked':''} onclick="toggleSelecionada('${p.codigo}', this.checked)"/></td>
+      ${respCell}
+      <td class="td-cnpj" style="font-weight:700">${p.codigo||'—'}</td>
+      <td>${linhaBadge(p.linha_credito)}</td>
+      <td style="font-size:11.5px;color:#475569">${p.municipio || '—'}</td>
+      <td class="td-etapa">${etapaBadge(p.etapa)}</td>
+      <td class="td-valor">${formatValor(p.valor)}</td>
+      ${celulaData(p)}
+      ${obsCell}
+    </tr>`
+  }).join('')
+
+  const fim = Math.min(ini + pagTamanho, todasRows.length)
+
+  document.getElementById('tabela-propostas').innerHTML = `
+    <div id="lote-bar-container"></div>
+    <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px">${todasRows.length} proposta${todasRows.length!==1?'s':''} encontrada${todasRows.length!==1?'s':''}</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr>${th}</tr></thead>
+        <tbody>${trs}</tbody>
+      </table>
+    </div>
+    ${renderPaginacao(todasRows.length, ini+1, fim, totalPags)}`
+
+  renderBarraLote()
+}
+
+// ── Paginação ──
+function renderPaginacao(total, de, ate, totalPags) {
+  if (total <= pagTamanho && pagTamanho !== 0) {
+    return `<div class="pag-wrap">
+      <div class="pag-info">Mostrando <b>${total}</b> proposta${total!==1?'s':''}</div>
+      <div class="pag-ctrl">
+        <span style="font-size:12px;color:var(--text-muted);margin-right:6px">Por página:</span>
+        <select class="pag-size" onchange="setPagTamanho(this.value)">
+          ${[25,50,100,200].map(n => `<option value="${n}" ${pagTamanho===n?'selected':''}>${n}</option>`).join('')}
+          <option value="0" ${pagTamanho===0?'selected':''}>Todas</option>
+        </select>
+      </div>
+    </div>`
+  }
+
+  // Botões de página (com reticências quando há muitas)
+  let botoes = ''
+  const janela = 2
+  const pages = []
+  for (let i = 1; i <= totalPags; i++) {
+    if (i === 1 || i === totalPags || (i >= pagAtual-janela && i <= pagAtual+janela)) pages.push(i)
+    else if (pages[pages.length-1] !== '...') pages.push('...')
+  }
+  botoes = pages.map(p =>
+    p === '...' ? `<span class="pag-dots">···</span>`
+    : `<button class="pag-btn ${p===pagAtual?'ativo':''}" onclick="irPagina(${p})">${p}</button>`
+  ).join('')
+
+  return `<div class="pag-wrap">
+    <div class="pag-info">Mostrando <b>${de}–${ate}</b> de <b>${total}</b> propostas</div>
+    <div class="pag-ctrl">
+      <button class="pag-btn" onclick="irPagina(${pagAtual-1})" ${pagAtual<=1?'disabled':''}>‹</button>
+      ${botoes}
+      <button class="pag-btn" onclick="irPagina(${pagAtual+1})" ${pagAtual>=totalPags?'disabled':''}>›</button>
+      <select class="pag-size" style="margin-left:8px" onchange="setPagTamanho(this.value)">
+        ${[25,50,100,200].map(n => `<option value="${n}" ${pagTamanho===n?'selected':''}>${n}/pág</option>`).join('')}
+        <option value="0" ${pagTamanho===0?'selected':''}>Todas</option>
+      </select>
+    </div>
+  </div>`
+}
+
+function irPagina(n) {
+  pagAtual = n
+  renderTabelaPropostas()
+  document.querySelector('.table-wrap')?.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+function setPagTamanho(v) {
+  const n = Number(v)
+  pagTamanho = n === 0 ? 999999 : n
+  pagAtual = 1
+  renderTabelaPropostas()
+}
+
+let dropdownAberto = null
+let modalRespCodigo = null
+let modalRespLote = false
+
+function fecharDropdown() {
+  if (dropdownAberto) {
+    dropdownAberto.remove()
+    dropdownAberto = null
+    document.removeEventListener('click', handlerFecharFora, true)
+  }
+}
+
+function handlerFecharFora(e) {
+  if (dropdownAberto && !dropdownAberto.contains(e.target) && !e.target.closest('.dd-trigger') && !e.target.closest('.btn-trocar-v2')) {
+    fecharDropdown()
+  }
+}
+
+// ── Modal de seleção de responsável (substitui o dropdown inline) ──
+function abrirDropdown(anchor, codigo, respAtual) {
+  modalRespCodigo = String(codigo)
+  modalRespLote = false
+  const p = todasPropostas.find(x => String(x.codigo) === String(codigo))
+  document.getElementById('mr-titulo').textContent = respAtual === 'N/A' ? 'Atribuir responsável' : 'Trocar responsável'
+  document.getElementById('mr-sub').innerHTML = `Proposta <b>${codigo}</b>${p && p.etapa ? ' · ' + p.etapa : ''}`
+  montarGridResp(respAtual)
+  abrirModalRespUI()
+}
+
+// Abre o modal e prepara a UI (busca limpa + foco)
+function abrirModalRespUI() {
+  const busca = document.getElementById('mr-busca')
+  if (busca) busca.value = ''
+  document.getElementById('mr-vazio').style.display = 'none'
+  document.getElementById('modal-resp').style.display = 'flex'
+  setTimeout(() => busca && busca.focus(), 60)
+}
+
+// Filtra os colaboradores conforme a digitação
+function filtrarModalResp(termo) {
+  const q = (termo || '').toLowerCase().trim()
+  const opts = document.querySelectorAll('#mr-grid .mr-opt')
+  let visiveis = 0
+  opts.forEach(o => {
+    const nome = (o.dataset.nome || '').toLowerCase()
+    const bate = !q || nome.includes(q)
+    o.classList.toggle('hidden', !bate)
+    if (bate) visiveis++
+  })
+  document.getElementById('mr-vazio').style.display = visiveis === 0 ? '' : 'none'
+}
+
+function abrirModalRespLote() {
+  fecharDropdown()
+  const n = selecionadas.size
+  if (!n) return
+  modalRespCodigo = null
+  modalRespLote = true
+  document.getElementById('mr-titulo').textContent = 'Reatribuir em lote'
+  document.getElementById('mr-sub').innerHTML = `<b>${n}</b> proposta${n!==1?'s':''} selecionada${n!==1?'s':''}`
+  montarGridResp(null)
+  abrirModalRespUI()
+}
+
+function montarGridResp(respAtual) {
+  document.getElementById('mr-grid').innerHTML = COLAB_LIST.filter(c => c !== 'N/A').map(c => {
+    const cor = getCorColab(c)
+    const fgC = getTextColor(cor)
+    const ehAtual = c === respAtual
+    return `<div class="mr-opt ${ehAtual?'atual':''}" data-nome="${c}" onclick="escolherResp('${c.replace(/'/g,"\\'")}')">
+      <span class="mr-opt-avatar" style="background:${cor};color:${fgC}">${getIniciais(c)}</span>
+      <span class="mr-opt-nome">${c}</span>
+      ${ehAtual ? '<span class="mr-opt-check">✓</span>' : ''}
+    </div>`
+  }).join('')
+}
+
+function fecharModalResp(e) {
+  if (e && e.target !== document.getElementById('modal-resp')) return
+  document.getElementById('modal-resp').style.display = 'none'
+  modalRespCodigo = null
+  modalRespLote = false
+}
+
+async function escolherResp(novo) {
+  const emLote = modalRespLote
+  const codigo = modalRespCodigo
+  document.getElementById('modal-resp').style.display = 'none'
+  modalRespCodigo = null
+  modalRespLote = false
+
+  if (emLote) { await reatribuirLote(novo); return }
+  const atual = todasPropostas.find(p => String(p.codigo) === String(codigo))
+  if (atual && atual.responsavel === novo) return
+  await atribuirResponsavel(codigo, novo, null)
+}
+
+async function atribuirResponsavel(codigo, resp, selectEl) {
+  if (!resp) return
+  try {
+    // 1. Salva na tabela propostas
+    await sb(`fgf_propostas?codigo=eq.${encodeURIComponent(codigo)}`, {
+      method: 'PATCH',
+      prefer: 'return=minimal',
+      body: { responsavel: resp, responsavel_final: resp }
+    })
+
+    // 2. Atualiza a fgf_referencia mais recente para persistir entre reprocessamentos
+    const refs = await sb('fgf_referencia?select=id,dados&order=criado_em.desc&limit=1')
+    if (refs && refs[0]) {
+      const refId = refs[0].id
+      const dados = refs[0].dados || []
+      const idx2 = dados.findIndex(r => String(r.codigo).trim() === String(codigo).trim())
+      if (idx2 !== -1) {
+        dados[idx2].responsavel_final = resp
+      } else {
+        dados.push({ codigo: String(codigo).trim(), responsavel_final: resp, observacao: '' })
+      }
+      await sb(`fgf_referencia?id=eq.${refId}`, {
+        method: 'PATCH',
+        prefer: 'return=minimal',
+        body: { dados }
+      })
+    }
+
+    const idx = todasPropostas.findIndex(p => p.codigo === codigo)
+    if (idx !== -1) { todasPropostas[idx].responsavel = resp; todasPropostas[idx].responsavel_final = resp }
+    showToast(`✓ ${resp} atribuído e salvo`)
+    renderTabelaPropostas()
+    renderStatsPropostas()
+    // Destaca a linha recém-salva
+    setTimeout(() => {
+      const tr = document.querySelector(`tr[data-codigo="${codigo}"]`)
+      if (tr) tr.classList.add('linha-salva')
+    }, 50)
+  } catch(e) {
+    showToast('Erro ao atribuir: ' + e.message, 'error')
+  }
+}
+
+// ============================================================
+// MODAL OBSERVAÇÃO
+// ============================================================
+function abrirModal(codigo, obs, obsAntiga) {
+  modalCodigo = codigo
+  document.getElementById('modal-title').textContent = 'Observação'
+  document.getElementById('modal-info').textContent = `Código da Operação: ${codigo}`
+  document.getElementById('modal-obs-antiga').textContent = obsAntiga || '—'
+  document.getElementById('modal-textarea').value = obs || ''
+  document.getElementById('modal-obs').style.display = 'flex'
+}
+
+function fecharModal(e) {
+  if (e && e.target !== document.getElementById('modal-obs')) return
+  document.getElementById('modal-obs').style.display = 'none'
+  modalCodigo = null
+}
+
+async function salvarObservacao() {
+  if (!modalCodigo) return
+  const obs = document.getElementById('modal-textarea').value.trim()
+  const btn = document.getElementById('btn-salvar-obs')
+  btn.disabled = true; btn.textContent = 'Salvando...'
+  try {
+    await sb(`fgf_propostas?codigo=eq.${encodeURIComponent(modalCodigo)}`, {
+      method: 'PATCH',
+      prefer: 'return=minimal',
+      body: { observacao: obs }
+    })
+    const idx = todasPropostas.findIndex(p => p.codigo === modalCodigo)
+    if (idx !== -1) todasPropostas[idx].observacao = obs
+    document.getElementById('modal-obs').style.display = 'none'
+    modalCodigo = null
+    showToast('Observação salva!')
+    renderTabelaPropostas()
+  } catch(e) {
+    showToast('Erro ao salvar: ' + e.message, 'error')
+  } finally {
+    btn.disabled = false; btn.textContent = 'Salvar'
+  }
+}
+
+
+
+// ============================================================
+// AÇÕES EM LOTE (Fase 6)
+// ============================================================
+function toggleSelecionada(codigo, marcado) {
+  const c = String(codigo)
+  if (marcado) selecionadas.add(c)
+  else selecionadas.delete(c)
+  const tr = document.querySelector(`tr[data-codigo="${c}"]`)
+  if (tr) tr.classList.toggle('selecionada', marcado)
+  renderBarraLote()
+}
+
+function toggleSelecionarPagina(marcado) {
+  const todasRows = getLinhasVisiveis()
+  const ini = (pagAtual - 1) * pagTamanho
+  const rows = todasRows.slice(ini, ini + pagTamanho)
+  rows.forEach(p => {
+    const c = String(p.codigo)
+    if (marcado) selecionadas.add(c)
+    else selecionadas.delete(c)
+  })
+  renderTabelaPropostas()
+}
+
+function limparSelecao() {
+  selecionadas.clear()
+  renderTabelaPropostas()
+}
+
+function selecionarTodosFiltrados() {
+  getLinhasVisiveis().forEach(p => selecionadas.add(String(p.codigo)))
+  renderTabelaPropostas()
+  showToast(`${selecionadas.size} propostas selecionadas`)
+}
+
+function renderBarraLote() {
+  const cont = document.getElementById('lote-bar-container')
+  if (!cont) return
+  const n = selecionadas.size
+  if (n === 0) { cont.innerHTML = ''; return }
+
+  const totalFiltrado = getLinhasVisiveis().length
+  cont.innerHTML = `
+    <div class="lote-bar ativo">
+      <span class="lote-count">${n} selecionada${n!==1?'s':''} <small>de ${totalFiltrado} filtradas</small></span>
+      <div class="lote-acoes">
+        ${n < totalFiltrado ? `<button class="btn-lote" onclick="selecionarTodosFiltrados()">Selecionar todas as ${totalFiltrado}</button>` : ''}
+        <button class="btn-lote primario" onclick="abrirModalRespLote()">👤 Reatribuir para...</button>
+        <button class="btn-lote" onclick="limparSelecao()">✕ Limpar</button>
+      </div>
+    </div>`
+}
+
+async function reatribuirLote(novoResp) {
+  const codigos = [...selecionadas]
+  if (!codigos.length) return
+
+  if (!confirm(`Reatribuir ${codigos.length} proposta${codigos.length!==1?'s':''} para ${novoResp}?`)) return
+
+  const cont = document.getElementById('lote-bar-container')
+  if (cont) cont.innerHTML = `<div class="lote-bar ativo"><span class="lote-count"><span class="spinner"></span> Reatribuindo 0/${codigos.length}...</span></div>`
+
+  let ok = 0, erros = 0
+  try {
+    // 1. Atualiza cada proposta no banco
+    for (const codigo of codigos) {
+      try {
+        await sb(`fgf_propostas?codigo=eq.${encodeURIComponent(codigo)}`, {
+          method: 'PATCH', prefer: 'return=minimal',
+          body: { responsavel: novoResp, responsavel_final: novoResp }
+        })
+        const idx = todasPropostas.findIndex(p => String(p.codigo) === String(codigo))
+        if (idx !== -1) { todasPropostas[idx].responsavel = novoResp; todasPropostas[idx].responsavel_final = novoResp }
+        ok++
+        if (cont && ok % 3 === 0) cont.innerHTML = `<div class="lote-bar ativo"><span class="lote-count"><span class="spinner"></span> Reatribuindo ${ok}/${codigos.length}...</span></div>`
+      } catch(e) { erros++ }
+    }
+
+    // 2. Atualiza a referência (uma única vez, com todos os códigos)
+    const refs = await sb('fgf_referencia?select=id,dados&order=criado_em.desc&limit=1')
+    if (refs && refs[0]) {
+      const refId = refs[0].id
+      const dados = refs[0].dados || []
+      codigos.forEach(codigo => {
+        const i = dados.findIndex(r => String(r.codigo).trim() === String(codigo).trim())
+        if (i !== -1) dados[i].responsavel_final = novoResp
+        else dados.push({ codigo: String(codigo).trim(), responsavel_final: novoResp, observacao: '' })
+      })
+      await sb(`fgf_referencia?id=eq.${refId}`, {
+        method: 'PATCH', prefer: 'return=minimal', body: { dados }
+      })
+    }
+
+    selecionadas.clear()
+    renderTabelaPropostas()
+    renderStatsPropostas()
+    showToast(erros ? `✓ ${ok} reatribuídas, ${erros} com erro` : `✓ ${ok} propostas reatribuídas para ${novoResp}`, erros ? 'error' : 'success')
+  } catch(e) {
+    showToast('Erro ao reatribuir: ' + e.message, 'error')
+    renderTabelaPropostas()
+  }
+}
+
+// ============================================================
+// EXPORTAÇÃO (Fase 5)
+// ============================================================
+function nomeContextoFiltro() {
+  if (filtroColab === 'TODOS') return 'Todos os responsaveis'
+  if (filtroColab === 'NOVAS') return 'Propostas novas'
+  if (filtroColab === 'N/A') return 'Sem responsavel'
+  return filtroColab
+}
+
+function descricaoFiltros() {
+  const partes = []
+  partes.push(`Filtro: ${nomeContextoFiltro()}`)
+  if (filtroSearch.trim()) partes.push(`Busca: "${filtroSearch}"`)
+  if (filtroDataIni || filtroDataFim) {
+    partes.push(`Periodo: ${filtroDataIni ? formatData(filtroDataIni) : 'inicio'} ate ${filtroDataFim ? formatData(filtroDataFim) : 'hoje'}`)
+  }
+  if (filtroValorMin !== '' || filtroValorMax !== '') {
+    partes.push(`Valor: ${filtroValorMin !== '' ? formatValor(Number(filtroValorMin)) : 'R$ 0,00'} ate ${filtroValorMax !== '' ? formatValor(Number(filtroValorMax)) : 'sem limite'}`)
+  }
+  return partes.join('  |  ')
+}
+
+function exportarExcel() {
+  const rows = getLinhasVisiveis()
+  if (!rows.length) { showToast('Nenhuma proposta para exportar', 'error'); return }
+
+  const dados = rows.map(p => {
+    const dias = diasParados(p.na_etapa_desde)
+    const ativa = ehAtiva(p.etapa)
+    return {
+      'Responsável': p.responsavel || 'N/A',
+      'Código da Operação': p.codigo || '',
+      'Etapa': p.etapa || '',
+      'Valor (R$)': valorNum(p),
+      'Na Etapa Desde': formatData(p.na_etapa_desde),
+      'Dias na Etapa': dias !== null ? dias : '',
+      'Situação': ativa ? (dias !== null && dias >= DIAS_LIMITE_PARADA ? 'PARADA' : 'Em tratativa') : 'Finalizada',
+      'Observação': p.observacao || '',
+    }
+  })
+
+  const ws = XLSX.utils.json_to_sheet(dados)
+  ws['!cols'] = [ {wch:14},{wch:18},{wch:26},{wch:14},{wch:15},{wch:13},{wch:14},{wch:40} ]
+
+  const wb = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(wb, ws, 'Propostas')
+
+  // Aba de resumo
+  const totalValor = rows.reduce((s,p) => s + valorNum(p), 0)
+  const ativas = rows.filter(p => ehAtiva(p.etapa))
+  const paradas = ativas.filter(p => { const d = diasParados(p.na_etapa_desde); return d !== null && d >= DIAS_LIMITE_PARADA })
+  const resumo = [
+    { Indicador: 'Data da exportação', Valor: new Date().toLocaleString('pt-BR') },
+    { Indicador: 'Filtro aplicado', Valor: nomeContextoFiltro() },
+    { Indicador: 'Total de propostas', Valor: rows.length },
+    { Indicador: 'Em tratativa (ativas)', Valor: ativas.length },
+    { Indicador: 'Paradas 15+ dias', Valor: paradas.length },
+    { Indicador: 'Valor total', Valor: totalValor },
+    { Indicador: 'Valor em tratativa', Valor: ativas.reduce((s,p) => s + valorNum(p), 0) },
+  ]
+  const wsR = XLSX.utils.json_to_sheet(resumo)
+  wsR['!cols'] = [ {wch:26},{wch:26} ]
+  XLSX.utils.book_append_sheet(wb, wsR, 'Resumo')
+
+  const hoje = new Date().toISOString().split('T')[0]
+  const nome = `Microcredito_${nomeContextoFiltro().replace(/[^a-zA-Z0-9]/g,'_')}_${hoje}.xlsx`
+  XLSX.writeFile(wb, nome)
+  showToast(`✓ ${rows.length} propostas exportadas`)
+}
+
+function exportarPDF() {
+  const rows = getLinhasVisiveis()
+  if (!rows.length) { showToast('Nenhuma proposta para exportar', 'error'); return }
+
+  const ativas = rows.filter(p => ehAtiva(p.etapa))
+  const paradas = ativas.filter(p => { const d = diasParados(p.na_etapa_desde); return d !== null && d >= DIAS_LIMITE_PARADA })
+  const totalValor = rows.reduce((s,p) => s + valorNum(p), 0)
+  const valorAtivo = ativas.reduce((s,p) => s + valorNum(p), 0)
+
+  const linhas = rows.map(p => {
+    const dias = diasParados(p.na_etapa_desde)
+    const ativa = ehAtiva(p.etapa)
+    const parada = ativa && dias !== null && dias >= DIAS_LIMITE_PARADA
+    return `<tr class="${parada ? 'parada' : ''}">
+      <td>${p.responsavel || 'N/A'}</td>
+      <td class="mono">${p.codigo || '—'}</td>
+      <td>${p.etapa || '—'}</td>
+      <td class="mono right">${formatValor(p.valor)}</td>
+      <td>${formatData(p.na_etapa_desde)}</td>
+      <td class="center">${dias !== null ? dias + 'd' : '—'}${parada ? ' ⚠' : ''}</td>
+    </tr>`
+  }).join('')
+
+  const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
+  <title>Relatório de Propostas — Fomento Paraná</title>
+  <style>
+    @page { size: A4 landscape; margin: 12mm; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; color: #1a1a2e; }
+    .hdr { background: #003366; color: #fff; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid #F5C400; }
+    .hdr h1 { font-size: 15px; font-weight: 700; }
+    .hdr .sub { font-size: 10px; color: #cbd5e1; margin-top: 2px; }
+    .hdr .data { font-size: 9px; color: #94a3b8; text-align: right; }
+    .filtros { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; padding: 7px 12px; font-size: 9.5px; margin: 10px 0; border-radius: 4px; }
+    .cards { display: flex; gap: 8px; margin-bottom: 12px; }
+    .card { flex: 1; border: 1px solid #e5e7eb; border-radius: 6px; padding: 8px 10px; background: #f8fafc; }
+    .card .lbl { font-size: 8px; color: #6b7280; text-transform: uppercase; font-weight: 700; letter-spacing: .3px; }
+    .card .val { font-size: 15px; font-weight: 700; color: #003366; margin-top: 2px; }
+    .card.alerta .val { color: #dc2626; }
+    table { width: 100%; border-collapse: collapse; font-size: 9px; }
+    thead th { background: #003366; color: #fff; padding: 6px 7px; text-align: left; font-size: 8.5px; text-transform: uppercase; letter-spacing: .3px; }
+    tbody td { padding: 5px 7px; border-bottom: 1px solid #eef0f3; }
+    tbody tr:nth-child(even) { background: #fafbfc; }
+    tbody tr.parada { background: #fef2f2; }
+    tbody tr.parada td { color: #991b1b; font-weight: 600; }
+    .mono { font-family: 'Consolas', monospace; }
+    .right { text-align: right; }
+    .center { text-align: center; }
+    .ft { margin-top: 12px; padding-top: 8px; border-top: 2px solid #F5C400; font-size: 8px; color: #9ca3af; text-align: center; }
+    @media print { .no-print { display: none; } }
+    .no-print { position: fixed; top: 10px; right: 10px; background: #003366; color: #fff; border: none; padding: 10px 18px; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,.2); }
+  </style></head><body>
+  <button class="no-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+  <div class="hdr">
+    <div><h1>FOMENTO PARANÁ — Fomento Giro Fácil</h1><div class="sub">Relatório de Propostas</div></div>
+    <div class="data">Gerado em<br><b>${new Date().toLocaleString('pt-BR')}</b></div>
+  </div>
+  <div class="filtros"><b>Filtros aplicados:</b> ${descricaoFiltros()}</div>
+  <div class="cards">
+    <div class="card"><div class="lbl">Total de Propostas</div><div class="val">${rows.length}</div></div>
+    <div class="card"><div class="lbl">Em Tratativa</div><div class="val">${ativas.length}</div></div>
+    <div class="card ${paradas.length ? 'alerta' : ''}"><div class="lbl">Paradas 15+ dias</div><div class="val">${paradas.length}</div></div>
+    <div class="card"><div class="lbl">Valor em Tratativa</div><div class="val" style="font-size:12px">${formatValor(valorAtivo)}</div></div>
+    <div class="card"><div class="lbl">Valor Total</div><div class="val" style="font-size:12px">${formatValor(totalValor)}</div></div>
+  </div>
+  <table>
+    <thead><tr><th>Responsável</th><th>Código</th><th>Etapa</th><th class="right">Valor</th><th>Na Etapa Desde</th><th class="center">Dias</th></tr></thead>
+    <tbody>${linhas}</tbody>
+  </table>
+  <div class="ft">Fomento Paraná — Documento interno  |  ${rows.length} proposta${rows.length!==1?'s':''} listada${rows.length!==1?'s':''}  |  ⚠ = parada há ${DIAS_LIMITE_PARADA}+ dias</div>
+  </body></html>`
+
+  const win = window.open('', '_blank')
+  if (!win) { showToast('Permita pop-ups para exportar o PDF', 'error'); return }
+  win.document.write(html)
+  win.document.close()
+  showToast(`✓ Relatório gerado — use "Imprimir / Salvar PDF"`)
+}
+
+// ============================================================
+// ABA PAINEL GERENCIAL (Fase 4)
+// ============================================================
+let dadosPainel = { propostas: [], historico: [] }
+
+async function carregarPainel() {
+  const el = document.getElementById('view-painel')
+  el.innerHTML = `<div class="card"><div class="empty"><div class="empty-icon">⏳</div><p>Carregando painel...</p></div></div>`
+  try {
+    const [props, hist] = await Promise.all([
+      sbAll('fgf_propostas?select=*'),
+      sb('fgf_historico?select=*&order=criado_em.desc&limit=12')
+    ])
+    // Mesma janela da aba Propostas: ativas + finalizadas dos últimos 6 meses
+    dadosPainel.propostas = filtrarPorJanela(props || [])
+    dadosPainel.historico = hist || []
+    renderPainel()
+  } catch(e) {
+    el.innerHTML = `<div class="card"><div class="alert alert-danger">❌ Erro ao carregar painel: ${e.message}</div></div>`
+  }
+}
+
+function renderPainel() {
+  const el = document.getElementById('view-painel')
+  if (!dadosPainel.propostas.length) {
+    el.innerHTML = `<div class="card"><div class="painel-empty">📭 Nenhuma proposta processada ainda.<br>Processe as planilhas na aba "⚙ Processar" para ver os indicadores.</div></div>`
+    return
+  }
+
+  const d = calcularDadosPainel()
+  const props = d.props
+  const totalP = props.length || 1
+
+  // ══ BARRA DE FILTROS DO PAINEL ══
+  const colabsDisponiveis = [...new Set(dadosPainel.propostas.map(p => (p.responsavel||'N/A').toUpperCase().trim()))]
+    .filter(c => c !== 'N/A').sort()
+  const etapasDisponiveis = [...new Set(dadosPainel.propostas.map(p => (p.etapa||'').trim()).filter(Boolean))]
+    .sort((a,b) => { const pa=posicaoFunil(a), pb=posicaoFunil(b); if(pa===-1&&pb===-1) return a.localeCompare(b,'pt-BR'); if(pa===-1) return 1; if(pb===-1) return -1; return pa-pb })
+
+  const filtrosPainel = `
+    <div class="painel-filtros">
+      <select class="fa-input" onchange="painelFiltroColab=this.value; renderPainel()">
+        <option value="">👤 Todos os responsáveis</option>
+        ${colabsDisponiveis.map(c => `<option value="${c}" ${painelFiltroColab===c?'selected':''}>${c}</option>`).join('')}
+      </select>
+      <select class="fa-input" onchange="painelFiltroEtapa=this.value; renderPainel()">
+        <option value="">📊 Todas as etapas</option>
+        ${etapasDisponiveis.map(e => `<option value="${e}" ${painelFiltroEtapa===e?'selected':''}>${e}</option>`).join('')}
+      </select>
+      <select class="fa-input" onchange="painelFiltroLinha=this.value; renderPainel()">
+        <option value="">🏷️ Todas as linhas</option>
+        ${LINHAS_CREDITO.map(l => `<option value="${l}" ${painelFiltroLinha===l?'selected':''}>${l}</option>`).join('')}
+      </select>
+      ${(painelFiltroColab||painelFiltroEtapa||painelFiltroLinha) ? `<button class="btn btn-secondary btn-sm" onclick="painelFiltroColab='';painelFiltroEtapa='';painelFiltroLinha='';renderPainel()">✕ Limpar</button>` : ''}
+    </div>`
+
+  // ══ CARDS DE RESUMO ══
+  const pctConc = ((d.concedidas.length/totalP)*100).toFixed(1)
+  const pctNaoConc = ((d.naoConcedidas.length/totalP)*100).toFixed(1)
+  const resumo = `
+    <div class="dash-grid">
+      <div class="dash-card accent-azul"><div class="dash-label">Total de Propostas</div><div class="dash-value">${props.length}</div></div>
+      <div class="dash-card accent-verde"><div class="dash-label">Em Tratativa</div><div class="dash-value">${d.ativas.length}</div><div class="dash-sub">${formatValor(d.valorAtivo)}</div></div>
+      <div class="dash-card accent-roxo"><div class="dash-label">Concedidas</div><div class="dash-value">${d.concedidas.length}</div><div class="dash-sub">${formatValor(d.valorConcedido)} · ${pctConc}%</div></div>
+      <div class="dash-card accent-vermelho"><div class="dash-label">Recusadas + Excluídas<span class="ajuda ajuda-baixo" data-ajuda="Recusado e Excluído são somados juntos como propostas que não seguiram adiante. O percentual é sobre o total de propostas do filtro.">?</span></div><div class="dash-value">${d.naoConcedidas.length}</div><div class="dash-sub">${formatValor(d.valorNaoConcedido)} · ${pctNaoConc}%</div></div>
+      <div class="dash-card accent-parada"><div class="dash-label">⚠️ Paradas 15+ dias<span class="ajuda ajuda-baixo" data-ajuda="Propostas ativas há 15 dias ou mais na mesma etapa. O detalhamento aparece na seção 'Propostas Mais Paradas' abaixo.">?</span></div><div class="dash-value" style="color:${d.paradas.length>0?'#dc2626':'#16a34a'}">${d.paradas.length}</div><div class="dash-sub">precisam de atenção</div></div>
+      <div class="dash-card accent-cinza"><div class="dash-label">Média de Dias Parados<span class="ajuda ajuda-baixo ajuda-esq" data-ajuda="Média de dias que as propostas ativas estão paradas na etapa. Quanto menor, mais ágil o andamento.">?</span></div><div class="dash-value">${d.mediaDias}<span style="font-size:14px;font-weight:600;color:#9ca3af"> dias</span></div><div class="dash-sub">média das ativas</div></div>
+    </div>`
+
+  // ══ SEÇÃO "ETAPAS" — duas colunas (inteiras à esquerda, extensões à direita) ══
+  const corEtapaFunil = (etapa) => {
+    const e = (etapa||'').toLowerCase()
+    if (e === 'concedido') return '#16a34a'
+    if (e === 'excluído' || e === 'excluido') return '#dc2626'
+    if (e === 'recusado') return '#d97706'
+    return '#3b82f6'
+  }
+
+  // Monta uma linha de etapa no estilo FomentoNet (nome à esquerda, barra, % à direita)
+  const maxEtapaCol = Math.max(1, ...ETAPAS_INTEIRAS.concat(ETAPAS_EXTENSOES).map(et => (d.etapaMap[et]||{}).count || 0))
+  const etapaLinha = (etapa) => {
+    const dd = d.etapaMap[etapa] || { count: 0, valor: 0 }
+    const pctTotal = totalP ? ((dd.count/totalP)*100).toFixed(2) : '0.00'
+    const larguraBarra = maxEtapaCol ? Math.round((dd.count/maxEtapaCol)*100) : 0
+    const cor = dd.count > 0 ? corEtapaFunil(etapa) : '#e5e7eb'
+    // Cor do badge de %: laranja se for uma das maiores, verde caso contrário
+    const badgeCor = dd.count === 0 ? '#9ca3af' : (larguraBarra >= 60 ? '#ea580c' : (larguraBarra >= 25 ? '#eab308' : '#16a34a'))
+    return `<div class="etapa-linha">
+      <div class="etapa-nome">${etapa} <span class="etapa-qtd">(${dd.count})</span></div>
+      <div class="etapa-barra-track">
+        <div class="etapa-barra-fill" style="width:${Math.max(larguraBarra,1)}%;background:${cor}"></div>
+      </div>
+      <div class="etapa-pct" style="background:${badgeCor}">${pctTotal}%</div>
+    </div>`
+  }
+
+  const etapas = `
+    <div class="painel-secao">
+      <div class="painel-secao-titulo">📋 Etapas<span class="ajuda ajuda-baixo ajuda-dir" data-ajuda="Todas as etapas oficiais do fluxo. À esquerda as etapas principais (1 a 13), à direita as subetapas de regularização. Mostra quantas propostas há em cada uma e o percentual do total.">?</span></div>
+      <div class="painel-secao-sub">Listagem das propostas por etapa — quantidade e percentual sobre o total</div>
+      <div class="etapas-colunas">
+        <div class="etapas-col">
+          <div class="etapas-col-titulo">Etapas principais</div>
+          ${ETAPAS_INTEIRAS.map(etapaLinha).join('')}
+        </div>
+        <div class="etapas-col">
+          <div class="etapas-col-titulo">Subetapas / Regularizações</div>
+          ${ETAPAS_EXTENSOES.map(etapaLinha).join('')}
+        </div>
+      </div>
+    </div>`
+
+  // ══ SEÇÃO "FUNIL" — cumulativo decrescente, só etapas inteiras (1 a 13) ══
+  // Lógica: Fase N = (total de ativas) menos (todas as ativas que estão nas fases 1 até N-1).
+  // Ou seja, mostra quantas propostas já passaram por essa fase ou estão à frente dela.
+  const ativasTotal = d.ativas.length
+  // Conta ativas em cada etapa inteira
+  const ativasPorEtapa = {}
+  ETAPAS_INTEIRAS.forEach(et => { ativasPorEtapa[et] = 0 })
+  d.ativas.forEach(p => {
+    const norm = normalizarNomeEtapa(p.etapa)
+    if (ativasPorEtapa[norm] !== undefined) ativasPorEtapa[norm]++
+  })
+
+  let acumulado = 0
+  const funilFases = ETAPAS_INTEIRAS.map((etapa, i) => {
+    // Quem chegou nessa fase = total de ativas - as que ficaram nas fases anteriores
+    const restante = ativasTotal - acumulado
+    acumulado += ativasPorEtapa[etapa]  // soma quem parou nesta fase, para descontar na próxima
+    return { etapa, valor: restante, ordem: i+1 }
+  })
+  const maxFunil = Math.max(1, ...funilFases.map(f => f.valor))
+
+  // Gradiente de cores do funil (topo largo/quente -> base estreita/fria)
+  const funilCores = ['#DC2626','#EA580C','#D97706','#CA8A04','#65A30D','#16A34A','#059669','#0D9488','#0891B2','#0284C7','#2563EB','#4F46E5','#7C3AED']
+  const funil = `
+    <div class="painel-secao">
+      <div class="painel-secao-titulo">🔻 Funil<span class="ajuda ajuda-baixo ajuda-dir" data-ajuda="Mostra quantas propostas ativas já passaram por cada fase ou estão à frente dela. A fase 1 tem todas as ativas; cada fase seguinte desconta as que pararam nas anteriores. Vai do maior (fase 1) ao menor (fase 13).">?</span></div>
+      <div class="painel-secao-sub">Propostas ativas que já alcançaram cada fase (${ativasTotal} ativas no total)</div>
+      <div class="funilv-wrap">
+        ${funilFases.map((f, i) => {
+          // Largura fielmente proporcional ao valor (valores iguais = largura igual;
+          // como a lógica é cumulativa decrescente, nunca fica mais largo que a fase de cima).
+          const prop = maxFunil ? (f.valor/maxFunil)*100 : 0
+          const larg = f.valor > 0 ? Math.max(prop, 6) : 4
+          const pctTotal = ativasTotal ? ((f.valor/ativasTotal)*100).toFixed(1) : '0.0'
+          const cor = funilCores[i] || '#7C3AED'
+          const corProx = funilCores[i+1] || cor
+          const estreito = larg < 12
+          return `<div class="funilv-fase">
+            <div class="funilv-info-esq">${f.etapa}</div>
+            <div class="funilv-barra-area">
+              <div class="funilv-trapezio" style="width:${larg}%;--cor:${cor};--cor-prox:${corProx}">
+                ${estreito ? '' : `<span class="funilv-valor">${f.valor}</span>`}
+              </div>
+              ${estreito ? `<span class="funilv-valor-fora" style="color:${cor}">${f.valor}</span>` : ''}
+            </div>
+            <div class="funilv-info-dir">${pctTotal}%</div>
+          </div>`
+        }).join('')}
+      </div>
+    </div>`
+
+
+  // ══ DISTRIBUIÇÃO POR LINHA DE CRÉDITO ══
+  const linhaEntries = Object.entries(d.linhaMap).sort((a,b) => b[1].count - a[1].count)
+  const distLinha = linhaEntries.length ? `
+    <div class="painel-secao">
+      <div class="painel-secao-titulo">🏷️ Distribuição por Linha de Crédito</div>
+      <div class="painel-secao-sub">Quantas propostas e o valor de cada linha</div>
+      <div class="linha-cards">
+        ${linhaEntries.map(([linha, dd]) => {
+          const cor = corLinhaCredito(linha === '(sem linha)' ? '' : linha)
+          const pct = ((dd.count/totalP)*100).toFixed(1)
+          return `<div class="linha-card" style="border-color:${cor}55">
+            <div class="linha-card-top" style="background:${cor}12;color:${cor}">${linha}</div>
+            <div class="linha-card-num">${dd.count}<span class="linha-card-pct">${pct}%</span></div>
+            <div class="linha-card-val">${formatValor(dd.valor)}</div>
+          </div>`
+        }).join('')}
+      </div>
+    </div>` : ''
+
+  // ══ CARGA POR RESPONSÁVEL ══
+  const cargaOrd = Object.entries(d.cargaMap).filter(([r]) => r !== 'N/A').sort((a,b) => b[1].ativas - a[1].ativas)
+  const carga = `
+    <div class="painel-secao">
+      <div class="painel-secao-titulo">👥 Carga de Trabalho por Responsável<span class="ajuda ajuda-baixo ajuda-dir" data-ajuda="Ordenado pela quantidade de propostas ATIVAS de cada pessoa (não pelo total), para mostrar quem tem mais trabalho em andamento agora.">?</span></div>
+      <div class="painel-secao-sub">Ordenado por propostas ativas (em tratativa)</div>
+      <div class="carga-grid">
+        ${cargaOrd.map(([nome, dd]) => {
+          const cor = getCorColab(nome); const fg = getTextColor(cor)
+          return `<div class="carga-card" style="--cor-colab:${cor}">
+            <span class="carga-avatar" style="background:${cor};color:${fg}">${getIniciais(nome)}</span>
+            <div class="carga-info">
+              <div class="carga-nome">${nome}</div>
+              <div class="carga-nums"><span><b>${dd.ativas}</b> ativas</span><span style="color:#9ca3af">de ${dd.total} total</span></div>
+              <div class="carga-valor">${formatValor(dd.valorAtivo)}</div>
+              ${dd.paradas > 0 ? `<span class="carga-alerta">⚠️ ${dd.paradas} parada${dd.paradas>1?'s':''}</span>` : ''}
+            </div>
+          </div>`
+        }).join('')}
+      </div>
+    </div>`
+
+  // ══ RANKING DE PARADAS — com observação ══
+  const rankParadas = d.rankParadas.slice(0, 15)
+  const ranking = `
+    <div class="painel-secao">
+      <div class="painel-secao-titulo">⏱️ Propostas Mais Paradas</div>
+      <div class="painel-secao-sub">Top ${rankParadas.length} propostas ativas há mais tempo na mesma etapa (15+ dias)</div>
+      ${rankParadas.length === 0
+        ? `<div class="painel-empty">✅ Nenhuma proposta parada há mais de ${DIAS_LIMITE_PARADA} dias. Tudo em dia!</div>`
+        : `<table class="rank-table">
+            <thead><tr><th>#</th><th>Responsável</th><th>Código</th><th>Etapa</th><th>Valor</th><th>Parada há</th><th>Observação</th></tr></thead>
+            <tbody>
+              ${rankParadas.map((p, i) => {
+                const cor = getCorColab(p.responsavel || 'N/A'); const fg = getTextColor(cor)
+                const obs = (p.observacao || '').trim()
+                return `<tr>
+                  <td class="rank-pos">${i+1}</td>
+                  <td><span class="resp-avatar" style="background:${cor};color:${fg};width:24px;height:24px;font-size:9px">${getIniciais(p.responsavel||'N/A')}</span> <span style="font-size:12px;font-weight:600">${p.responsavel||'N/A'}</span></td>
+                  <td style="font-family:'IBM Plex Mono',monospace;font-weight:700">${p.codigo}</td>
+                  <td>${etapaBadge(p.etapa)}</td>
+                  <td style="font-family:'IBM Plex Mono',monospace;font-size:11.5px">${formatValor(p.valor)}</td>
+                  <td class="rank-dias"><span class="rank-dias-badge">${p.dias} dias</span></td>
+                  <td style="font-size:11.5px;color:${obs?'#374151':'#cbd5e1'};max-width:220px">${obs || '—'}</td>
+                </tr>`
+              }).join('')}
+            </tbody>
+          </table>`
+      }
+    </div>`
+
+  // ══ EVOLUÇÃO — propostas novas por dia (5 dias antes do último processamento) ══
+  const evolucao = renderEvolucao()
+
+  el.innerHTML = `
+    <div class="card">
+      <div class="dash-header">
+        <div class="dash-title">📊 Painel Gerencial</div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="btn btn-secondary btn-sm" onclick="exportarPainelExcel()" title="Exportar indicadores para Excel">📊 Excel</button>
+          <button class="btn btn-secondary btn-sm" onclick="exportarPainelPDF()" title="Exportar relatório gerencial em PDF">📄 Relatório PDF</button>
+          <button class="btn btn-secondary btn-sm" onclick="carregarPainel()">↺ Atualizar</button>
+        </div>
+      </div>
+      ${filtrosPainel}
+      ${resumo}
+    </div>
+    ${etapas}
+    ${funil}
+    ${distLinha}
+    ${carga}
+    ${ranking}
+    ${evolucao}`
+}
+
+// Evolução: conta propostas por data de "Na Etapa Desde" nos 5 dias anteriores ao último processamento
+function renderEvolucao() {
+  const props = dadosPainel.propostas
+  // Data de referência: último processamento (ou hoje)
+  let dataRef = new Date()
+  if (dadosPainel.historico.length) {
+    const ult = dadosPainel.historico[0].criado_em
+    if (ult) dataRef = new Date(ult)
+  }
+  dataRef.setHours(0,0,0,0)
+
+  // Monta os últimos 5 dias
+  const dias = []
+  for (let i = 4; i >= 0; i--) {
+    const d = new Date(dataRef)
+    d.setDate(d.getDate() - i)
+    const iso = d.toISOString().split('T')[0]
+    dias.push({ iso, label: d.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'}), count: 0, valor: 0 })
+  }
+
+  // Conta propostas cuja na_etapa_desde cai em cada dia
+  props.forEach(p => {
+    if (!p.na_etapa_desde) return
+    const dt = String(p.na_etapa_desde).split('T')[0]
+    const dia = dias.find(x => x.iso === dt)
+    if (dia) { dia.count++; dia.valor += valorNum(p) }
+  })
+
+  const totalPeriodo = dias.reduce((s,d) => s + d.count, 0)
+  const mediaPeriodo = Math.round(totalPeriodo / 5)
+  const maxDia = Math.max(1, ...dias.map(d => d.count))
+
+  return `
+    <div class="painel-secao">
+      <div class="painel-secao-titulo">📈 Propostas Novas por Dia<span class="ajuda ajuda-baixo ajuda-dir" data-ajuda="Conta quantas propostas foram criadas em cada um dos 5 dias anteriores ao ultimo processamento, com base na data Na Etapa Desde.">?</span></div>
+      <div class="painel-secao-sub">Propostas criadas nos 5 dias anteriores ao último processamento (${dataRef.toLocaleDateString('pt-BR')})</div>
+      <div class="evo-resumo">
+        <div class="evo-resumo-item"><span class="evo-resumo-num">${totalPeriodo}</span><span class="evo-resumo-lbl">no período (5 dias)</span></div>
+        <div class="evo-resumo-item"><span class="evo-resumo-num">${mediaPeriodo}</span><span class="evo-resumo-lbl">média por dia</span></div>
+      </div>
+      <div class="evo-wrap">
+        ${dias.map(d => {
+          const altura = Math.max((d.count/maxDia)*100, 2)
+          return `<div class="evo-col">
+            <div class="evo-val">${d.count}</div>
+            <div class="evo-bar" style="height:${altura}%" title="${d.count} propostas · ${formatValor(d.valor)} em ${d.label}"></div>
+            <div class="evo-data">${d.label}</div>
+          </div>`
+        }).join('')}
+      </div>
+    </div>`
+}
+
+// ── Exportação do Painel Gerencial ──
+// Filtros próprios do Painel Gerencial
+let painelFiltroColab = ''
+let painelFiltroEtapa = ''
+let painelFiltroLinha = ''
+
+function propostasPainelFiltradas() {
+  let props = [...dadosPainel.propostas]
+  if (painelFiltroColab) props = props.filter(p => (p.responsavel||'N/A').toUpperCase().trim() === painelFiltroColab)
+  if (painelFiltroEtapa) props = props.filter(p => (p.etapa||'').trim() === painelFiltroEtapa)
+  if (painelFiltroLinha) props = props.filter(p => normalizarLinhaCredito(p.linha_credito) === painelFiltroLinha)
+  return props
+}
+
+function calcularDadosPainel() {
+  const props = propostasPainelFiltradas()
+  const ativas = props.filter(p => ehAtiva(p.etapa))
+  const paradas = ativas.filter(p => { const d = diasParados(p.na_etapa_desde); return d !== null && d >= DIAS_LIMITE_PARADA })
+  const concedidas = props.filter(p => (p.etapa||'').toLowerCase().trim() === 'concedido')
+  // Recusado + Excluído somados (100% juntos)
+  const naoConcedidas = props.filter(p => {
+    const e = (p.etapa||'').toLowerCase().trim()
+    return e === 'recusado' || e === 'excluído' || e === 'excluido'
+  })
+
+  // Média de dias parados (ativas com data válida)
+  const diasArr = ativas.map(p => diasParados(p.na_etapa_desde)).filter(d => d !== null)
+  const mediaDias = diasArr.length ? Math.round(diasArr.reduce((s,d) => s+d, 0) / diasArr.length) : 0
+
+  // Distribuição por etapa (com valor)
+  const etapaMap = {}
+  props.forEach(p => {
+    const bruto = (p.etapa||'—').trim() || '—'
+    // Normaliza para o nome oficial (ex: "Análise Cadastral" -> "4 - Análise Cadastral")
+    const e = posicaoFunil(bruto) !== -1 ? normalizarNomeEtapa(bruto) : bruto
+    if (!etapaMap[e]) etapaMap[e] = { count: 0, valor: 0 }
+    etapaMap[e].count++
+    etapaMap[e].valor += valorNum(p)
+  })
+
+  // Carga por responsável
+  const cargaMap = {}
+  props.forEach(p => {
+    const r = (p.responsavel || 'N/A').toUpperCase().trim()
+    if (!cargaMap[r]) cargaMap[r] = { total: 0, ativas: 0, paradas: 0, valorAtivo: 0, valorTotal: 0, concedidas: 0 }
+    cargaMap[r].total++
+    cargaMap[r].valorTotal += valorNum(p)
+    if ((p.etapa||'').toLowerCase().trim() === 'concedido') cargaMap[r].concedidas++
+    if (ehAtiva(p.etapa)) {
+      cargaMap[r].ativas++
+      cargaMap[r].valorAtivo += valorNum(p)
+      const d = diasParados(p.na_etapa_desde)
+      if (d !== null && d >= DIAS_LIMITE_PARADA) cargaMap[r].paradas++
+    }
+  })
+
+  const rankParadas = ativas
+    .map(p => ({ ...p, dias: diasParados(p.na_etapa_desde) }))
+    .filter(p => p.dias !== null && p.dias >= DIAS_LIMITE_PARADA)
+    .sort((a,b) => b.dias - a.dias)
+
+  // Distribuição por linha de crédito
+  const linhaMap = {}
+  props.forEach(p => {
+    const l = normalizarLinhaCredito(p.linha_credito) || '(sem linha)'
+    if (!linhaMap[l]) linhaMap[l] = { count: 0, valor: 0 }
+    linhaMap[l].count++
+    linhaMap[l].valor += valorNum(p)
+  })
+
+  return {
+    props, ativas, paradas, concedidas, naoConcedidas, etapaMap, cargaMap, rankParadas, linhaMap, mediaDias,
+    valorTotal: props.reduce((s,p) => s + valorNum(p), 0),
+    valorAtivo: ativas.reduce((s,p) => s + valorNum(p), 0),
+    valorConcedido: concedidas.reduce((s,p) => s + valorNum(p), 0),
+    valorNaoConcedido: naoConcedidas.reduce((s,p) => s + valorNum(p), 0),
+    semResp: props.filter(p => !p.responsavel || p.responsavel === 'N/A').length,
+  }
+}
+
+function exportarPainelExcel() {
+  if (!dadosPainel.propostas.length) { showToast('Nenhum dado para exportar', 'error'); return }
+  const d = calcularDadosPainel()
+  const wb = XLSX.utils.book_new()
+
+  // Aba 1 — Resumo Executivo
+  const resumo = [
+    { Indicador: 'Data do relatório', Valor: new Date().toLocaleString('pt-BR') },
+    { Indicador: 'Total de propostas', Valor: d.props.length },
+    { Indicador: 'Em tratativa (ativas)', Valor: d.ativas.length },
+    { Indicador: 'Concedidas', Valor: d.concedidas.length },
+    { Indicador: 'Recusadas + Excluídas', Valor: d.naoConcedidas.length },
+    { Indicador: 'Paradas 15+ dias', Valor: d.paradas.length },
+    { Indicador: 'Média de dias parados', Valor: d.mediaDias },
+    { Indicador: 'Valor total', Valor: d.valorTotal },
+    { Indicador: 'Valor em tratativa', Valor: d.valorAtivo },
+    { Indicador: 'Valor concedido', Valor: d.valorConcedido },
+    { Indicador: 'Valor recusado + excluído', Valor: d.valorNaoConcedido },
+  ]
+  const wsR = XLSX.utils.json_to_sheet(resumo)
+  wsR['!cols'] = [{wch:26},{wch:24}]
+  XLSX.utils.book_append_sheet(wb, wsR, 'Resumo Executivo')
+
+  // Aba 2 — Funil por Etapa
+  const funil = Object.entries(d.etapaMap)
+    .sort((a,b) => b[1].count - a[1].count)
+    .map(([etapa, v]) => ({
+      'Etapa': etapa,
+      'Quantidade': v.count,
+      '% do Total': ((v.count/d.props.length)*100).toFixed(1) + '%',
+      'Valor Acumulado (R$)': v.valor,
+    }))
+  const wsF = XLSX.utils.json_to_sheet(funil)
+  wsF['!cols'] = [{wch:30},{wch:12},{wch:12},{wch:20}]
+  XLSX.utils.book_append_sheet(wb, wsF, 'Funil por Etapa')
+
+  // Aba 3 — Carga por Responsável
+  const carga = Object.entries(d.cargaMap)
+    .filter(([r]) => r !== 'N/A')
+    .sort((a,b) => b[1].ativas - a[1].ativas)
+    .map(([nome, v]) => ({
+      'Responsável': nome,
+      'Total de Propostas': v.total,
+      'Em Tratativa': v.ativas,
+      'Concedidas': v.concedidas,
+      'Paradas 15+ dias': v.paradas,
+      'Valor em Tratativa (R$)': v.valorAtivo,
+      'Valor Total (R$)': v.valorTotal,
+    }))
+  const wsC = XLSX.utils.json_to_sheet(carga)
+  wsC['!cols'] = [{wch:14},{wch:18},{wch:13},{wch:12},{wch:16},{wch:20},{wch:18}]
+  XLSX.utils.book_append_sheet(wb, wsC, 'Carga por Responsável')
+
+  // Aba 4 — Propostas Paradas
+  if (d.rankParadas.length) {
+    const rank = d.rankParadas.map((p,i) => ({
+      '#': i+1,
+      'Responsável': p.responsavel || 'N/A',
+      'Código da Operação': p.codigo,
+      'Etapa': p.etapa,
+      'Valor (R$)': valorNum(p),
+      'Na Etapa Desde': formatData(p.na_etapa_desde),
+      'Dias Parada': p.dias,
+    }))
+    const wsP = XLSX.utils.json_to_sheet(rank)
+    wsP['!cols'] = [{wch:5},{wch:14},{wch:18},{wch:26},{wch:14},{wch:15},{wch:12}]
+    XLSX.utils.book_append_sheet(wb, wsP, 'Propostas Paradas')
+  }
+
+  // Aba 5 — Histórico
+  if (dadosPainel.historico.length) {
+    const hist = dadosPainel.historico.map(h => ({
+      'Data': new Date(h.criado_em).toLocaleString('pt-BR'),
+      'Total de Propostas': h.total_propostas || 0,
+      'Arquivos': (h.arquivos_enviados || []).join(', '),
+    }))
+    const wsH = XLSX.utils.json_to_sheet(hist)
+    wsH['!cols'] = [{wch:20},{wch:18},{wch:50}]
+    XLSX.utils.book_append_sheet(wb, wsH, 'Histórico')
+  }
+
+  const hoje = new Date().toISOString().split('T')[0]
+  XLSX.writeFile(wb, `Painel_Gerencial_Microcredito_${hoje}.xlsx`)
+  showToast('✓ Relatório gerencial exportado')
+}
+
+function exportarPainelPDF() {
+  if (!dadosPainel.propostas.length) { showToast('Nenhum dado para exportar', 'error'); return }
+  const d = calcularDadosPainel()
+
+  const corEtapa = (e) => {
+    const x = e.toLowerCase()
+    if (x === 'concedido') return '#16a34a'
+    if (x === 'excluído' || x === 'excluido') return '#dc2626'
+    if (x === 'recusado') return '#d97706'
+    return '#3b82f6'
+  }
+
+  const etapasOrd = Object.entries(d.etapaMap).sort((a,b) => b[1].count - a[1].count)
+  const maxEtapa = etapasOrd.length ? etapasOrd[0][1].count : 1
+  const cargaOrd = Object.entries(d.cargaMap).filter(([r]) => r !== 'N/A').sort((a,b) => b[1].ativas - a[1].ativas)
+
+  const html = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8">
+  <title>Painel Gerencial — Fomento Paraná</title>
+  <style>
+    @page { size: A4 portrait; margin: 12mm; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; color: #1a1a2e; }
+    .hdr { background: #003366; color: #fff; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 3px solid #F5C400; }
+    .hdr h1 { font-size: 16px; font-weight: 700; }
+    .hdr .sub { font-size: 10px; color: #cbd5e1; margin-top: 2px; }
+    .hdr .data { font-size: 9px; color: #94a3b8; text-align: right; }
+    h2 { font-size: 12px; color: #003366; margin: 16px 0 8px; padding-bottom: 4px; border-bottom: 2px solid #F5C400; }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 12px 0; }
+    .card { border: 1px solid #e5e7eb; border-radius: 6px; padding: 9px 11px; background: #f8fafc; border-left: 3px solid #003366; }
+    .card.verde { border-left-color: #16a34a; }
+    .card.alerta { border-left-color: #dc2626; background: #fef2f2; }
+    .card .lbl { font-size: 8px; color: #6b7280; text-transform: uppercase; font-weight: 700; letter-spacing: .3px; }
+    .card .val { font-size: 17px; font-weight: 700; color: #003366; margin-top: 2px; }
+    .card.alerta .val { color: #dc2626; }
+    .card .sub { font-size: 8.5px; color: #9ca3af; margin-top: 1px; }
+    table { width: 100%; border-collapse: collapse; font-size: 9px; margin-bottom: 6px; }
+    thead th { background: #003366; color: #fff; padding: 6px 7px; text-align: left; font-size: 8px; text-transform: uppercase; letter-spacing: .3px; }
+    tbody td { padding: 5px 7px; border-bottom: 1px solid #eef0f3; }
+    tbody tr:nth-child(even) { background: #fafbfc; }
+    .right { text-align: right; }
+    .center { text-align: center; }
+    .mono { font-family: 'Consolas', monospace; }
+    .bar-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+    .bar-lbl { font-size: 9px; width: 150px; text-align: right; font-weight: 600; }
+    .bar-track { flex: 1; height: 18px; background: #f1f5f9; border-radius: 3px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 3px; display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; color: #fff; font-size: 8.5px; font-weight: 700; }
+    .bar-val { font-size: 8.5px; color: #6b7280; width: 95px; text-align: right; font-family: 'Consolas', monospace; }
+    .parada td { color: #991b1b; }
+    .ft { margin-top: 14px; padding-top: 8px; border-top: 2px solid #F5C400; font-size: 8px; color: #9ca3af; text-align: center; }
+    .no-print { position: fixed; top: 10px; right: 10px; background: #003366; color: #fff; border: none; padding: 10px 18px; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: 600; box-shadow: 0 4px 12px rgba(0,0,0,.2); }
+    @media print { .no-print { display: none; } h2 { page-break-after: avoid; } table { page-break-inside: auto; } tr { page-break-inside: avoid; } }
+  </style></head><body>
+  <button class="no-print" onclick="window.print()">🖨️ Imprimir / Salvar PDF</button>
+
+  <div class="hdr">
+    <div><h1>FOMENTO PARANÁ — Painel Gerencial</h1><div class="sub">Fomento Giro Fácil · Relatório de Indicadores</div></div>
+    <div class="data">Gerado em<br><b>${new Date().toLocaleString('pt-BR')}</b></div>
+  </div>
+
+  <h2>Resumo Executivo</h2>
+  <div class="cards">
+    <div class="card"><div class="lbl">Total de Propostas</div><div class="val">${d.props.length}</div></div>
+    <div class="card verde"><div class="lbl">Em Tratativa</div><div class="val">${d.ativas.length}</div><div class="sub">${formatValor(d.valorAtivo)}</div></div>
+    <div class="card verde"><div class="lbl">Concedidas</div><div class="val">${d.concedidas.length}</div><div class="sub">${formatValor(d.valorConcedido)}</div></div>
+    <div class="card"><div class="lbl">Recusadas + Excluídas</div><div class="val">${d.naoConcedidas.length}</div><div class="sub">${formatValor(d.valorNaoConcedido)}</div></div>
+    <div class="card ${d.paradas.length?'alerta':''}"><div class="lbl">Paradas ${DIAS_LIMITE_PARADA}+ dias</div><div class="val">${d.paradas.length}</div><div class="sub">precisam de atenção</div></div>
+    <div class="card"><div class="lbl">Média Dias Parados</div><div class="val">${d.mediaDias}</div><div class="sub">ativas na etapa</div></div>
+    <div class="card"><div class="lbl">Valor Total</div><div class="val" style="font-size:13px">${formatValor(d.valorTotal)}</div></div>
+  </div>
+
+  <h2>Funil de Propostas por Etapa</h2>
+  ${etapasOrd.map(([etapa, v]) => {
+    const pct = Math.round((v.count/maxEtapa)*100)
+    const pctT = ((v.count/d.props.length)*100).toFixed(1)
+    return `<div class="bar-row">
+      <div class="bar-lbl">${etapa}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${corEtapa(etapa)}">${v.count}</div></div>
+      <div class="bar-val">${pctT}% · ${formatValor(v.valor)}</div>
+    </div>`
+  }).join('')}
+
+  <h2>Carga de Trabalho por Responsável</h2>
+  <table>
+    <thead><tr><th>Responsável</th><th class="center">Total</th><th class="center">Em Tratativa</th><th class="center">Concedidas</th><th class="center">Paradas</th><th class="right">Valor em Tratativa</th></tr></thead>
+    <tbody>
+      ${cargaOrd.map(([nome, v]) => `<tr>
+        <td><b>${nome}</b></td>
+        <td class="center">${v.total}</td>
+        <td class="center"><b>${v.ativas}</b></td>
+        <td class="center">${v.concedidas}</td>
+        <td class="center" style="${v.paradas?'color:#dc2626;font-weight:700':''}">${v.paradas || '—'}</td>
+        <td class="right mono">${formatValor(v.valorAtivo)}</td>
+      </tr>`).join('')}
+    </tbody>
+  </table>
+
+  <h2>Propostas Mais Paradas (${DIAS_LIMITE_PARADA}+ dias)</h2>
+  ${d.rankParadas.length === 0
+    ? `<div style="padding:16px;text-align:center;color:#16a34a;background:#f0fdf4;border-radius:6px;font-size:10px;font-weight:600">✓ Nenhuma proposta parada há mais de ${DIAS_LIMITE_PARADA} dias</div>`
+    : `<table>
+        <thead><tr><th>#</th><th>Responsável</th><th>Código</th><th>Etapa</th><th class="right">Valor</th><th class="center">Dias</th></tr></thead>
+        <tbody>
+          ${d.rankParadas.slice(0,25).map((p,i) => `<tr class="parada">
+            <td>${i+1}</td>
+            <td>${p.responsavel || 'N/A'}</td>
+            <td class="mono"><b>${p.codigo}</b></td>
+            <td>${p.etapa}</td>
+            <td class="right mono">${formatValor(p.valor)}</td>
+            <td class="center"><b>${p.dias}</b></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+      ${d.rankParadas.length > 25 ? `<div style="font-size:8.5px;color:#9ca3af;margin-top:4px">Mostrando as 25 mais paradas de ${d.rankParadas.length} no total.</div>` : ''}`
+  }
+
+  <div class="ft">Fomento Paraná — Documento interno · Painel Gerencial gerado automaticamente pelo Fomento Giro Fácil</div>
+  </body></html>`
+
+  const win = window.open('', '_blank')
+  if (!win) { showToast('Permita pop-ups para exportar o PDF', 'error'); return }
+  win.document.write(html)
+  win.document.close()
+  showToast('✓ Relatório gerencial gerado')
+}
+
+// ============================================================
+// ABA HISTÓRICO
+// ============================================================
+function renderHistorico() {
+  document.getElementById('view-historico').innerHTML = `
+  <div class="card">
+    <div class="card-title">🕒 Histórico de Processamentos</div>
+    <div id="lista-historico"><div class="empty"><div class="empty-icon">⏳</div><p>Carregando...</p></div></div>
+  </div>`
+}
+
+async function carregarHistorico() {
+  try {
+    const data = await sb('fgf_historico?select=*&order=criado_em.desc&limit=50')
+    const lista = data || []
+    if (!lista.length) {
+      document.getElementById('lista-historico').innerHTML = `<div class="empty"><div class="empty-icon">📭</div><p>Nenhum processamento realizado ainda.</p></div>`
+      return
+    }
+    document.getElementById('lista-historico').innerHTML = lista.map(h => {
+      const dt = new Date(h.criado_em)
+      const dataFmt = dt.toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit',year:'numeric'})
+      const horaFmt = dt.toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})
+      const arqs = (h.arquivos_enviados || []).join(', ')
+      return `<div class="hist-item">
+        <div class="hist-icon">📊</div>
+        <div class="hist-info">
+          <div class="hist-data">${dataFmt} às ${horaFmt}</div>
+          <div class="hist-detalhe">${arqs || 'Arquivos não registrados'}</div>
+        </div>
+        <span class="hist-badge">${h.total_propostas || 0} propostas</span>
+      </div>`
+    }).join('')
+  } catch(e) {
+    document.getElementById('lista-historico').innerHTML = `<div class="alert alert-danger">❌ Erro: ${e.message}</div>`
+  }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+
+// Fecha modais com a tecla Esc
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return
+  const mResp = document.getElementById('modal-resp')
+  if (mResp && mResp.style.display === 'flex') { fecharModalResp(); return }
+  const mObs = document.getElementById('modal-obs')
+  if (mObs && mObs.style.display === 'flex') { fecharModal(); return }
+})
+
+renderProcessar()
+renderPropostas()
+renderHistorico()
+</script>
+</body>
+</html>
