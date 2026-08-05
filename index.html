@@ -611,7 +611,7 @@
     <h1>FOMENTO PARANÁ — Fomento Giro Fácil</h1>
     <span>Processamento Automatizado — FGF</span>
   </div>
-  <span class="header-badge">FGF v1.1</span>
+  <span class="header-badge">FGF v1.2</span>
 </header>
 
 <nav>
@@ -1309,24 +1309,27 @@ function deduplicar(rows) {
 function aplicarVlookup(rows, ref, mapaAtribuicoes = {}) {
   return rows.map(row => {
     const chave = String(row.codigo).trim()
-    // Prioridade 1: atribuição manual já salva no banco
-    const atrib = mapaAtribuicoes[chave]
-    if (atrib) {
-      return {
-        ...row,
-        observacoesAnteriores: atrib.observacao || '',
-        responsavel: atrib.responsavel,
-        responsavelFinal: atrib.responsavel_final,
-        estagiario: atrib.estagiario || 'N/A',
-      }
-    }
-    // Prioridade 2: referência do dia anterior
-    const r = ref.find(x => String(x.codigo).trim() === String(row.codigo).trim())
-    const resp = r && r.responsavel_final && r.responsavel_final !== 'N/A' ? r.responsavel_final : 'N/A'
-    const est = r && r.estagiario && r.estagiario !== 'N/A' ? r.estagiario : 'N/A'
+    const atrib = mapaAtribuicoes[chave]                                  // já salvo no banco
+    const r = ref.find(x => String(x.codigo).trim() === chave)            // referência
+
+    const vale = v => v && String(v).trim() && String(v).trim() !== 'N/A'
+
+    // Analista: atribuição manual vence; se vazia, cai na referência
+    let resp = 'N/A'
+    if (atrib && vale(atrib.responsavel_final)) resp = atrib.responsavel_final
+    else if (atrib && vale(atrib.responsavel)) resp = atrib.responsavel
+    else if (r && vale(r.responsavel_final)) resp = r.responsavel_final
+
+    // Estagiário: mesma regra, avaliada de forma independente do analista
+    let est = 'N/A'
+    if (atrib && vale(atrib.estagiario)) est = atrib.estagiario
+    else if (r && vale(r.estagiario)) est = r.estagiario
+
+    const obsAnt = (atrib && atrib.observacao) || (r && r.observacao) || ''
+
     return {
       ...row,
-      observacoesAnteriores: r ? (r.observacao || '') : '',
+      observacoesAnteriores: obsAnt,
       responsavel: resp,
       responsavelFinal: resp,
       estagiario: est,
