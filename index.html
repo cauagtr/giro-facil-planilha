@@ -512,6 +512,10 @@
   .carga-nome { font-size: 12.5px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
   .carga-nums { display: flex; gap: 10px; font-size: 11px; color: var(--text-muted); }
   .carga-nums b { color: var(--text); font-size: 14px; }
+  .carga-papel { font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 8px; text-transform: uppercase; letter-spacing: .3px; vertical-align: middle; }
+  .carga-papel-analista { background: #DBEAFE; color: #1E40AF; }
+  .carga-papel-estagiario { background: #FEF3C7; color: #92400E; }
+  .carga-papel-ambos { background: #EDE9FE; color: #6B21A8; }
   .carga-alerta { font-size: 10px; font-weight: 700; color: #dc2626; background: #fee2e2; padding: 1px 6px; border-radius: 8px; margin-top: 3px; display: inline-block; }
   .carga-valor { font-size: 11px; color: #6b7280; font-family: 'IBM Plex Mono', monospace; margin-top: 2px; }
 
@@ -611,7 +615,7 @@
     <h1>FOMENTO PARANÁ — Fomento Giro Fácil</h1>
     <span>Processamento Automatizado — FGF</span>
   </div>
-  <span class="header-badge">FGF v1.2</span>
+  <span class="header-badge">FGF v1.3</span>
 </header>
 
 <nav>
@@ -737,7 +741,7 @@ function filtrarPorJanela(props) {
 // ============================================================
 // ── Equipe do Giro Fácil: dois papéis por proposta ──
 const ANALISTAS = ['BERNARDO','FABIANO','FERNANDO','JULIANA','NIVALDO']
-const ESTAGIARIOS = ['ANA PAULA','ANDRESSA','CICERA','ISABELA','LETICIA','MARCOS']
+const ESTAGIARIOS = ['ANA PAULA','ANDRESSA','ISABELA','LETICIA','MARCOS']
 
 const COLABORADORES = {
   // Analistas (tons mais frios/escuros)
@@ -749,7 +753,6 @@ const COLABORADORES = {
   // Estagiários (tons mais quentes/claros)
   'ANA PAULA': '#E06C75',
   ANDRESSA:    '#C9A0DC',
-  CICERA:      '#D5A6E6',
   ISABELA:     '#F4A460',
   LETICIA:     '#EA9999',
   MARCOS:      '#F6B26B',
@@ -851,6 +854,13 @@ function posicaoFunil(etapa) {
   return FUNIL_ETAPAS.findIndex(f => f.toLowerCase().trim() === norm.toLowerCase().trim())
 }
 
+
+// CICERA e ANDRESSA são a mesma pessoa — padroniza em ANDRESSA
+function normalizarPessoa(nome) {
+  const n = (nome||'').toString().trim().toUpperCase()
+  if (n === 'CICERA') return 'ANDRESSA'
+  return n
+}
 
 function getCorColab(nome) {
   if (!nome || nome === 'N/A') return COLABORADORES['N/A']
@@ -2565,8 +2575,11 @@ function renderPainel() {
   const totalP = props.length || 1
 
   // ══ BARRA DE FILTROS DO PAINEL ══
-  const colabsDisponiveis = [...new Set(dadosPainel.propostas.map(p => (p.responsavel||'N/A').toUpperCase().trim()))]
-    .filter(c => c !== 'N/A').sort()
+  // Lista de pessoas do filtro: analistas E estagiários
+  const colabsDisponiveis = [...new Set([
+    ...dadosPainel.propostas.map(p => normalizarPessoa(p.responsavel)),
+    ...dadosPainel.propostas.map(p => normalizarPessoa(p.estagiario)),
+  ])].filter(c => c && c !== 'N/A').sort()
   const etapasDisponiveis = [...new Set(dadosPainel.propostas.map(p => (p.etapa||'').trim()).filter(Boolean))]
     .sort((a,b) => { const pa=posicaoFunil(a), pb=posicaoFunil(b); if(pa===-1&&pb===-1) return a.localeCompare(b,'pt-BR'); if(pa===-1) return 1; if(pb===-1) return -1; return pa-pb })
 
@@ -2726,7 +2739,7 @@ function renderPainel() {
           return `<div class="carga-card" style="--cor-colab:${cor}">
             <span class="carga-avatar" style="background:${cor};color:${fg}">${getIniciais(nome)}</span>
             <div class="carga-info">
-              <div class="carga-nome">${nome}</div>
+              <div class="carga-nome">${nome} <span class="carga-papel carga-papel-${(dd.papel||'').toLowerCase().replace('á','a')}">${dd.papel||''}</span></div>
               <div class="carga-nums"><span><b>${dd.ativas}</b> ativas</span><span style="color:#9ca3af">de ${dd.total} total</span></div>
               <div class="carga-valor">${formatValor(dd.valorAtivo)}</div>
               ${dd.paradas > 0 ? `<span class="carga-alerta">⚠️ ${dd.paradas} parada${dd.paradas>1?'s':''}</span>` : ''}
@@ -2850,7 +2863,10 @@ let painelFiltroLinha = ''
 
 function propostasPainelFiltradas() {
   let props = [...dadosPainel.propostas]
-  if (painelFiltroColab) props = props.filter(p => (p.responsavel||'N/A').toUpperCase().trim() === painelFiltroColab)
+  // Filtrar por pessoa considera os dois papéis (analista ou estagiário)
+  if (painelFiltroColab) props = props.filter(p =>
+    normalizarPessoa(p.responsavel) === painelFiltroColab ||
+    normalizarPessoa(p.estagiario) === painelFiltroColab)
   if (painelFiltroEtapa) props = props.filter(p => (p.etapa||'').trim() === painelFiltroEtapa)
   if (painelFiltroLinha) props = props.filter(p => normalizarLinhaCredito(p.linha_credito) === painelFiltroLinha)
   return props
@@ -2883,19 +2899,29 @@ function calcularDadosPainel() {
   })
 
   // Carga por responsável
+  // Carga por pessoa: a MESMA proposta conta para o analista E para o estagiário.
+  // Os totais gerais do painel são calculados à parte, sobre `props`, então
+  // nenhum valor é somado em dobro nos indicadores.
   const cargaMap = {}
-  props.forEach(p => {
-    const r = (p.responsavel || 'N/A').toUpperCase().trim()
-    if (!cargaMap[r]) cargaMap[r] = { total: 0, ativas: 0, paradas: 0, valorAtivo: 0, valorTotal: 0, concedidas: 0 }
-    cargaMap[r].total++
-    cargaMap[r].valorTotal += valorNum(p)
-    if ((p.etapa||'').toLowerCase().trim() === 'concedido') cargaMap[r].concedidas++
+  const somaCarga = (nome, papel, p) => {
+    const k = normalizarPessoa(nome)
+    if (!k || k === 'N/A') return
+    if (!cargaMap[k]) cargaMap[k] = { papel, total: 0, ativas: 0, paradas: 0, valorAtivo: 0, valorTotal: 0, concedidas: 0 }
+    // Se a pessoa atua nos dois papéis, marca como "Ambos"
+    if (cargaMap[k].papel !== papel) cargaMap[k].papel = 'Ambos'
+    cargaMap[k].total++
+    cargaMap[k].valorTotal += valorNum(p)
+    if ((p.etapa||'').toLowerCase().trim() === 'concedido') cargaMap[k].concedidas++
     if (ehAtiva(p.etapa)) {
-      cargaMap[r].ativas++
-      cargaMap[r].valorAtivo += valorNum(p)
+      cargaMap[k].ativas++
+      cargaMap[k].valorAtivo += valorNum(p)
       const d = diasParados(p.na_etapa_desde)
-      if (d !== null && d >= DIAS_LIMITE_PARADA) cargaMap[r].paradas++
+      if (d !== null && d >= DIAS_LIMITE_PARADA) cargaMap[k].paradas++
     }
+  }
+  props.forEach(p => {
+    somaCarga(p.responsavel, 'Analista', p)
+    somaCarga(p.estagiario, 'Estagiário', p)
   })
 
   const rankParadas = ativas
