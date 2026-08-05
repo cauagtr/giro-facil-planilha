@@ -611,7 +611,7 @@
     <h1>FOMENTO PARANÁ — Fomento Giro Fácil</h1>
     <span>Processamento Automatizado — FGF</span>
   </div>
-  <span class="header-badge">v3.0</span>
+  <span class="header-badge">FGF v1.1</span>
 </header>
 
 <nav>
@@ -1448,16 +1448,21 @@ async function processarPlanilhas() {
     document.getElementById('proc-status').className = 'alert alert-success'
     document.getElementById('proc-status').textContent = `✅ Processamento concluído! ${propostas.length} propostas salvas.`
 
-    const naAtrib = propostas.filter(p => p.responsavel === 'N/A').length
-    const comResp = propostas.filter(p => p.responsavel !== 'N/A').length
+    const semAnalista = propostas.filter(p => p.responsavel === 'N/A').length
+    const semEstagiario = propostas.filter(p => p.estagiario === 'N/A').length
+    const comAnalista = propostas.filter(p => p.responsavel !== 'N/A').length
+    const ativasQtd = propostas.filter(p => ehAtiva(p.etapa)).length
+    const finalizadasQtd = propostas.length - ativasQtd
     document.getElementById('card-resultado').style.display = ''
     document.getElementById('resultado-content').innerHTML = `
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-label">Total</div><div class="stat-value">${propostas.length}</div><div class="stat-sub">propostas</div></div>
-        <div class="stat-card"><div class="stat-label">Com Responsável</div><div class="stat-value" style="color:#166534">${comResp}</div></div>
-        <div class="stat-card"><div class="stat-label">Propostas Antigas</div><div class="stat-value" style="color:${naAtrib>0?'#92400e':'#166534'}">${naAtrib}</div></div>
-        <div class="stat-card"><div class="stat-label">Andamento</div><div class="stat-value">${and.length}</div></div>
-        <div class="stat-card"><div class="stat-label">Finalizados</div><div class="stat-value">${fin.length}</div></div>
+        <div class="stat-card"><div class="stat-label">Em Andamento</div><div class="stat-value">${ativasQtd}</div></div>
+        <div class="stat-card"><div class="stat-label">Finalizadas</div><div class="stat-value">${finalizadasQtd}</div></div>
+        <div class="stat-card"><div class="stat-label">Com Analista</div><div class="stat-value" style="color:#166534">${comAnalista}</div></div>
+        <div class="stat-card"><div class="stat-label">Sem Analista</div><div class="stat-value" style="color:${semAnalista>0?'#92400e':'#166534'}">${semAnalista}</div></div>
+        <div class="stat-card"><div class="stat-label">Sem Estagiário</div><div class="stat-value" style="color:${semEstagiario>0?'#92400e':'#166534'}">${semEstagiario}</div></div>
+        ${cortadas > 0 ? `<div class="stat-card"><div class="stat-label">Fora dos 2 meses</div><div class="stat-value" style="color:#64748b">${cortadas}</div><div class="stat-sub">descartadas</div></div>` : ''}
       </div>
       <button class="btn btn-primary" onclick="setTab('propostas');carregarPropostas()">Ver Propostas →</button>`
 
