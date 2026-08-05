@@ -616,7 +616,7 @@
     <h1>FOMENTO PARANÁ — Fomento Giro Fácil</h1>
     <span>Processamento Automatizado — FGF</span>
   </div>
-  <span class="header-badge">FGF v1.6</span>
+  <span class="header-badge">FGF v1.7</span>
 </header>
 
 <nav>
@@ -1422,31 +1422,32 @@ function deduplicar(rows) {
 function aplicarVlookup(rows, ref, mapaAtribuicoes = {}) {
   return rows.map(row => {
     const chave = String(row.codigo).trim()
-    const atrib = mapaAtribuicoes[chave]                                  // já salvo no banco
-    const r = ref.find(x => String(x.codigo).trim() === chave)            // referência
-
+    const atrib = mapaAtribuicoes[chave]                        // proposta JÁ existe no banco
     const vale = v => v && String(v).trim() && String(v).trim() !== 'N/A'
 
-    // Analista: atribuição manual vence; se vazia, cai na referência
-    let resp = 'N/A'
-    if (atrib && vale(atrib.responsavel_final)) resp = atrib.responsavel_final
-    else if (atrib && vale(atrib.responsavel)) resp = atrib.responsavel
-    else if (r && vale(r.responsavel_final)) resp = r.responsavel_final
+    // REGRA: se a proposta já está no sistema, o que está gravado MANDA —
+    // inclusive quando está vazio (significa que alguém desatribuiu de propósito).
+    // A referência só entra em cena para propostas NOVAS.
+    if (atrib) {
+      const respAtual = vale(atrib.responsavel_final) ? atrib.responsavel_final
+                      : (vale(atrib.responsavel) ? atrib.responsavel : 'N/A')
+      return {
+        ...row,
+        observacoesAnteriores: atrib.observacao || '',
+        responsavel: respAtual,
+        responsavelFinal: respAtual,
+        estagiario: vale(atrib.estagiario) ? atrib.estagiario : 'N/A',
+      }
+    }
 
-    // Estagiário: mesma regra, avaliada de forma independente do analista
-    let est = 'N/A'
-    if (atrib && vale(atrib.estagiario)) est = atrib.estagiario
-    else if (r && vale(r.estagiario)) est = r.estagiario
-    else if (estagiarioInicial(chave)) est = estagiarioInicial(chave)
-
-    const obsAnt = (atrib && atrib.observacao) || (r && r.observacao) || ''
-
+    // Proposta nova: tenta herdar da referência do processamento anterior
+    const r = ref.find(x => String(x.codigo).trim() === chave)
     return {
       ...row,
-      observacoesAnteriores: obsAnt,
-      responsavel: resp,
-      responsavelFinal: resp,
-      estagiario: est,
+      observacoesAnteriores: r ? (r.observacao || '') : '',
+      responsavel: (r && vale(r.responsavel_final)) ? r.responsavel_final : 'N/A',
+      responsavelFinal: (r && vale(r.responsavel_final)) ? r.responsavel_final : 'N/A',
+      estagiario: (r && vale(r.estagiario)) ? r.estagiario : 'N/A',
     }
   })
 }
