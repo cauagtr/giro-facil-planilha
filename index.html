@@ -616,7 +616,7 @@
     <h1>FOMENTO PARANÁ — Fomento Giro Fácil</h1>
     <span>Processamento Automatizado — FGF</span>
   </div>
-  <span class="header-badge">FGF v1.7</span>
+  <span class="header-badge">FGF v2.0</span>
 </header>
 
 <nav>
@@ -744,107 +744,6 @@ function filtrarPorJanela(props) {
 const ANALISTAS = ['BERNARDO','FABIANO','FERNANDO','JULIANA','NIVALDO']
 const ESTAGIARIOS = ['ANA PAULA','ANDRESSA','ISABELA','LETICIA','MARCOS']
 
-// ── Atribuição inicial de estagiários (fonte: lista oficial do gestor) ──
-// Usada como fallback: se uma proposta está sem estagiário no banco,
-// o sistema pega daqui e grava. CICERA já vem convertida em ANDRESSA.
-const ESTAGIARIO_INICIAL = {
-  '320330': 'MARCOS',
-  '328103': 'MARCOS',
-  '322919': 'LETICIA',
-  '324139': 'LETICIA',
-  '329556': 'ANA PAULA',
-  '329997': 'ANA PAULA',
-  '329991': 'ANA PAULA',
-  '331603': 'ISABELA',
-  '331815': 'LETICIA',
-  '332442': 'MARCOS',
-  '332655': 'LETICIA',
-  '328651': 'ANA PAULA',
-  '318918': 'LETICIA',
-  '319565': 'MARCOS',
-  '321657': 'ANA PAULA',
-  '329653': 'MARCOS',
-  '322657': 'ANA PAULA',
-  '322828': 'ANA PAULA',
-  '323042': 'LETICIA',
-  '324652': 'LETICIA',
-  '319586': 'ANA PAULA',
-  '326722': 'LETICIA',
-  '332444': 'MARCOS',
-  '318394': 'LETICIA',
-  '329824': 'ANA PAULA',
-  '328217': 'LETICIA',
-  '329028': 'MARCOS',
-  '328867': 'MARCOS',
-  '322409': 'LETICIA',
-  '323843': 'ANA PAULA',
-  '325190': 'ISABELA',
-  '329176': 'ANA PAULA',
-  '329799': 'ISABELA',
-  '331889': 'ANDRESSA',
-  '330120': 'ANA PAULA',
-  '329992': 'ISABELA',
-  '317936': 'ANA PAULA',
-  '321016': 'ANA PAULA',
-  '329637': 'ANA PAULA',
-  '323453': 'ANA PAULA',
-  '319731': 'ISABELA',
-  '314921': 'ANA PAULA',
-  '316869': 'ISABELA',
-  '323370': 'ANA PAULA',
-  '328453': 'ANA PAULA',
-  '328408': 'ANA PAULA',
-  '329800': 'ANA PAULA',
-  '329248': 'ANA PAULA',
-  '329794': 'ISABELA',
-  '323686': 'ANA PAULA',
-  '325711': 'ISABELA',
-  '332265': 'ANA PAULA',
-  '328421': 'ANA PAULA',
-  '328875': 'ANA PAULA',
-  '331529': 'LETICIA',
-  '328943': 'ANA PAULA',
-  '330131': 'ANA PAULA',
-  '328079': 'ISABELA',
-  '329811': 'ANA PAULA',
-  '325154': 'MARCOS',
-  '326847': 'ANA PAULA',
-  '326988': 'MARCOS',
-  '330262': 'ISABELA',
-  '329457': 'ANA PAULA',
-  '328648': 'ANA PAULA',
-  '330892': 'ANDRESSA',
-  '317745': 'ANA PAULA',
-  '320601': 'ANA PAULA',
-  '331292': 'ISABELA',
-  '328659': 'ANA PAULA',
-  '327427': 'ANA PAULA',
-  '328531': 'ANA PAULA',
-  '329944': 'ANA PAULA',
-  '329271': 'MARCOS',
-  '331541': 'ISABELA',
-  '321504': 'ANA PAULA',
-  '331869': 'LETICIA',
-  '332517': 'LETICIA',
-  '332550': 'MARCOS',
-  '326131': 'LETICIA',
-  '320719': 'LETICIA',
-  '317575': 'ISABELA',
-  '321983': 'LETICIA',
-  '330587': 'MARCOS',
-  '330820': 'LETICIA',
-  '322906': 'LETICIA',
-  '323498': 'LETICIA',
-  '331235': 'LETICIA',
-  '331414': 'MARCOS',
-  '331696': 'MARCOS',
-  '330716': 'LETICIA',
-}
-
-// Retorna o estagiário desta proposta pela lista oficial, se houver
-function estagiarioInicial(codigo) {
-  return ESTAGIARIO_INICIAL[String(codigo).trim()] || null
-}
 
 const COLABORADORES = {
   // Analistas (tons mais frios/escuros)
@@ -1494,15 +1393,17 @@ async function processarPlanilhas() {
 
     // Buscar atribuições manuais já salvas no banco para preservá-las
     const propostasExistentes = await sbAll('fgf_propostas?select=codigo,etapa,responsavel,responsavel_final,estagiario,observacao')
+    // TODAS as propostas já existentes entram no mapa — inclusive as que estão
+    // sem analista, porque podem ter estagiário. E o estagiário PRECISA vir junto,
+    // senão o processamento apaga a atribuição.
     const mapaAtribuicoes = {}
     if (propostasExistentes) {
       propostasExistentes.forEach(p => {
-        if (p.responsavel && p.responsavel !== 'N/A') {
-          mapaAtribuicoes[String(p.codigo).trim()] = {
-            responsavel: p.responsavel,
-            responsavel_final: p.responsavel_final,
-            observacao: p.observacao || ''
-          }
+        mapaAtribuicoes[String(p.codigo).trim()] = {
+          responsavel: p.responsavel,
+          responsavel_final: p.responsavel_final,
+          estagiario: p.estagiario,
+          observacao: p.observacao || ''
         }
       })
     }
@@ -1701,8 +1602,6 @@ async function carregarPropostas() {
     const data = await sbAll('fgf_propostas?select=*&order=codigo.asc')
     // Mantém todas as ativas + finalizadas dos últimos 6 meses
     todasPropostas = filtrarPorJanela(data || [])
-    // Completa estagiários que estejam faltando, usando a lista oficial
-    await completarEstagiarios()
     popularSelectEtapas()
     renderTabelaPropostas()
     renderStatsPropostas()
@@ -1714,46 +1613,6 @@ async function carregarPropostas() {
 
 // Preenche o estagiário das propostas que estão sem, usando a lista oficial,
 // e grava no banco para que a correção seja permanente.
-// Roda UMA ÚNICA VEZ. Depois de concluída, fica registrada em fgf_config
-// e nunca mais interfere: você pode trocar, remover ou reatribuir à vontade.
-const CHAVE_CARGA = 'estagiarios_carga_inicial'
-
-async function completarEstagiarios() {
-  try {
-    // Já rodou antes? Então não mexe em nada.
-    const marca = await sb(`fgf_config?chave=eq.${CHAVE_CARGA}&select=chave`)
-    if (marca && marca.length) return
-
-    const faltando = todasPropostas.filter(p => {
-      const atual = (p.estagiario || 'N/A').toUpperCase().trim()
-      return atual === 'N/A' && estagiarioInicial(p.codigo)
-    })
-
-    if (faltando.length) {
-      faltando.forEach(p => { p.estagiario = estagiarioInicial(p.codigo) })
-      for (const p of faltando) {
-        try {
-          await sb(`fgf_propostas?codigo=eq.${encodeURIComponent(p.codigo)}`, {
-            method: 'PATCH', prefer: 'return=minimal',
-            body: { estagiario: p.estagiario }
-          })
-        } catch(e) { /* segue mesmo se uma falhar */ }
-      }
-      showToast(`✓ Carga inicial: ${faltando.length} estagiários atribuídos`)
-    }
-
-    // Marca como concluída — a partir daqui o sistema não interfere mais
-    await sb('fgf_config', {
-      method: 'POST', prefer: 'return=minimal',
-      body: { chave: CHAVE_CARGA, valor: `${faltando.length} propostas` }
-    })
-    console.log(`[FGF] Carga inicial concluída (${faltando.length}). Não roda novamente.`)
-  } catch(e) {
-    // Se a tabela fgf_config ainda não existe, apenas ignora e segue
-    console.log('[FGF] Carga inicial ignorada:', e.message)
-  }
-}
-
 // Aplica os filtros avançados (período e faixa de valor)
 function aplicarFiltrosData(rows) {
   if (filtroDataIni) {
