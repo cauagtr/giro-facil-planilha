@@ -616,7 +616,7 @@
     <h1>FOMENTO PARANÁ — Fomento Giro Fácil</h1>
     <span>Processamento Automatizado — FGF</span>
   </div>
-  <span class="header-badge">FGF v2.0</span>
+  <span class="header-badge">FGF v2.1</span>
 </header>
 
 <nav>
@@ -1095,11 +1095,11 @@ function setTurno(t) {
 function renderProcessar() {
   document.getElementById('view-processar').innerHTML = `
   <div class="card">
-    <div class="card-title">📂 Upload das Planilhas<span class="ajuda ajuda-baixo ajuda-dir" data-ajuda="A planilha PRECISA ter: Codigo da Operacao, Etapa, Valor Solicitado, Na Etapa Desde, Linha de Credito e Municipio. NAO pode ter Nome, CPF/CNPJ nem Email. Concedido e Recusado sao filtrados automaticamente pelos 2 ultimos meses.">?</span></div>
+    <div class="card-title">📂 Upload das Planilhas<span class="ajuda ajuda-baixo ajuda-dir" data-ajuda="A planilha PRECISA ter: Codigo da Operacao, Etapa, Valor Solicitado, Na Etapa Desde, Linha de Credito e Municipio. NAO pode ter Nome, CPF/CNPJ nem Email. Concedido e Recusado sao filtrados automaticamente: antes do dia 15 entram o mes anterior e o atual; do dia 15 em diante, so o mes atual.">?</span></div>
     <div class="upload-grid-4">
       ${TIPOS_ARQUIVO.map(t => `
       <div>
-        <label>${t.label}${t.finalizado ? '<span class="tag-filtro">filtra 2 meses</span>' : ''}</label>
+        <label>${t.label}${t.finalizado ? `<span class="tag-filtro" title="Só entram as propostas com Na Etapa Desde dentro da janela vigente">só ${descricaoJanelaCorte()}</span>` : ''}</label>
         <div class="input-file-area" id="drop-${t.id}" onclick="document.getElementById('file-${t.id}').click()"
           ondragover="event.preventDefault();this.classList.add('over')"
           ondragleave="this.classList.remove('over')"
@@ -1294,13 +1294,35 @@ function transformar(rows) {
   }))
 }
 
-// Mantém apenas os registros dos 2 últimos meses, pela data "Na Etapa Desde".
-// Regra do processo: se hoje for antes do dia 15, inclui também o mês retrasado.
+// Define a partir de qual data as propostas Concedidas/Recusadas entram.
+// Regra do processo:
+//   • Antes do dia 15  → mês anterior + mês atual
+//   • Do dia 15 em diante → somente o mês atual
+function dataCorteConcedidoRecusado(hoje = new Date()) {
+  const ano = hoje.getFullYear()
+  const mes = hoje.getMonth()
+  const corte = hoje.getDate() < 15
+    ? new Date(ano, mes - 1, 1)   // volta para o 1º dia do mês anterior
+    : new Date(ano, mes, 1)       // 1º dia do mês atual
+  corte.setHours(0, 0, 0, 0)
+  return corte
+}
+
+// Texto amigável da janela vigente (ex: "julho e agosto" ou "agosto")
+function descricaoJanelaCorte(hoje = new Date()) {
+  const meses = ['janeiro','fevereiro','março','abril','maio','junho',
+                 'julho','agosto','setembro','outubro','novembro','dezembro']
+  const atual = meses[hoje.getMonth()]
+  if (hoje.getDate() < 15) {
+    const ant = meses[(hoje.getMonth() + 11) % 12]
+    return `${ant} e ${atual}`
+  }
+  return atual
+}
+
+// Mantém apenas as propostas dentro da janela vigente, pela data "Na Etapa Desde"
 function filtrarUltimosMeses(rows) {
-  const hoje = new Date()
-  const mesesParaTras = hoje.getDate() < 15 ? 3 : 2
-  const corte = new Date(hoje.getFullYear(), hoje.getMonth() - (mesesParaTras - 1), 1)
-  corte.setHours(0,0,0,0)
+  const corte = dataCorteConcedidoRecusado()
   return rows.filter(r => {
     const d = r.naEtapaDe
     if (!d || isNaN(d.getTime())) return true   // sem data: mantém, para não perder registro
@@ -1481,7 +1503,7 @@ async function processarPlanilhas() {
         <div class="stat-card"><div class="stat-label">Com Analista</div><div class="stat-value" style="color:#166534">${comAnalista}</div></div>
         <div class="stat-card"><div class="stat-label">Sem Analista</div><div class="stat-value" style="color:${semAnalista>0?'#92400e':'#166534'}">${semAnalista}</div></div>
         <div class="stat-card"><div class="stat-label">Sem Estagiário</div><div class="stat-value" style="color:${semEstagiario>0?'#92400e':'#166534'}">${semEstagiario}</div></div>
-        ${cortadas > 0 ? `<div class="stat-card"><div class="stat-label">Fora dos 2 meses</div><div class="stat-value" style="color:#64748b">${cortadas}</div><div class="stat-sub">descartadas</div></div>` : ''}
+        ${cortadas > 0 ? `<div class="stat-card"><div class="stat-label">Fora da janela</div><div class="stat-value" style="color:#64748b">${cortadas}</div><div class="stat-sub">descartadas</div></div>` : ''}
       </div>
       <button class="btn btn-primary" onclick="setTab('propostas');carregarPropostas()">Ver Propostas →</button>`
 
