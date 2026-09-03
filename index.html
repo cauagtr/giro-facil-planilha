@@ -90,18 +90,27 @@
   thead th .sort-icon { display: inline-flex; align-items: center; justify-content: center; opacity: .35; margin-left: 6px; font-size: 12px; width: 18px; height: 18px; border-radius: 4px; transition: all .12s; }
   thead th:hover .sort-icon { opacity: .7; background: rgba(0,0,0,0.06); }
   thead th.sorted .sort-icon { opacity: 1; color: var(--dourado-escuro); background: rgba(212,160,23,0.15); }
-  .td-cnpj { font-family: 'IBM Plex Mono', monospace; font-size: 12px; white-space: nowrap; }
-  .td-mun { font-size: 11.5px; color: #475569; line-height: 1.3; word-break: break-word; }
-  .td-nome { font-size: 12px; font-weight: 600; color: #1f2937; line-height: 1.3; word-break: break-word; }
+  .td-cnpj { font-family: 'IBM Plex Mono', monospace; font-size: 11.5px; white-space: nowrap; }
+  .td-mun { font-size: 11.5px; color: #475569; line-height: 1.3; overflow-wrap: anywhere; }
+  .td-nome { font-size: 12px; font-weight: 600; color: #1f2937; line-height: 1.3; overflow-wrap: anywhere; }
   /* Observação direto na célula: mostra o texto e abre o editor no clique */
   .obs-cell { font-size: 11.5px; line-height: 1.35; color: #374151; cursor: pointer; border-radius: 6px; padding: 4px 6px; transition: background .12s; word-break: break-word; }
   .obs-cell:hover { background: #eef2ff; box-shadow: inset 0 0 0 1px #c7d2fe; }
   .obs-cell .obs-txt { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
   .obs-cell.vazia { color: #b6bdc7; font-style: italic; }
   .obs-cell .obs-edit { float: right; margin-left: 6px; color: #94a3b8; font-size: 11px; }
-  tbody td { vertical-align: top; }
-  .resp-nome { word-break: break-word; }
-  .td-valor { font-family: 'IBM Plex Mono', monospace; font-size: 12px; text-align: right; }
+  /* Com table-layout:fixed, quem tem nowrap transborda por cima da coluna do
+     lado. A regra passa a ser: todo conteudo quebra dentro da propria celula. */
+  tbody td { vertical-align: middle; overflow: hidden; }
+  tbody td > * { max-width: 100%; }
+  .resp-nome { min-width: 0; flex: 1; overflow-wrap: anywhere; line-height: 1.2; }
+  /* O lapis de trocar so aparece com o mouse na linha, para nao roubar largura */
+  .btn-trocar-v2 { opacity: 0; flex-shrink: 0; padding: 2px 3px; }
+  tbody tr:hover .btn-trocar-v2 { opacity: 1; }
+  /* Valor quebra entre o "R$" e o numero quando a coluna aperta, em vez de ser
+     cortado pelo overflow. O numero em si nunca parte no meio. */
+  .td-valor { font-family: 'IBM Plex Mono', monospace; font-size: 11px; text-align: right;
+              white-space: normal; word-break: keep-all; line-height: 1.25; }
   .td-etapa .etapa-badge { font-size: 11px; padding: 4px 9px; border-radius: 20px; font-weight: 700; white-space: normal; text-align: left; line-height: 1.25; display: inline-flex; align-items: center; gap: 5px; border: 1px solid transparent; }
   .etapa-badge .etapa-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
   .etapa-concedido { background: #dcfce7; color: #14532d; border-color: #86efac; }
@@ -126,7 +135,7 @@
   background: #f1f5f9;
   color: var(--azul);
   font-weight: 600;
-  padding: 10px 10px;
+  padding: 10px 8px;
   text-align: left;
   border-bottom: 2px solid var(--border);
   white-space: normal;
@@ -150,16 +159,16 @@
   background: #f0f6ff;
 }
   tbody td {
-  padding: 10px 12px;
+  padding: 9px 8px;
   border-bottom: 1px solid #eef0f3;
   color: var(--text);
 }
 
   /* Célula do responsável com tarja lateral + avatar */
-  .resp-cell { display: flex; align-items: center; gap: 10px; white-space: nowrap; padding-left: 4px; position: relative; }
+  .resp-cell { display: flex; align-items: center; gap: 6px; white-space: normal; padding-left: 4px; position: relative; min-width: 0; }
   .resp-tarja { position: absolute; left: -12px; top: -10px; bottom: -10px; width: 4px; border-radius: 0 3px 3px 0; }
-  .resp-avatar { width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; border: 1.5px solid rgba(0,0,0,0.08); }
-  .resp-nome { font-size: 12.5px; font-weight: 600; color: var(--text); }
+  .resp-avatar { width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; border: 1.5px solid rgba(0,0,0,0.08); }
+  .resp-nome { font-size: 11.5px; font-weight: 600; color: var(--text); }
   .btn-trocar-v2 { background: transparent; border: none; border-radius: 5px; padding: 3px 6px; cursor: pointer; font-size: 12px; color: #9ca3af; transition: all .15s; }
   .btn-trocar-v2:hover { background: #eef2ff; color: var(--azul); }
   tr:hover .btn-trocar-v2 { color: #6b7280; }
@@ -295,13 +304,16 @@
   .kpi-sub { font-size: 11px; color: #9ca3af; margin-top: 3px; }
 
   /* Alerta de proposta parada (Fase 2) */
-  .data-parada { display: flex; align-items: center; gap: 8px; }
+  .data-parada { display: flex; align-items: flex-start; gap: 4px; }
   .parada-icon { font-size: 15px; flex-shrink: 0; }
   .data-parada-info { display: flex; flex-direction: column; gap: 1px; }
-  .data-parada-txt { font-size: 12px; color: #991b1b; font-weight: 600; }
+  .data-parada-txt { font-size: 11.5px; color: #991b1b; font-weight: 600; white-space: nowrap; }
   .parada-badge { font-size: 10px; font-weight: 700; color: #991b1b; background: #fee2e2; padding: 1px 7px; border-radius: 10px; width: fit-content; border: 1px solid #fca5a5; }
-  .data-normal { font-size: 12px; }
-  .dias-sutil { font-size: 11px; color: #9ca3af; }
+  /* Data e contador de dias empilhados: lado a lado nao cabiam e vazavam na observacao */
+  .data-normal { display: block; font-size: 11.5px; white-space: nowrap; }
+  .dias-sutil { display: block; font-size: 10.5px; color: #9ca3af; }
+  .parada-icon { flex-shrink: 0; font-size: 11px; }
+  .data-parada-info { min-width: 0; }
   tbody tr.linha-parada { background: #fef6f6; }
   tbody tr.linha-parada:hover { background: #fdeeee; }
 
@@ -383,7 +395,7 @@
 
   /* Dropdown customizado (Fase 3) */
   .dd-wrap { position: relative; display: inline-block; }
-  .dd-trigger { display: inline-flex; align-items: center; gap: 6px; font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; font-weight: 600; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 5px 10px; cursor: pointer; background: #f8fafc; color: #64748b; transition: all .15s; }
+  .dd-trigger { display: inline-flex; align-items: center; gap: 4px; font-family: 'IBM Plex Sans', sans-serif; font-size: 11px; font-weight: 600; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 4px 6px; white-space: nowrap; cursor: pointer; background: #f8fafc; color: #64748b; transition: all .15s; }
   .dd-trigger:hover { border-color: var(--azul); background: #eef2ff; color: var(--azul); }
   .dd-trigger .dd-arrow { font-size: 9px; opacity: .6; }
   .dd-menu { position: absolute; z-index: 200; top: calc(100% + 4px); left: 0; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); padding: 5px; min-width: 160px; max-height: 280px; overflow-y: auto; animation: ddIn .12s ease; }
@@ -418,9 +430,10 @@
   .linha-badge {
   font-size: 10.5px;
   font-weight: 700;
-  padding: 3px 9px;
+  padding: 3px 7px;
   border-radius: 6px;
-  white-space: nowrap;
+  line-height: 1.25;
+  white-space: normal;
   border: 1px solid transparent;
   display: inline-block;
 }
@@ -903,7 +916,7 @@
     <h1>FOMENTO PARANÁ — Fomento Giro Fácil</h1>
     <span>Processamento Automatizado — FGF</span>
   </div>
-  <span class="header-badge">FGF v2.3</span>
+  <span class="header-badge">FGF v2.4</span>
 </header>
 
 <nav>
@@ -1236,7 +1249,10 @@ function formatValor(v) {
   let n = typeof v === 'number' ? v : parseFloat(String(v).replace(/\./g,'').replace(',','.'))
   if (isNaN(n)) return String(v)
   n = corrigirValor(n)
+  // O toLocaleString devolve "R$" + espaco NAO separavel: trocamos por espaco
+  // normal para a celula poder quebrar a linha quando a coluna estiver estreita.
   return n.toLocaleString('pt-BR', { style:'currency', currency:'BRL', minimumFractionDigits:2 })
+          .replace(/\u00a0/g, ' ')
 }
 
 function formatData(v) {
@@ -2280,16 +2296,16 @@ function renderTabelaPropostas() {
   // A largura de cada coluna e fixa (table-layout: fixed) para a tabela caber
   // inteira na tela: o texto quebra em mais linhas em vez de rolar para o lado.
   const cols = [
-    {key:'responsavel', label:'Analista', w:'8%'},
-    {key:'estagiario', label:'Estagiário', w:'8%'},
+    {key:'responsavel', label:'Analista', w:'8.5%'},
+    {key:'estagiario', label:'Estagiário', w:'8.5%'},
     {key:'codigo', label:'Código', w:'6%'},
-    {key:'nome', label:'Cliente / Razão Social', w:'17%'},
-    {key:'linha_credito', label:'Linha', w:'7%'},
+    {key:'nome', label:'Cliente / Razão Social', w:'16%'},
+    {key:'linha_credito', label:'Linha', w:'6.5%'},
     {key:'municipio', label:'Município', w:'8%'},
     {key:'etapa', label:'Etapa', w:'11%'},
-    {key:'valor', label:'Valor', align:'right', w:'7%'},
-    {key:'na_etapa_desde', label:'Na Etapa Desde', w:'8%', ajuda:'Data em que a proposta entrou na etapa atual. O icone de alerta e os dias entre parenteses mostram ha quanto tempo esta parada.'},
-    {key:'observacao', label:'Observação', w:'20%'},
+    {key:'valor', label:'Valor', align:'right', w:'8.5%'},
+    {key:'na_etapa_desde', label:'Na Etapa Desde', w:'9.5%', ajuda:'Data em que a proposta entrou na etapa atual. O icone de alerta e os dias entre parenteses mostram ha quanto tempo esta parada.'},
+    {key:'observacao', label:'Observação', w:'17.5%'},
   ]
   const colgroup = `<colgroup><col style="width:34px">${cols.map(c => `<col style="width:${c.w}">`).join('')}</colgroup>`
 
