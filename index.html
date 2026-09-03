@@ -103,7 +103,8 @@
      lado. A regra passa a ser: todo conteudo quebra dentro da propria celula. */
   tbody td { vertical-align: middle; overflow: hidden; }
   tbody td > * { max-width: 100%; }
-  .resp-nome { min-width: 0; flex: 1; overflow-wrap: anywhere; line-height: 1.2; }
+  .resp-nome { min-width: 0; flex: 1; overflow-wrap: break-word; word-break: normal;
+               line-height: 1.25; }
   /* O lapis de trocar so aparece com o mouse na linha, para nao roubar largura */
   .btn-trocar-v2 { opacity: 0; flex-shrink: 0; padding: 2px 3px; }
   tbody tr:hover .btn-trocar-v2 { opacity: 1; }
@@ -167,8 +168,10 @@
   /* Célula do responsável com tarja lateral + avatar */
   .resp-cell { display: flex; align-items: center; gap: 6px; white-space: normal; padding-left: 4px; position: relative; min-width: 0; }
   .resp-tarja { position: absolute; left: -12px; top: -10px; bottom: -10px; width: 4px; border-radius: 0 3px 3px 0; }
-  .resp-avatar { width: 26px; height: 26px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; border: 1.5px solid rgba(0,0,0,0.08); }
+  .resp-avatar { width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; border: 1.5px solid rgba(0,0,0,0.08); }
   .resp-nome { font-size: 11.5px; font-weight: 600; color: var(--text); }
+  /* Nome do colaborador em uma linha so sempre que couber */
+  .resp-cell .resp-nome { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .btn-trocar-v2 { background: transparent; border: none; border-radius: 5px; padding: 3px 6px; cursor: pointer; font-size: 12px; color: #9ca3af; transition: all .15s; }
   .btn-trocar-v2:hover { background: #eef2ff; color: var(--azul); }
   tr:hover .btn-trocar-v2 { color: #6b7280; }
@@ -916,7 +919,7 @@
     <h1>FOMENTO PARANÁ — Fomento Giro Fácil</h1>
     <span>Processamento Automatizado — FGF</span>
   </div>
-  <span class="header-badge">FGF v2.4</span>
+  <span class="header-badge">FGF v2.5</span>
 </header>
 
 <nav>
@@ -2296,16 +2299,16 @@ function renderTabelaPropostas() {
   // A largura de cada coluna e fixa (table-layout: fixed) para a tabela caber
   // inteira na tela: o texto quebra em mais linhas em vez de rolar para o lado.
   const cols = [
-    {key:'responsavel', label:'Analista', w:'8.5%'},
-    {key:'estagiario', label:'Estagiário', w:'8.5%'},
-    {key:'codigo', label:'Código', w:'6%'},
-    {key:'nome', label:'Cliente / Razão Social', w:'16%'},
-    {key:'linha_credito', label:'Linha', w:'6.5%'},
-    {key:'municipio', label:'Município', w:'8%'},
-    {key:'etapa', label:'Etapa', w:'11%'},
+    {key:'responsavel', label:'Analista', w:'10%'},
+    {key:'estagiario', label:'Estagiário', w:'10%'},
+    {key:'codigo', label:'Código', w:'5.5%'},
+    {key:'nome', label:'Cliente / Razão Social', w:'15%'},
+    {key:'linha_credito', label:'Linha', w:'6%'},
+    {key:'municipio', label:'Município', w:'7.5%'},
+    {key:'etapa', label:'Etapa', w:'10%'},
     {key:'valor', label:'Valor', align:'right', w:'8.5%'},
-    {key:'na_etapa_desde', label:'Na Etapa Desde', w:'9.5%', ajuda:'Data em que a proposta entrou na etapa atual. O icone de alerta e os dias entre parenteses mostram ha quanto tempo esta parada.'},
-    {key:'observacao', label:'Observação', w:'17.5%'},
+    {key:'na_etapa_desde', label:'Na Etapa Desde', w:'9%', ajuda:'Data em que a proposta entrou na etapa atual. O icone de alerta e os dias entre parenteses mostram ha quanto tempo esta parada.'},
+    {key:'observacao', label:'Observação', w:'18.5%'},
   ]
   const colgroup = `<colgroup><col style="width:34px">${cols.map(c => `<col style="width:${c.w}">`).join('')}</colgroup>`
 
