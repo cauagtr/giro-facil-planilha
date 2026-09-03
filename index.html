@@ -85,17 +85,13 @@
   .progress-fill { height: 100%; background: var(--azul); border-radius: 3px; transition: width .3s; }
 
   /* TABLE */
-  .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
   table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  thead th { background: #f8fafc; color: var(--azul); font-weight: 600; padding: 12px 14px; text-align: left; border-bottom: 2px solid var(--border); white-space: nowrap; cursor: pointer; user-select: none; position: sticky; top: 0; transition: background .12s; }
   thead th:hover { background: #e0e7ff; }
   thead th .sort-icon { display: inline-flex; align-items: center; justify-content: center; opacity: .35; margin-left: 6px; font-size: 12px; width: 18px; height: 18px; border-radius: 4px; transition: all .12s; }
   thead th:hover .sort-icon { opacity: .7; background: rgba(0,0,0,0.06); }
   thead th.sorted .sort-icon { opacity: 1; color: var(--dourado-escuro); background: rgba(212,160,23,0.15); }
-  tbody tr { transition: filter .1s; }
-  tbody tr:hover { filter: brightness(0.96); }
-  tbody td { padding: 9px 12px; border-bottom: 1px solid rgba(0,0,0,0.06); }
   .td-cnpj { font-family: 'IBM Plex Mono', monospace; font-size: 12px; white-space: nowrap; }
+  .td-nome { max-width: 210px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 600; color: #1f2937; }
   .td-valor { font-family: 'IBM Plex Mono', monospace; font-size: 12px; text-align: right; }
   .td-etapa .etapa-badge { font-size: 11.5px; padding: 4px 12px; border-radius: 20px; font-weight: 700; white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; border: 1px solid transparent; }
   .etapa-badge .etapa-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
@@ -109,12 +105,43 @@
   .etapa-default .etapa-dot { background: #0284c7; }
 
   /* ── TABELA REDESENHADA (Fase 1) ── */
-  .table-wrap { max-height: 640px; overflow-y: auto; overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
-  thead th { position: sticky; top: 0; z-index: 10; background: #f1f5f9; box-shadow: 0 2px 0 rgba(0,0,0,0.06); }
-  tbody tr { background: #fff; transition: background .12s; }
+  .table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  max-height: 640px;
+  overflow-y: auto;
+}
+  thead th {
+  background: #f1f5f9;
+  color: var(--azul);
+  font-weight: 600;
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 2px solid var(--border);
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  position: sticky;
+  top: 0;
+  transition: background .12s;
+  z-index: 10;
+  box-shadow: 0 2px 0 rgba(0,0,0,0.06);
+}
+  tbody tr {
+  transition: background .12s;
+  background: #fff;
+}
   tbody tr:nth-child(even) { background: #fafbfc; }
-  tbody tr:hover { background: #f0f6ff; }
-  tbody td { padding: 10px 12px; border-bottom: 1px solid #eef0f3; color: var(--text); }
+  tbody tr:hover {
+  filter: brightness(0.96);
+  background: #f0f6ff;
+}
+  tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eef0f3;
+  color: var(--text);
+}
 
   /* Célula do responsável com tarja lateral + avatar */
   .resp-cell { display: flex; align-items: center; gap: 10px; white-space: nowrap; padding-left: 4px; position: relative; }
@@ -147,8 +174,6 @@
   .mr-opt-check { margin-left: auto; color: var(--azul); font-weight: 700; }
   .mr-footer { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #f8fafc; }
   .mr-hint { font-size: 11px; color: var(--text-muted); }
-
-  .linha-badge { font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap; border: 1px solid transparent; display: inline-block; }
 
   /* Upload de 4 arquivos */
   .upload-grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; }
@@ -209,78 +234,22 @@
   .painel-secao-titulo .ajuda:hover, .card-title .ajuda:hover { background: var(--azul); color: #fff; }
 
   /* ══ PAGINAÇÃO + LOTE + VALIDAÇÃO (Fase 6) ══ */
-  .pag-wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 4px 0; flex-wrap: wrap; }
-  .pag-info { font-size: 12px; color: var(--text-muted); }
-  .pag-info b { color: var(--text); }
-  .pag-ctrl { display: flex; align-items: center; gap: 4px; }
-  .pag-btn { min-width: 32px; height: 32px; padding: 0 8px; border: 1px solid var(--border); background: #fff; border-radius: 6px; font-family: inherit; font-size: 12.5px; font-weight: 600; color: var(--text); cursor: pointer; transition: all .12s; }
-  .pag-btn:hover:not(:disabled) { border-color: var(--azul); background: #eef2ff; color: var(--azul); }
-  .pag-btn:disabled { opacity: .35; cursor: not-allowed; }
-  .pag-btn.ativo { background: var(--azul); border-color: var(--azul); color: #fff; }
-  .pag-dots { color: var(--text-muted); padding: 0 2px; font-size: 12px; }
-  .pag-size { padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 12px; background: #fff; cursor: pointer; }
 
   /* Seleção em lote */
-  .check-col { width: 36px; text-align: center; }
-  .row-check { width: 15px; height: 15px; cursor: pointer; accent-color: #003366; }
-  tbody tr.selecionada { background: #eef2ff !important; }
-  tbody tr.selecionada:hover { background: #e0e7ff !important; }
-  .lote-bar { display: none; align-items: center; gap: 12px; background: var(--azul); color: #fff; padding: 10px 16px; border-radius: 10px; margin-bottom: 12px; box-shadow: 0 3px 10px rgba(0,51,102,.25); animation: ddIn .15s ease; flex-wrap: wrap; }
-  .lote-bar.ativo { display: flex; }
-  .lote-count { font-size: 13px; font-weight: 700; }
-  .lote-count small { font-weight: 400; opacity: .8; }
-  .lote-acoes { display: flex; gap: 8px; margin-left: auto; align-items: center; flex-wrap: wrap; }
-  .btn-lote { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); color: #fff; padding: 6px 12px; border-radius: 6px; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .12s; }
-  .btn-lote:hover { background: rgba(255,255,255,.28); }
-  .btn-lote.primario { background: var(--dourado); border-color: var(--dourado); color: var(--azul); }
-  .btn-lote.primario:hover { background: #ffd633; }
 
   /* Validação de arquivo */
-  .file-preview { margin-top: 10px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 10px 12px; text-align: left; animation: ddIn .15s ease; }
-  .file-preview.erro { background: #fee2e2; border-color: #fca5a5; }
-  .fp-linha { display: flex; align-items: center; gap: 7px; font-size: 11.5px; color: #166534; margin-bottom: 3px; }
-  .fp-linha:last-child { margin-bottom: 0; }
-  .file-preview.erro .fp-linha { color: #991b1b; }
-  .fp-icone { font-size: 12px; flex-shrink: 0; }
-  .fp-cols { font-size: 10.5px; color: #6b7280; margin-top: 5px; padding-top: 5px; border-top: 1px solid rgba(0,0,0,.06); line-height: 1.5; }
-  .fp-col-ok { color: #16a34a; font-weight: 600; }
-  .fp-col-faltando { color: #dc2626; font-weight: 600; }
 
   /* ══ FILTROS AVANÇADOS + EXPORT (Fase 5) ══ */
-  .filtros-avancados { background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; display: none; }
-  .filtros-avancados.aberto { display: block; animation: ddIn .15s ease; }
-  .fa-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; align-items: end; }
-  .fa-campo label { display: block; font-size: 11px; font-weight: 700; color: var(--azul); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 5px; }
-  .fa-inputs { display: flex; align-items: center; gap: 6px; }
-  .fa-input { flex: 1; min-width: 0; padding: 7px 9px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 12.5px; background: #fff; }
-  .fa-input:focus { outline: none; border-color: var(--azul); box-shadow: 0 0 0 3px rgba(0,51,102,0.08); }
-  .fa-sep { font-size: 11px; color: var(--text-muted); font-weight: 600; }
-  .fa-acoes { display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
-  .btn-filtro-toggle { position: relative; }
-  .filtro-badge-count { position: absolute; top: -5px; right: -5px; background: #dc2626; color: #fff; font-size: 9px; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-  .export-group { display: inline-flex; gap: 6px; }
 
   /* ══ PAINEL GERENCIAL (Fase 4) ══ */
-  .painel-secao { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; margin-bottom: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-  .painel-secao-titulo { font-size: 15px; font-weight: 700; color: #003366; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
-  .painel-secao-sub { font-size: 12px; color: #9ca3af; font-weight: 400; margin-left: auto; }
 
   /* Funil */
-  .funil-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
-  .funil-label { min-width: 200px; text-align: right; font-size: 12.5px; font-weight: 600; color: #374151; display: flex; align-items: center; gap: 6px; justify-content: flex-end; }
   .funil-label .funil-dot { width: 9px; height: 9px; border-radius: 50%; }
   .funil-track { flex: 1; height: 30px; background: #f3f4f6; border-radius: 8px; overflow: hidden; position: relative; }
   .funil-fill { height: 100%; border-radius: 8px; display: flex; align-items: center; padding-left: 12px; color: #fff; font-weight: 700; font-size: 13px; transition: width .5s ease; min-width: 40px; }
-  .funil-valor { min-width: 130px; font-size: 12px; color: #6b7280; }
   .funil-valor strong { color: #1a1a2e; font-size: 13px; }
 
   /* Carga por responsável */
-  .carga-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
-  .carga-card { border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px; display: flex; align-items: center; gap: 12px; transition: box-shadow .15s; }
-  .carga-card:hover { box-shadow: 0 3px 10px rgba(0,0,0,0.08); }
-  .carga-avatar { width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; flex-shrink: 0; border: 2px solid rgba(0,0,0,0.06); }
-  .carga-info { flex: 1; min-width: 0; }
-  .carga-nome { font-size: 13px; font-weight: 700; color: #1a1a2e; }
   .carga-stats { font-size: 11.5px; color: #6b7280; margin-top: 2px; }
   .carga-barra { height: 5px; background: #f3f4f6; border-radius: 3px; margin-top: 6px; overflow: hidden; }
   .carga-barra-fill { height: 100%; border-radius: 3px; }
@@ -304,7 +273,6 @@
   .evolucao-bar:hover { background: linear-gradient(180deg, #F5C400, #d4a017); }
   .evolucao-bar-num { font-size: 11px; font-weight: 700; color: #003366; }
   .evolucao-bar-data { font-size: 10px; color: #9ca3af; text-align: center; white-space: nowrap; }
-  .painel-empty { text-align: center; padding: 30px; color: #9ca3af; font-size: 13px; }
 
   /* KPIs topo do painel */
   .painel-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 18px; }
@@ -435,82 +403,384 @@
   .sel-hint { font-size: 11px; color: var(--text-muted); }
   .sel-vazio { text-align: center; padding: 20px; color: var(--text-muted); font-size: 13px; }
 
-  .linha-badge { font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 6px; white-space: nowrap; border: 1px solid transparent; display: inline-block; }
+  .linha-badge {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 6px;
+  white-space: nowrap;
+  border: 1px solid transparent;
+  display: inline-block;
+}
 
   /* ══ PAGINAÇÃO + LOTE + VALIDAÇÃO (Fase 6) ══ */
-  .pag-wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 4px 0; flex-wrap: wrap; }
-  .pag-info { font-size: 12px; color: var(--text-muted); }
-  .pag-info b { color: var(--text); }
-  .pag-ctrl { display: flex; align-items: center; gap: 4px; }
-  .pag-btn { min-width: 32px; height: 32px; padding: 0 8px; border: 1px solid var(--border); background: #fff; border-radius: 6px; font-family: inherit; font-size: 12.5px; font-weight: 600; color: var(--text); cursor: pointer; transition: all .12s; }
-  .pag-btn:hover:not(:disabled) { border-color: var(--azul); background: #eef2ff; color: var(--azul); }
-  .pag-btn:disabled { opacity: .35; cursor: not-allowed; }
-  .pag-btn.ativo { background: var(--azul); border-color: var(--azul); color: #fff; }
-  .pag-dots { color: var(--text-muted); padding: 0 2px; font-size: 12px; }
-  .pag-size { padding: 6px 8px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 12px; background: #fff; cursor: pointer; }
+  .pag-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 4px 0;
+  flex-wrap: wrap;
+}
+  .pag-info {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+  .pag-info b {
+  color: var(--text);
+}
+  .pag-ctrl {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+  .pag-btn {
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  background: #fff;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  transition: all .12s;
+}
+  .pag-btn:hover:not(:disabled) {
+  border-color: var(--azul);
+  background: #eef2ff;
+  color: var(--azul);
+}
+  .pag-btn:disabled {
+  opacity: .35;
+  cursor: not-allowed;
+}
+  .pag-btn.ativo {
+  background: var(--azul);
+  border-color: var(--azul);
+  color: #fff;
+}
+  .pag-dots {
+  color: var(--text-muted);
+  padding: 0 2px;
+  font-size: 12px;
+}
+  .pag-size {
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 12px;
+  background: #fff;
+  cursor: pointer;
+}
 
   /* Seleção em lote */
-  .check-col { width: 36px; text-align: center; }
-  .row-check { width: 15px; height: 15px; cursor: pointer; accent-color: #003366; }
-  tbody tr.selecionada { background: #eef2ff !important; }
-  tbody tr.selecionada:hover { background: #e0e7ff !important; }
-  .lote-bar { display: none; align-items: center; gap: 12px; background: var(--azul); color: #fff; padding: 10px 16px; border-radius: 10px; margin-bottom: 12px; box-shadow: 0 3px 10px rgba(0,51,102,.25); animation: ddIn .15s ease; flex-wrap: wrap; }
-  .lote-bar.ativo { display: flex; }
-  .lote-count { font-size: 13px; font-weight: 700; }
-  .lote-count small { font-weight: 400; opacity: .8; }
-  .lote-acoes { display: flex; gap: 8px; margin-left: auto; align-items: center; flex-wrap: wrap; }
-  .btn-lote { background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.3); color: #fff; padding: 6px 12px; border-radius: 6px; font-family: inherit; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .12s; }
-  .btn-lote:hover { background: rgba(255,255,255,.28); }
-  .btn-lote.primario { background: var(--dourado); border-color: var(--dourado); color: var(--azul); }
-  .btn-lote.primario:hover { background: #ffd633; }
+  .check-col {
+  width: 36px;
+  text-align: center;
+}
+  .row-check {
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  accent-color: #003366;
+}
+  tbody tr.selecionada {
+  background: #eef2ff !important;
+}
+  tbody tr.selecionada:hover {
+  background: #e0e7ff !important;
+}
+  .lote-bar {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  background: var(--azul);
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  box-shadow: 0 3px 10px rgba(0,51,102,.25);
+  animation: ddIn .15s ease;
+  flex-wrap: wrap;
+}
+  .lote-bar.ativo {
+  display: flex;
+}
+  .lote-count {
+  font-size: 13px;
+  font-weight: 700;
+}
+  .lote-count small {
+  font-weight: 400;
+  opacity: .8;
+}
+  .lote-acoes {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+  align-items: center;
+  flex-wrap: wrap;
+}
+  .btn-lote {
+  background: rgba(255,255,255,.15);
+  border: 1px solid rgba(255,255,255,.3);
+  color: #fff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .12s;
+}
+  .btn-lote:hover {
+  background: rgba(255,255,255,.28);
+}
+  .btn-lote.primario {
+  background: var(--dourado);
+  border-color: var(--dourado);
+  color: var(--azul);
+}
+  .btn-lote.primario:hover {
+  background: #ffd633;
+}
 
   /* Validação de arquivo */
-  .file-preview { margin-top: 10px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 10px 12px; text-align: left; animation: ddIn .15s ease; }
-  .file-preview.erro { background: #fee2e2; border-color: #fca5a5; }
-  .fp-linha { display: flex; align-items: center; gap: 7px; font-size: 11.5px; color: #166534; margin-bottom: 3px; }
-  .fp-linha:last-child { margin-bottom: 0; }
-  .file-preview.erro .fp-linha { color: #991b1b; }
-  .fp-icone { font-size: 12px; flex-shrink: 0; }
-  .fp-cols { font-size: 10.5px; color: #6b7280; margin-top: 5px; padding-top: 5px; border-top: 1px solid rgba(0,0,0,.06); line-height: 1.5; }
-  .fp-col-ok { color: #16a34a; font-weight: 600; }
-  .fp-col-faltando { color: #dc2626; font-weight: 600; }
+  .file-preview {
+  margin-top: 10px;
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+  border-radius: 8px;
+  padding: 10px 12px;
+  text-align: left;
+  animation: ddIn .15s ease;
+}
+  .file-preview.erro {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+  .fp-linha {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11.5px;
+  color: #166534;
+  margin-bottom: 3px;
+}
+  .fp-linha:last-child {
+  margin-bottom: 0;
+}
+  .file-preview.erro .fp-linha {
+  color: #991b1b;
+}
+  .fp-icone {
+  font-size: 12px;
+  flex-shrink: 0;
+}
+  .fp-cols {
+  font-size: 10.5px;
+  color: #6b7280;
+  margin-top: 5px;
+  padding-top: 5px;
+  border-top: 1px solid rgba(0,0,0,.06);
+  line-height: 1.5;
+}
+  .fp-col-ok {
+  color: #16a34a;
+  font-weight: 600;
+}
+  .fp-col-faltando {
+  color: #dc2626;
+  font-weight: 600;
+}
 
   /* ══ FILTROS AVANÇADOS + EXPORT (Fase 5) ══ */
-  .filtros-avancados { background: #f8fafc; border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; display: none; }
-  .filtros-avancados.aberto { display: block; animation: ddIn .15s ease; }
-  .fa-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; align-items: end; }
-  .fa-campo label { display: block; font-size: 11px; font-weight: 700; color: var(--azul); text-transform: uppercase; letter-spacing: .4px; margin-bottom: 5px; }
-  .fa-inputs { display: flex; align-items: center; gap: 6px; }
-  .fa-input { flex: 1; min-width: 0; padding: 7px 9px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 12.5px; background: #fff; }
-  .fa-input:focus { outline: none; border-color: var(--azul); box-shadow: 0 0 0 3px rgba(0,51,102,0.08); }
-  .fa-sep { font-size: 11px; color: var(--text-muted); font-weight: 600; }
-  .fa-acoes { display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
-  .btn-filtro-toggle { position: relative; }
-  .filtro-badge-count { position: absolute; top: -5px; right: -5px; background: #dc2626; color: #fff; font-size: 9px; font-weight: 700; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-  .export-group { display: inline-flex; gap: 6px; }
+  .filtros-avancados {
+  background: #f8fafc;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  display: none;
+}
+  .filtros-avancados.aberto {
+  display: block;
+  animation: ddIn .15s ease;
+}
+  .fa-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+  align-items: end;
+}
+  .fa-campo label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--azul);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  margin-bottom: 5px;
+}
+  .fa-inputs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+  .fa-input {
+  flex: 1;
+  min-width: 0;
+  padding: 7px 9px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 12.5px;
+  background: #fff;
+}
+  .fa-input:focus {
+  outline: none;
+  border-color: var(--azul);
+  box-shadow: 0 0 0 3px rgba(0,51,102,0.08);
+}
+  .fa-sep {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+  .fa-acoes {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+  .btn-filtro-toggle {
+  position: relative;
+}
+  .filtro-badge-count {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background: #dc2626;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+  .export-group {
+  display: inline-flex;
+  gap: 6px;
+}
 
   /* ══ PAINEL GERENCIAL (Fase 4) ══ */
-  .painel-secao { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
-  .painel-secao-titulo { font-size: 14px; font-weight: 700; color: var(--azul); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
-  .painel-secao-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 16px; }
+  .painel-secao {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 18px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+  .painel-secao-titulo {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--azul);
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+  .painel-secao-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-left: auto;
+  margin-bottom: 16px;
+}
 
   /* Funil */
   .funil-wrap { display: flex; flex-direction: column; gap: 6px; }
-  .funil-row { display: flex; align-items: center; gap: 12px; }
-  .funil-label { font-size: 12px; font-weight: 600; color: #374151; min-width: 190px; text-align: right; }
+  .funil-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+  .funil-label {
+  min-width: 190px;
+  text-align: right;
+  font-size: 12px;
+  font-weight: 600;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: flex-end;
+}
   .funil-bar-wrap { flex: 1; display: flex; align-items: center; gap: 10px; }
   .funil-bar { height: 30px; border-radius: 6px; display: flex; align-items: center; justify-content: flex-end; padding-right: 10px; font-size: 12px; font-weight: 700; color: #fff; transition: width .5s ease; min-width: 34px; }
   .funil-pct { font-size: 11px; color: #9ca3af; font-weight: 600; min-width: 42px; }
-  .funil-valor { font-size: 11px; color: #6b7280; font-family: 'IBM Plex Mono', monospace; min-width: 110px; text-align: right; }
+  .funil-valor {
+  min-width: 110px;
+  font-size: 11px;
+  color: #6b7280;
+  font-family: 'IBM Plex Mono', monospace;
+  text-align: right;
+}
 
   /* Carga por responsável */
-  .carga-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
-  .carga-card { border: 1px solid #e5e7eb; border-radius: 10px; padding: 14px; display: flex; align-items: center; gap: 12px; position: relative; overflow: hidden; transition: transform .12s, box-shadow .12s; }
-  .carga-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+  .carga-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 12px;
+}
+  .carga-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: transform .12s, box-shadow .12s;
+  position: relative;
+  overflow: hidden;
+}
+  .carga-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
   .carga-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--cor-colab); }
-  .carga-avatar { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; border: 2px solid rgba(0,0,0,0.06); }
-  .carga-info { flex: 1; min-width: 0; }
-  .carga-nome { font-size: 12.5px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+  .carga-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  border: 2px solid rgba(0,0,0,0.06);
+}
+  .carga-info {
+  flex: 1;
+  min-width: 0;
+}
+  .carga-nome {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 3px;
+}
   .carga-nums { display: flex; gap: 10px; font-size: 11px; color: var(--text-muted); }
   .carga-nums b { color: var(--text); font-size: 14px; }
   .carga-papel { font-size: 9px; font-weight: 700; padding: 1px 6px; border-radius: 8px; text-transform: uppercase; letter-spacing: .3px; vertical-align: middle; }
@@ -537,7 +807,12 @@
   .evo-val { font-size: 10px; font-weight: 700; color: var(--azul); }
   .evo-data { font-size: 9.5px; color: var(--text-muted); white-space: nowrap; }
 
-  .painel-empty { text-align: center; padding: 30px; color: var(--text-muted); font-size: 13px; }
+  .painel-empty {
+  text-align: center;
+  padding: 30px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
 
   /* Filtros do painel */
   .painel-filtros { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
@@ -616,7 +891,7 @@
     <h1>FOMENTO PARANÁ — Fomento Giro Fácil</h1>
     <span>Processamento Automatizado — FGF</span>
   </div>
-  <span class="header-badge">FGF v2.1</span>
+  <span class="header-badge">FGF v2.2</span>
 </header>
 
 <nav>
@@ -701,10 +976,14 @@ async function sb(path, opts={}) {
 // então paginamos com o header Range até acabar.
 async function sbAll(path, pageSize = 1000, maxPaginas = 50) {
   const sep = path.includes('?') ? '&' : '?'
+  // Paginar com offset SEM ordenar nao e seguro: o Postgres nao garante a mesma
+  // ordem entre as paginas, entao da para repetir uma linha e pular outra.
+  // Se a consulta nao trouxer order, forcamos por id.
+  const ordem = path.includes('order=') ? '' : '&order=id.asc'
   let todos = []
   for (let p = 0; p < maxPaginas; p++) {
     const de = p * pageSize
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}${sep}limit=${pageSize}&offset=${de}`, {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}${sep}limit=${pageSize}&offset=${de}${ordem}`, {
       headers: {
         'apikey': SUPABASE_KEY,
         'Authorization': `Bearer ${SUPABASE_KEY}`,
@@ -862,6 +1141,25 @@ function normalizarPessoa(nome) {
   const n = (nome||'').toString().trim().toUpperCase()
   if (n === 'CICERA') return 'ANDRESSA'
   return n
+}
+
+// Aplica a normalizacao de pessoas (CICERA -> ANDRESSA) em uma lista vinda do banco.
+// Fica num lugar so para nao existir tela mostrando CICERA e outra mostrando ANDRESSA.
+function normalizarPropostas(lista) {
+  return (lista || []).map(p => ({
+    ...p,
+    responsavel:       normalizarPessoa(p.responsavel) || 'N/A',
+    responsavel_final: normalizarPessoa(p.responsavel_final) || 'N/A',
+    estagiario:        normalizarPessoa(p.estagiario) || 'N/A',
+  }))
+}
+
+// Escapa texto vindo do banco antes de jogar no HTML.
+// Passou a ser necessario com a razao social: nomes tem &, aspas e as vezes <.
+function esc(v) {
+  return String(v == null ? '' : v)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;').replace(/'/g,'&#39;')
 }
 
 function getCorColab(nome) {
@@ -1095,7 +1393,7 @@ function setTurno(t) {
 function renderProcessar() {
   document.getElementById('view-processar').innerHTML = `
   <div class="card">
-    <div class="card-title">📂 Upload das Planilhas<span class="ajuda ajuda-baixo ajuda-dir" data-ajuda="A planilha PRECISA ter: Codigo da Operacao, Etapa, Valor Solicitado, Na Etapa Desde, Linha de Credito e Municipio. NAO pode ter Nome, CPF/CNPJ nem Email. Concedido e Recusado sao filtrados automaticamente: antes do dia 15 entram o mes anterior e o atual; do dia 15 em diante, so o mes atual.">?</span></div>
+    <div class="card-title">📂 Upload das Planilhas<span class="ajuda ajuda-baixo ajuda-dir" data-ajuda="A planilha PRECISA ter: Codigo da Operacao, Etapa, Valor Solicitado, Na Etapa Desde, Linha de Credito e Municipio. Pode e deve trazer o Nome / Razao Social. CPF/CNPJ e Email sao ignorados pelo sistema. Concedido e Recusado sao filtrados automaticamente: antes do dia 15 entram o mes anterior e o atual; do dia 15 em diante, so o mes atual.">?</span></div>
     <div class="upload-grid-4">
       ${TIPOS_ARQUIVO.map(t => `
       <div>
@@ -1162,9 +1460,13 @@ const COLUNAS_NECESSARIAS = [
   { nomes: ['Na Etapa Desde','Na Etapa De'], label: 'Na Etapa Desde' },
 ]
 
-// Colunas que NÃO devem estar presentes (dados pessoais)
-const COLUNAS_PROIBIDAS = [
-  { nomes: ['Nome do Cliente','Razão Social','Razao Social'], label: 'Nome do Cliente' },
+// Coluna do nome/razao social: liberada e desejada, mas nao bloqueia o processamento
+// (planilhas antigas, salvas antes da liberacao, ainda podem vir sem ela).
+const COLUNA_NOME = ['Nome do Cliente','Nome/Razão Social','Nome / Razão Social','Razão Social',
+                     'Razao Social','Nome do Proponente','Proponente','Cliente','Nome']
+
+// Colunas que o sistema NUNCA le nem grava. Se vierem na planilha, sao ignoradas.
+const COLUNAS_DESCARTADAS = [
   { nomes: ['CPF/CNPJ','CNPJ','CPF'], label: 'CPF/CNPJ' },
   { nomes: ['Email','E-mail'], label: 'Email' },
 ]
@@ -1180,14 +1482,16 @@ async function validarPlanilha(file) {
 
     const cabecalhos = Object.keys(rows[0])
     const faltando = COLUNAS_NECESSARIAS.filter(c => !achouColuna(cabecalhos, c.nomes)).map(c => c.label)
-    const proibidas = COLUNAS_PROIBIDAS.filter(c => achouColuna(cabecalhos, c.nomes)).map(c => c.label)
+    const descartadas = COLUNAS_DESCARTADAS.filter(c => achouColuna(cabecalhos, c.nomes)).map(c => c.label)
     const encontradas = COLUNAS_NECESSARIAS.filter(c => achouColuna(cabecalhos, c.nomes)).map(c => c.label)
+    const temNome = achouColuna(cabecalhos, COLUNA_NOME)
+    if (temNome) encontradas.push('Nome / Razão Social')
 
     return {
       ok: faltando.length === 0,
       linhas: rows.length,
       colunas: cabecalhos.length,
-      faltando, proibidas, encontradas,
+      faltando, descartadas, encontradas, temNome,
       erro: faltando.length ? `Coluna${faltando.length>1?'s':''} obrigatória${faltando.length>1?'s':''} não encontrada${faltando.length>1?'s':''}` : null
     }
   } catch(e) {
@@ -1227,9 +1531,12 @@ async function processarArquivo(file, tipo) {
   prev.className = 'file-preview'
   prev.innerHTML = `
     <div class="fp-linha"><span class="fp-icone">✅</span> <b>${v.linhas}</b> linha${v.linhas!==1?'s':''} · <b>${v.colunas}</b> coluna${v.colunas!==1?'s':''}</div>
-    ${v.proibidas.length
-      ? `<div class="fp-linha" style="color:#92400e"><span class="fp-icone">⚠️</span> Contém dados pessoais: <b>${v.proibidas.join(', ')}</b> — remova antes de enviar</div>`
-      : `<div class="fp-linha"><span class="fp-icone">🔒</span> Sem dados pessoais — OK</div>`}
+    ${v.temNome
+      ? `<div class="fp-linha" style="color:#166534"><span class="fp-icone">🏢</span> Nome / Razão Social encontrado — será usado na tela</div>`
+      : `<div class="fp-linha" style="color:#92400e"><span class="fp-icone">⚠️</span> Sem a coluna <b>Nome / Razão Social</b> — dá para processar, mas as propostas ficam só com o código</div>`}
+    ${v.descartadas.length
+      ? `<div class="fp-linha"><span class="fp-icone">🔒</span> <b>${v.descartadas.join(', ')}</b> presente${v.descartadas.length>1?'s':''} na planilha — o sistema ignora, não grava</div>`
+      : ''}
     <div class="fp-cols">Colunas encontradas: <span class="fp-col-ok">${v.encontradas.join(', ')}</span></div>`
 
   atualizarBotaoProcessar()
@@ -1286,6 +1593,11 @@ function lerPlanilha(file) {
 function transformar(rows) {
   return rows.map(row => ({
     codigo: String(getCol(row,'Código da Operação','Codigo da Operação','Codigo da Operacao','Código da Operacao')).trim(),
+    // Razao social / nome do cliente — liberado por diretriz interna.
+    // CPF/CNPJ e Email continuam fora: nao sao lidos nem gravados em lugar nenhum.
+    nome: String(getCol(row,'Nome do Cliente','Nome/Razão Social','Nome / Razão Social',
+                        'Razão Social','Razao Social','Nome do Proponente','Proponente',
+                        'Cliente','Nome')||'').trim(),
     etapa: getCol(row,'Etapa'),
     valor: getCol(row,'Valor Solicitado','Valor'),
     naEtapaDe: parseData(getCol(row,'Na Etapa Desde','Na Etapa De')),
@@ -1354,21 +1666,30 @@ function aplicarVlookup(rows, ref, mapaAtribuicoes = {}) {
                       : (vale(atrib.responsavel) ? atrib.responsavel : 'N/A')
       return {
         ...row,
-        observacoesAnteriores: atrib.observacao || '',
-        responsavel: respAtual,
-        responsavelFinal: respAtual,
-        estagiario: vale(atrib.estagiario) ? atrib.estagiario : 'N/A',
+        // A OBSERVAÇÃO É FIXA: o processamento devolve exatamente o que está
+        // gravado. Só muda quando alguém edita pela tela. Nada de rotacionar
+        // para "anteriores" nem de zerar — era assim que o texto se perdia.
+        observacao: atrib.observacao || '',
+        observacoesAnteriores: atrib.observacoes_anteriores || '',
+        // Nome novo da planilha vence; se a planilha não trouxer, mantém o que já existe.
+        nome: (row.nome && row.nome.trim()) ? row.nome.trim() : (atrib.nome || ''),
+        responsavel: normalizarPessoa(respAtual) || 'N/A',
+        responsavelFinal: normalizarPessoa(respAtual) || 'N/A',
+        estagiario: vale(atrib.estagiario) ? (normalizarPessoa(atrib.estagiario) || 'N/A') : 'N/A',
       }
     }
 
     // Proposta nova: tenta herdar da referência do processamento anterior
     const r = ref.find(x => String(x.codigo).trim() === chave)
+    const respRef = (r && vale(r.responsavel_final)) ? normalizarPessoa(r.responsavel_final) : 'N/A'
     return {
       ...row,
-      observacoesAnteriores: r ? (r.observacao || '') : '',
-      responsavel: (r && vale(r.responsavel_final)) ? r.responsavel_final : 'N/A',
-      responsavelFinal: (r && vale(r.responsavel_final)) ? r.responsavel_final : 'N/A',
-      estagiario: (r && vale(r.estagiario)) ? r.estagiario : 'N/A',
+      observacao: r ? (r.observacao || '') : '',
+      observacoesAnteriores: '',
+      nome: (row.nome || '').trim(),
+      responsavel: respRef,
+      responsavelFinal: respRef,
+      estagiario: (r && vale(r.estagiario)) ? (normalizarPessoa(r.estagiario) || 'N/A') : 'N/A',
     }
   })
 }
@@ -1414,7 +1735,7 @@ async function processarPlanilhas() {
     const merged = deduplicar(todas)
 
     // Buscar atribuições manuais já salvas no banco para preservá-las
-    const propostasExistentes = await sbAll('fgf_propostas?select=codigo,etapa,responsavel,responsavel_final,estagiario,observacao')
+    const propostasExistentes = await sbAll('fgf_propostas?select=codigo,etapa,nome,responsavel,responsavel_final,estagiario,observacao,observacoes_anteriores')
     // TODAS as propostas já existentes entram no mapa — inclusive as que estão
     // sem analista, porque podem ter estagiário. E o estagiário PRECISA vir junto,
     // senão o processamento apaga a atribuição.
@@ -1425,7 +1746,12 @@ async function processarPlanilhas() {
           responsavel: p.responsavel,
           responsavel_final: p.responsavel_final,
           estagiario: p.estagiario,
-          observacao: p.observacao || ''
+          nome: p.nome || '',
+          // observacao E observacoes_anteriores precisam vir juntas: se faltar uma
+          // delas aqui, o upsert grava vazio por cima. Foi assim que os vinculos
+          // de estagiario sumiram uma vez — a regra vale para todo campo comparado.
+          observacao: p.observacao || '',
+          observacoes_anteriores: p.observacoes_anteriores || ''
         }
       })
     }
@@ -1436,6 +1762,7 @@ async function processarPlanilhas() {
       responsavel: r.responsavel || 'N/A',
       estagiario: r.estagiario || 'N/A',
       codigo: r.codigo,
+      nome: r.nome || '',
       etapa: r.etapa,
       valor: parseValor(r.valor),
       linha_credito: r.linhaCredito || '',
@@ -1445,20 +1772,25 @@ async function processarPlanilhas() {
         catch(e) { return null }
       })(),
       observacoes_anteriores: r.observacoesAnteriores || '',
-      observacao: '',
+      observacao: r.observacao || '',
       responsavel_final: r.responsavelFinal || 'N/A',
     }))
 
+    // Gravacao em lotes. Antes era um POST por proposta: com 400 propostas eram
+    // 400 idas ao servidor, e se a rede caisse no meio o processamento ficava
+    // pela metade sem nem registrar o historico.
     setProgresso(55, `Salvando ${propostas.length} propostas...`)
+    const TAMANHO_LOTE = 200
     let salvas = 0
-    for (const p of propostas) {
+    for (let i = 0; i < propostas.length; i += TAMANHO_LOTE) {
+      const lote = propostas.slice(i, i + TAMANHO_LOTE)
       await sb('fgf_propostas?on_conflict=codigo', {
         method: 'POST',
-        prefer: 'resolution=merge-duplicates',
-        body: p
+        prefer: 'resolution=merge-duplicates,return=minimal',
+        body: lote
       })
-      salvas++
-      if (salvas % 10 === 0) setProgresso(55 + Math.round((salvas/propostas.length)*30), `Salvando... ${salvas}/${propostas.length}`)
+      salvas += lote.length
+      setProgresso(55 + Math.round((salvas/propostas.length)*30), `Salvando... ${salvas}/${propostas.length}`)
     }
 
     setProgresso(88, 'Salvando histórico...')
@@ -1622,8 +1954,9 @@ function renderPropostas() {
 async function carregarPropostas() {
   try {
     const data = await sbAll('fgf_propostas?select=*&order=codigo.asc')
-    // Mantém todas as ativas + finalizadas dos últimos 6 meses
-    todasPropostas = filtrarPorJanela(data || [])
+    // Mantém todas as ativas + finalizadas dos últimos 6 meses.
+    // normalizarPropostas garante que CICERA apareça como ANDRESSA em toda a tela.
+    todasPropostas = normalizarPropostas(filtrarPorJanela(data || []))
     popularSelectEtapas()
     renderTabelaPropostas()
     renderStatsPropostas()
@@ -1714,6 +2047,7 @@ function getLinhasVisiveis() {
     const q = filtroSearch.toLowerCase()
     rows = rows.filter(p =>
       String(p.codigo||'').toLowerCase().includes(q) ||
+      (p.nome||'').toLowerCase().includes(q) ||
       (p.etapa||'').toLowerCase().includes(q)
     )
   }
@@ -1922,6 +2256,7 @@ function renderTabelaPropostas() {
     {key:'responsavel', label:'Analista'},
     {key:'estagiario', label:'Estagiário'},
     {key:'codigo', label:'Código da Operação'},
+    {key:'nome', label:'Cliente / Razão Social'},
     {key:'linha_credito', label:'Linha'},
     {key:'municipio', label:'Município'},
     {key:'etapa', label:'Etapa'},
@@ -1991,10 +2326,10 @@ function renderTabelaPropostas() {
 
     const obs = p.observacao || ''
     const obsCell = obs
-      ? `<td><button class="btn btn-secondary btn-sm" onclick="abrirModal('${p.codigo}','${(obs).replace(/'/g,"\\'")}','${(p.observacoes_anteriores||'').replace(/'/g,"\\'")}')">
+      ? `<td><button class="btn btn-secondary btn-sm" onclick="abrirModal('${p.codigo}')">
            <span class="obs-indicator"><span class="obs-dot"></span>✏ Ver/Editar</span>
          </button></td>`
-      : `<td><button class="btn btn-secondary btn-sm" style="color:#9ca3af" onclick="abrirModal('${p.codigo}','','${(p.observacoes_anteriores||'').replace(/'/g,"\\'")}')">
+      : `<td><button class="btn btn-secondary btn-sm" style="color:#9ca3af" onclick="abrirModal('${p.codigo}')">
            + Adicionar
          </button></td>`
 
@@ -2011,7 +2346,8 @@ function renderTabelaPropostas() {
       <td class="check-col"><input type="checkbox" class="row-check" ${estaSel?'checked':''} onclick="toggleSelecionada('${p.codigo}', this.checked)"/></td>
       ${respCell}
       ${estCell}
-      <td class="td-cnpj" style="font-weight:700">${p.codigo||'—'}</td>
+      <td class="td-cnpj" style="font-weight:700">${esc(p.codigo)||'—'}</td>
+      <td class="td-nome" title="${esc(p.nome||'')}">${esc(p.nome) || '<span style=\'color:#cbd5e1\'>—</span>'}</td>
       <td>${linhaBadge(p.linha_credito)}</td>
       <td style="font-size:11.5px;color:#475569">${p.municipio || '—'}</td>
       <td class="td-etapa">${etapaBadge(p.etapa)}</td>
@@ -2284,12 +2620,17 @@ async function atribuirResponsavel(codigo, resp, selectEl) {
 // ============================================================
 // MODAL OBSERVAÇÃO
 // ============================================================
-function abrirModal(codigo, obs, obsAntiga) {
+// Recebe so o codigo e busca o resto na lista carregada. Antes o texto ia
+// dentro do onclick, o que quebrava com aspas — e razao social tem aspas.
+function abrirModal(codigo) {
+  const p = todasPropostas.find(x => String(x.codigo) === String(codigo)) || {}
   modalCodigo = codigo
   document.getElementById('modal-title').textContent = 'Observação'
-  document.getElementById('modal-info').textContent = `Código da Operação: ${codigo}`
-  document.getElementById('modal-obs-antiga').textContent = obsAntiga || '—'
-  document.getElementById('modal-textarea').value = obs || ''
+  document.getElementById('modal-info').textContent = p.nome
+    ? `${p.nome} — Código ${codigo}`
+    : `Código da Operação: ${codigo}`
+  document.getElementById('modal-obs-antiga').textContent = p.observacoes_anteriores || '—'
+  document.getElementById('modal-textarea').value = p.observacao || ''
   document.getElementById('modal-obs').style.display = 'flex'
 }
 
@@ -2303,15 +2644,25 @@ async function salvarObservacao() {
   if (!modalCodigo) return
   const obs = document.getElementById('modal-textarea').value.trim()
   const btn = document.getElementById('btn-salvar-obs')
+  const atual = todasPropostas.find(p => String(p.codigo) === String(modalCodigo)) || {}
+  const anterior = (atual.observacao || '').trim()
+  if (obs === anterior) { fecharModal(); return }
   btn.disabled = true; btn.textContent = 'Salvando...'
   try {
+    // Agora que a observacao e fixa, "anteriores" guarda a versao que foi
+    // substituida — e o unico momento em que ela muda.
+    const corpo = { observacao: obs }
+    if (anterior) corpo.observacoes_anteriores = anterior
     await sb(`fgf_propostas?codigo=eq.${encodeURIComponent(modalCodigo)}`, {
       method: 'PATCH',
       prefer: 'return=minimal',
-      body: { observacao: obs }
+      body: corpo
     })
     const idx = todasPropostas.findIndex(p => p.codigo === modalCodigo)
-    if (idx !== -1) todasPropostas[idx].observacao = obs
+    if (idx !== -1) {
+      if (anterior) todasPropostas[idx].observacoes_anteriores = anterior
+      todasPropostas[idx].observacao = obs
+    }
     document.getElementById('modal-obs').style.display = 'none'
     modalCodigo = null
     showToast('Observação salva!')
@@ -2459,8 +2810,12 @@ function exportarExcel() {
     const dias = diasParados(p.na_etapa_desde)
     const ativa = ehAtiva(p.etapa)
     return {
-      'Responsável': p.responsavel || 'N/A',
+      'Analista': p.responsavel || 'N/A',
+      'Estagiário': p.estagiario || 'N/A',
       'Código da Operação': p.codigo || '',
+      'Cliente / Razão Social': p.nome || '',
+      'Linha de Crédito': p.linha_credito || '',
+      'Município': p.municipio || '',
       'Etapa': p.etapa || '',
       'Valor (R$)': valorNum(p),
       'Na Etapa Desde': formatData(p.na_etapa_desde),
@@ -2471,7 +2826,7 @@ function exportarExcel() {
   })
 
   const ws = XLSX.utils.json_to_sheet(dados)
-  ws['!cols'] = [ {wch:14},{wch:18},{wch:26},{wch:14},{wch:15},{wch:13},{wch:14},{wch:40} ]
+  ws['!cols'] = [ {wch:14},{wch:14},{wch:18},{wch:38},{wch:16},{wch:18},{wch:26},{wch:14},{wch:15},{wch:13},{wch:14},{wch:40} ]
 
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, 'Propostas')
@@ -2494,7 +2849,7 @@ function exportarExcel() {
   XLSX.utils.book_append_sheet(wb, wsR, 'Resumo')
 
   const hoje = new Date().toISOString().split('T')[0]
-  const nome = `Microcredito_${nomeContextoFiltro().replace(/[^a-zA-Z0-9]/g,'_')}_${hoje}.xlsx`
+  const nome = `GiroFacil_${nomeContextoFiltro().replace(/[^a-zA-Z0-9]/g,'_')}_${hoje}.xlsx`
   XLSX.writeFile(wb, nome)
   showToast(`✓ ${rows.length} propostas exportadas`)
 }
@@ -2513,9 +2868,11 @@ function exportarPDF() {
     const ativa = ehAtiva(p.etapa)
     const parada = ativa && dias !== null && dias >= DIAS_LIMITE_PARADA
     return `<tr class="${parada ? 'parada' : ''}">
-      <td>${p.responsavel || 'N/A'}</td>
-      <td class="mono">${p.codigo || '—'}</td>
-      <td>${p.etapa || '—'}</td>
+      <td>${esc(p.responsavel || 'N/A')}</td>
+      <td>${esc(p.estagiario || 'N/A')}</td>
+      <td class="mono">${esc(p.codigo) || '—'}</td>
+      <td>${esc(p.nome) || '—'}</td>
+      <td>${esc(p.etapa) || '—'}</td>
       <td class="mono right">${formatValor(p.valor)}</td>
       <td>${formatData(p.na_etapa_desde)}</td>
       <td class="center">${dias !== null ? dias + 'd' : '—'}${parada ? ' ⚠' : ''}</td>
@@ -2565,7 +2922,7 @@ function exportarPDF() {
     <div class="card"><div class="lbl">Valor Total</div><div class="val" style="font-size:12px">${formatValor(totalValor)}</div></div>
   </div>
   <table>
-    <thead><tr><th>Responsável</th><th>Código</th><th>Etapa</th><th class="right">Valor</th><th>Na Etapa Desde</th><th class="center">Dias</th></tr></thead>
+    <thead><tr><th>Analista</th><th>Estagiário</th><th>Código</th><th>Cliente / Razão Social</th><th>Etapa</th><th class="right">Valor</th><th>Na Etapa Desde</th><th class="center">Dias</th></tr></thead>
     <tbody>${linhas}</tbody>
   </table>
   <div class="ft">Fomento Paraná — Documento interno  |  ${rows.length} proposta${rows.length!==1?'s':''} listada${rows.length!==1?'s':''}  |  ⚠ = parada há ${DIAS_LIMITE_PARADA}+ dias</div>
@@ -2592,7 +2949,7 @@ async function carregarPainel() {
       sb('fgf_historico?select=*&order=criado_em.desc&limit=12')
     ])
     // Mesma janela da aba Propostas: ativas + finalizadas dos últimos 6 meses
-    dadosPainel.propostas = filtrarPorJanela(props || [])
+    dadosPainel.propostas = normalizarPropostas(filtrarPorJanela(props || []))
     dadosPainel.historico = hist || []
     renderPainel()
   } catch(e) {
@@ -2795,7 +3152,7 @@ function renderPainel() {
       ${rankParadas.length === 0
         ? `<div class="painel-empty">✅ Nenhuma proposta parada há mais de ${DIAS_LIMITE_PARADA} dias. Tudo em dia!</div>`
         : `<table class="rank-table">
-            <thead><tr><th>#</th><th>Analista</th><th>Estagiário</th><th>Código</th><th>Etapa</th><th>Valor</th><th>Parada há</th><th>Observação</th></tr></thead>
+            <thead><tr><th>#</th><th>Analista</th><th>Estagiário</th><th>Código</th><th>Cliente / Razão Social</th><th>Etapa</th><th>Valor</th><th>Parada há</th><th>Observação</th></tr></thead>
             <tbody>
               ${rankParadas.map((p, i) => {
                 const cor = getCorColab(p.responsavel || 'N/A'); const fg = getTextColor(cor)
@@ -2806,11 +3163,12 @@ function renderPainel() {
                   <td class="rank-pos">${i+1}</td>
                   <td><span class="resp-avatar" style="background:${cor};color:${fg};width:24px;height:24px;font-size:9px">${getIniciais(p.responsavel||'N/A')}</span> <span style="font-size:12px;font-weight:600">${p.responsavel||'N/A'}</span></td>
                   <td>${estR !== 'N/A' ? `<span class="resp-avatar" style="background:${corE};color:${fgE2};width:24px;height:24px;font-size:9px">${getIniciais(estR)}</span> <span style="font-size:12px;font-weight:600">${estR}</span>` : '<span style="color:#cbd5e1">—</span>'}</td>
-                  <td style="font-family:'IBM Plex Mono',monospace;font-weight:700">${p.codigo}</td>
+                  <td style="font-family:'IBM Plex Mono',monospace;font-weight:700">${esc(p.codigo)}</td>
+                  <td style="font-size:11.5px;max-width:200px">${esc(p.nome) || '—'}</td>
                   <td>${etapaBadge(p.etapa)}</td>
                   <td style="font-family:'IBM Plex Mono',monospace;font-size:11.5px">${formatValor(p.valor)}</td>
                   <td class="rank-dias"><span class="rank-dias-badge">${p.dias} dias</span></td>
-                  <td style="font-size:11.5px;color:${obs?'#374151':'#cbd5e1'};max-width:220px">${obs || '—'}</td>
+                  <td style="font-size:11.5px;color:${obs?'#374151':'#cbd5e1'};max-width:220px">${esc(obs) || '—'}</td>
                 </tr>`
               }).join('')}
             </tbody>
@@ -3045,15 +3403,18 @@ function exportarPainelExcel() {
   if (d.rankParadas.length) {
     const rank = d.rankParadas.map((p,i) => ({
       '#': i+1,
-      'Responsável': p.responsavel || 'N/A',
+      'Analista': p.responsavel || 'N/A',
+      'Estagiário': p.estagiario || 'N/A',
       'Código da Operação': p.codigo,
+      'Cliente / Razão Social': p.nome || '',
       'Etapa': p.etapa,
       'Valor (R$)': valorNum(p),
       'Na Etapa Desde': formatData(p.na_etapa_desde),
       'Dias Parada': p.dias,
+      'Observação': p.observacao || '',
     }))
     const wsP = XLSX.utils.json_to_sheet(rank)
-    wsP['!cols'] = [{wch:5},{wch:14},{wch:18},{wch:26},{wch:14},{wch:15},{wch:12}]
+    wsP['!cols'] = [{wch:5},{wch:14},{wch:14},{wch:18},{wch:38},{wch:26},{wch:14},{wch:15},{wch:12},{wch:40}]
     XLSX.utils.book_append_sheet(wb, wsP, 'Propostas Paradas')
   }
 
@@ -3070,7 +3431,7 @@ function exportarPainelExcel() {
   }
 
   const hoje = new Date().toISOString().split('T')[0]
-  XLSX.writeFile(wb, `Painel_Gerencial_Microcredito_${hoje}.xlsx`)
+  XLSX.writeFile(wb, `Painel_Gerencial_GiroFacil_${hoje}.xlsx`)
   showToast('✓ Relatório gerencial exportado')
 }
 
@@ -3174,13 +3535,15 @@ function exportarPainelPDF() {
   ${d.rankParadas.length === 0
     ? `<div style="padding:16px;text-align:center;color:#16a34a;background:#f0fdf4;border-radius:6px;font-size:10px;font-weight:600">✓ Nenhuma proposta parada há mais de ${DIAS_LIMITE_PARADA} dias</div>`
     : `<table>
-        <thead><tr><th>#</th><th>Responsável</th><th>Código</th><th>Etapa</th><th class="right">Valor</th><th class="center">Dias</th></tr></thead>
+        <thead><tr><th>#</th><th>Analista</th><th>Estagiário</th><th>Código</th><th>Cliente / Razão Social</th><th>Etapa</th><th class="right">Valor</th><th class="center">Dias</th></tr></thead>
         <tbody>
           ${d.rankParadas.slice(0,25).map((p,i) => `<tr class="parada">
             <td>${i+1}</td>
-            <td>${p.responsavel || 'N/A'}</td>
-            <td class="mono"><b>${p.codigo}</b></td>
-            <td>${p.etapa}</td>
+            <td>${esc(p.responsavel || 'N/A')}</td>
+            <td>${esc(p.estagiario || 'N/A')}</td>
+            <td class="mono"><b>${esc(p.codigo)}</b></td>
+            <td>${esc(p.nome) || '—'}</td>
+            <td>${esc(p.etapa)}</td>
             <td class="right mono">${formatValor(p.valor)}</td>
             <td class="center"><b>${p.dias}</b></td>
           </tr>`).join('')}
