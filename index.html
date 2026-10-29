@@ -1112,15 +1112,23 @@ function dataObs(v) {
 // Base do sistema: propostas cadastradas a partir de 01/01/2025
 const INICIO_SAFRA = '2025-01-01'
 
+// Regra única para TODA proposta (ativa ou finalizada): só entra se a
+// Data de Cadastro for de 2025 em diante. Sem data de cadastro, usa a
+// Na Etapa Desde. Sem nenhuma das duas, mantém para não perder registro.
+function cadastradaDesde2025(dataCadastro, naEtapaDesde) {
+  const iso = v => {
+    if (!v) return ''
+    if (v instanceof Date) return isNaN(v.getTime()) ? '' : v.toISOString().split('T')[0]
+    return String(v).split('T')[0]
+  }
+  const d = iso(dataCadastro) || iso(naEtapaDesde)
+  return !d || d >= INICIO_SAFRA
+}
+
 // Mantém todas as ativas + as finalizadas cadastradas desde 2025.
 // Sem data de cadastro (registros antigos), usa a "Na Etapa Desde".
 function filtrarPorJanela(props) {
-  return props.filter(p => {
-    if (ehAtiva(p.etapa)) return true
-    const base = p.data_cadastro || p.na_etapa_desde
-    const d = base ? String(base).split('T')[0] : ''
-    return !d || d >= INICIO_SAFRA
-  })
+  return props.filter(p => cadastradaDesde2025(p.data_cadastro, p.na_etapa_desde))
 }
 
 // ============================================================
@@ -1585,11 +1593,7 @@ async function processarArquivosHist(files) {
       let linhas = transformar(rows).filter(r => r.codigo && String(r.codigo).trim())
       // Base desde 2025: finalizadas cadastradas antes ficam de fora
       const antes = linhas.length
-      linhas = linhas.filter(r => {
-        if (ehAtiva(r.etapa)) return true
-        const d = (r.dataCadastro && !isNaN(r.dataCadastro.getTime())) ? r.dataCadastro : r.naEtapaDe
-        return !d || isNaN(d.getTime()) || d >= new Date(INICIO_SAFRA + 'T00:00:00')
-      })
+      linhas = linhas.filter(r => cadastradaDesde2025(r.dataCadastro, r.naEtapaDe))
       foraDoPeriodo += antes - linhas.length
       porArquivo.push({ nome: f.name, qtd: linhas.length })
       linhasHist = linhasHist.concat(linhas)
@@ -1621,7 +1625,8 @@ async function processarArquivosHist(files) {
   prev.innerHTML = `
     ✅ <b>${linhasHist.length}</b> propostas únicas de <b>${porArquivo.length}</b> arquivo${porArquivo.length>1?'s':''}<br>
     ${duplicados ? `🔁 ${duplicados} código(s) repetido(s) entre arquivos — mantida a última ocorrência<br>` : ''}
-    ${foraDoPeriodo ? `📅 ${foraDoPeriodo} finalizada(s) cadastrada(s) antes de 2025 — ficam de fora<br>` : ''}
+    ${foraDoPeriodo ? `📅 ${foraDoPeriodo} proposta(s) cadastrada(s) antes de 2025 — ficam de fora<br>` : ''}
+    📆 Com data de cadastro: <b>${linhasHist.filter(r => r.dataCadastro && !isNaN(r.dataCadastro.getTime())).length}</b> de ${linhasHist.length}<br>
     ${erros.length ? `⚠️ Ignorados: ${erros.join(' · ')}<br>` : ''}
     Por arquivo: ${porArquivo.map(a => `<b>${a.nome}</b> (${a.qtd})`).join(' · ')}<br>
     Etapas: ${topo.map(([e,n]) => `<b>${e}</b> (${n})`).join(' · ')}`
@@ -1736,11 +1741,11 @@ function setTurno(t) {
 function renderProcessar() {
   document.getElementById('view-processar').innerHTML = `
   <div class="card">
-    <div class="card-title">📂 Upload das Planilhas<span class="ajuda ajuda-baixo ajuda-dir" data-ajuda="A planilha PRECISA ter: Codigo da Operacao, Etapa, Valor Solicitado, Na Etapa Desde, Linha de Credito e Municipio. Pode e deve trazer o Nome / Razao Social. CPF/CNPJ e Email sao ignorados pelo sistema. Concedido e Recusado: entram as propostas cadastradas a partir de 01/01/2025.">?</span></div>
+    <div class="card-title">📂 Upload das Planilhas<span class="ajuda ajuda-baixo ajuda-dir" data-ajuda="A planilha PRECISA ter: Codigo da Operacao, Etapa, Valor Solicitado, Na Etapa Desde, Linha de Credito e Municipio. Pode e deve trazer o Nome / Razao Social. CPF/CNPJ e Email sao ignorados pelo sistema. Todas as planilhas: só entram propostas cadastradas a partir de 01/01/2025.">?</span></div>
     <div class="upload-grid-4">
       ${TIPOS_ARQUIVO.map(t => `
       <div>
-        <label>${t.label}${t.finalizado ? `<span class="tag-filtro" title="Só entram as propostas cadastradas a partir de 01/01/2025">desde 2025</span>` : ''}</label>
+        <label>${t.label}<span class="tag-filtro" title="Só entram as propostas cadastradas a partir de 01/01/2025">desde 2025</span></label>
         <div class="input-file-area" id="drop-${t.id}" onclick="document.getElementById('file-${t.id}').click()"
           ondragover="event.preventDefault();this.classList.add('over')"
           ondragleave="this.classList.remove('over')"
@@ -1958,7 +1963,8 @@ function transformar(rows) {
     etapa: getCol(row,'Etapa'),
     valor: getCol(row,'Valor Solicitado','Valor'),
     naEtapaDe: parseData(getCol(row,'Na Etapa Desde','Na Etapa De')),
-    dataCadastro: parseData(getCol(row,'Data de Cadastro','Data Cadastro','Data de Cad','Data do Cadastro')),
+    dataCadastro: parseData(getCol(row,'Data de Cadastro','Data Cadastro','Data de Cad','Data do Cadastro')
+      || (() => { const k = Object.keys(row).find(kk => /data.*cad/i.test(kk.normalize('NFD').replace(/[\u0300-\u036f]/g,''))); return k ? row[k] : '' })()),
     linhaCredito: normalizarLinhaCredito(getCol(row,'Linha de Crédito','Linha de Credito','Linha do Crédito','Linha')),
     municipio: String(getCol(row,'Município','Municipio','Cidade')||'').trim(),
   }))
@@ -1994,12 +2000,7 @@ function descricaoJanelaCorte(hoje = new Date()) {
 // Concedidas/recusadas: entram as cadastradas a partir de 01/01/2025
 // (histórico completo desde 2025, igual ao microcrédito)
 function filtrarUltimosMeses(rows) {
-  const corte = new Date(INICIO_SAFRA + 'T00:00:00')
-  return rows.filter(r => {
-    const d = (r.dataCadastro && !isNaN(r.dataCadastro.getTime())) ? r.dataCadastro : r.naEtapaDe
-    if (!d || isNaN(d.getTime())) return true   // sem data: mantém, para não perder registro
-    return d >= corte
-  })
+  return rows.filter(r => cadastradaDesde2025(r.dataCadastro, r.naEtapaDe))
 }
 
 function deduplicar(rows) {
@@ -2085,11 +2086,10 @@ async function processarPlanilhas() {
     let cortadas = 0
     enviados.forEach((t, i) => {
       let linhas = transformar(lidos[i])
-      if (t.finalizado) {
-        const antes = linhas.length
-        linhas = filtrarUltimosMeses(linhas)
-        cortadas += antes - linhas.length
-      }
+      // Todas as planilhas: só propostas cadastradas desde 2025
+      const antes = linhas.length
+      linhas = filtrarUltimosMeses(linhas)
+      cortadas += antes - linhas.length
       todas = todas.concat(linhas)
     })
     const merged = deduplicar(todas)
