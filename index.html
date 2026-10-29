@@ -44,7 +44,7 @@
   .tab-btn.active { color: var(--dourado); border-bottom-color: var(--dourado); }
 
   /* CONTAINER */
-  main { max-width: 1280px; margin: 0 auto; padding: 24px 20px; }
+  main { max-width: 1900px; margin: 0 auto; padding: 24px 20px; }
 
   /* CARDS */
   .card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow); }
@@ -97,6 +97,7 @@
   .obs-cell { font-size: 11.5px; line-height: 1.35; color: #374151; cursor: pointer; border-radius: 6px; padding: 4px 6px; transition: background .12s; word-break: break-word; }
   .obs-cell:hover { background: #eef2ff; box-shadow: inset 0 0 0 1px #c7d2fe; }
   .obs-cell .obs-txt { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  .obs-data { font-weight: 700; color: #64748b; }
   .obs-cell.vazia { color: #b6bdc7; font-style: italic; }
   .obs-cell .obs-edit { float: right; margin-left: 6px; color: #94a3b8; font-size: 11px; }
   /* Com table-layout:fixed, quem tem nowrap transborda por cima da coluna do
@@ -568,6 +569,8 @@
   .btn-lote:hover {
   background: rgba(255,255,255,.28);
 }
+  .btn-lote.perigo { background: #DC2626; border-color: #DC2626; color: #fff; }
+  .btn-lote.perigo:hover { background: #B91C1C; }
   .btn-lote.primario {
   background: var(--dourado);
   border-color: var(--dourado);
@@ -886,6 +889,50 @@
   .linha-card-val { padding: 0 12px 12px; font-size: 12px; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; }
 
   /* Resumo da evolução */
+
+  .painel-filtros-data { border-bottom: none; padding-bottom: 0; margin-top: -6px; }
+  .pf-data { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+  .pf-data-lbl { font-size: 11.5px; font-weight: 700; color: #475569; }
+  .pf-data .fa-input { max-width: 150px; }
+  .grafico-wrap { width: 100%; overflow: hidden; }
+  .grafico-svg { width: 100%; height: auto; display: block; }
+  .g-grade { stroke: #e5e7eb; stroke-width: 1; stroke-dasharray: 3 4; }
+  .g-eixo-y { font-size: 10px; fill: #94a3b8; text-anchor: end; font-family: IBM Plex Sans, sans-serif; }
+  .g-eixo-x { font-size: 10px; fill: #94a3b8; text-anchor: middle; font-family: IBM Plex Sans, sans-serif; }
+  .g-linha { fill: none; stroke: #2563EB; stroke-width: 2.5; stroke-linejoin: round; stroke-linecap: round; }
+  .g-ponto { fill: #fff; stroke: #2563EB; stroke-width: 2.5; transition: r .12s; }
+  .g-ponto-grupo:hover .g-ponto { r: 6.5; fill: #2563EB; }
+  .g-valor { font-size: 10.5px; fill: #475569; text-anchor: middle; font-weight: 700; font-family: IBM Plex Sans, sans-serif; }
+  .g-ponto-grupo { cursor: default; }
+
+  .selo-transf { font-size: 10px; margin-left: 5px; cursor: help; opacity: .8; }
+
+  /* Bifurcação do funil */
+  .funilv-parou { font-size: 9.5px; font-weight: 700; color: #94a3b8; background: #f1f5f9; padding: 1px 6px; border-radius: 8px; margin-left: 6px; }
+  .funilv-bifurcacao { margin-top: 10px; }
+  .bif-conector { display: flex; align-items: center; gap: 10px; margin: 4px 0 12px; }
+  .bif-linha { flex: 1; height: 1px; background: var(--border); }
+  .bif-rotulo { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .6px; }
+  .bif-lados { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .bif-lado { border: 1.5px solid var(--border); border-radius: 12px; padding: 14px 16px; text-align: center; }
+  .bif-lado.bif-ok { background: #F0FDF4; border-color: #86EFAC; }
+  .bif-lado.bif-nao { background: #FEF2F2; border-color: #FCA5A5; }
+  .bif-titulo { font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 10px; }
+  .bif-barra { height: 26px; border-radius: 6px; margin: 0 auto 8px; transition: width .5s; }
+  .bif-num { font-size: 26px; font-weight: 700; color: #1a1a2e; line-height: 1; }
+  .bif-pct { font-size: 11.5px; color: #64748b; margin-top: 3px; }
+  .etapa-qtd-btn { background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: 6px; padding: 1px 8px; font-size: 11px; font-weight: 700; color: #1E40AF; cursor: pointer; font-family: inherit; }
+  .etapa-qtd-btn:hover { background: var(--azul); color: #fff; border-color: var(--azul); }
+  .modal-largo { max-width: 780px; }
+  .lista-etapa-wrap { max-height: 55vh; overflow-y: auto; border: 1px solid var(--border); border-radius: 8px; }
+  .lista-etapa { width: 100%; border-collapse: collapse; }
+  .lista-etapa thead th { position: sticky; top: 0; background: #f8fafc; padding: 9px 12px; text-align: left; font-size: 10.5px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: .4px; border-bottom: 2px solid var(--border); }
+  .lista-etapa tbody td { padding: 8px 12px; border-bottom: 1px solid #eef1f4; font-size: 12.5px; }
+  .lista-etapa tbody tr:hover { background: #f8fafc; }
+  .le-cod { font-family: 'IBM Plex Mono', monospace; font-weight: 700; }
+  .le-razao { color: #334155; }
+  .le-resp { font-size: 11.5px; font-weight: 600; color: #64748b; }
+  .le-valor { font-family: 'IBM Plex Mono', monospace; text-align: right; font-size: 11.5px; }
   .evo-resumo { display: flex; gap: 24px; margin-bottom: 16px; }
   .evo-resumo-item { display: flex; flex-direction: column; }
   .evo-resumo-num { font-size: 24px; font-weight: 700; color: var(--azul); }
@@ -919,7 +966,7 @@
     <h1>FOMENTO PARANÁ — Fomento Giro Fácil</h1>
     <span>Processamento Automatizado — FGF</span>
   </div>
-  <span class="header-badge">FGF v2.5</span>
+  <span class="header-badge">FGF v2.7</span>
 </header>
 
 <nav>
@@ -927,6 +974,7 @@
   <button class="tab-btn" onclick="setTab('propostas')" id="tab-propostas">📋 Propostas</button>
   <button class="tab-btn" onclick="setTab('painel')" id="tab-painel">📊 Painel Gerencial</button>
   <button class="tab-btn" onclick="setTab('historico')" id="tab-historico">🕒 Histórico</button>
+  <button class="tab-btn" onclick="setTab('importacao')" id="tab-importacao">📚 Importação Histórica</button>
 </nav>
 
 <main id="main-content">
@@ -934,6 +982,7 @@
   <div id="view-propostas" style="display:none"></div>
   <div id="view-painel" style="display:none"></div>
   <div id="view-historico" style="display:none"></div>
+  <div id="view-importacao" style="display:none"></div>
 </main>
 
 <!-- MODAL SELEÇÃO DE RESPONSÁVEL -->
@@ -956,6 +1005,30 @@
 </div>
 
 <!-- MODAL OBSERVAÇÃO -->
+<div class="modal-overlay" id="modal-etapa" style="display:none" onclick="fecharModalEtapa(event)">
+  <div class="modal-box modal-largo" onclick="event.stopPropagation()">
+    <div class="modal-title" id="modal-etapa-titulo"></div>
+    <div class="modal-info" id="modal-etapa-sub"></div>
+    <div id="modal-etapa-lista" class="lista-etapa-wrap"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:14px">
+      <button class="btn btn-secondary" onclick="fecharModalEtapa()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-mudar-etapa" style="display:none" onclick="fecharModalEtapaProposta(event)">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-title">Mudar etapa</div>
+    <div class="modal-info" id="me-info"></div>
+    <label style="display:block;font-size:12px;font-weight:600;color:#475569;margin-bottom:5px">Nova etapa</label>
+    <select class="fa-input" id="me-select" style="margin-bottom:14px;width:100%"></select>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-secondary" onclick="fecharModalEtapaProposta()">Cancelar</button>
+      <button class="btn btn-primary" id="me-salvar" onclick="salvarEtapaProposta()">Salvar</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modal-obs" style="display:none" onclick="fecharModal(event)">
   <div class="modal-box" onclick="event.stopPropagation()">
     <div class="modal-title" id="modal-title">Observação</div>
@@ -1026,21 +1099,27 @@ async function sbAll(path, pageSize = 1000, maxPaginas = 50) {
   return todos
 }
 
-// Data de corte para propostas finalizadas: só as dos últimos N meses entram no sistema
-const MESES_HISTORICO = 6
-function dataCorteHistorico() {
-  const d = new Date()
-  d.setMonth(d.getMonth() - MESES_HISTORICO)
-  return d.toISOString().split('T')[0]
+// Data do comentário na frente do texto: "29/10 - "
+function dataObs(v) {
+  if (!v) return ''
+  try {
+    const d = new Date(v)
+    if (isNaN(d.getTime())) return ''
+    return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')} - `
+  } catch(e) { return '' }
 }
 
-// Mantém todas as ativas + as finalizadas dos últimos 6 meses
+// Base do sistema: propostas cadastradas a partir de 01/01/2025
+const INICIO_SAFRA = '2025-01-01'
+
+// Mantém todas as ativas + as finalizadas cadastradas desde 2025.
+// Sem data de cadastro (registros antigos), usa a "Na Etapa Desde".
 function filtrarPorJanela(props) {
-  const corte = dataCorteHistorico()
   return props.filter(p => {
-    if (ehAtiva(p.etapa)) return true            // ativa: sempre entra
-    const d = p.na_etapa_desde ? String(p.na_etapa_desde).split('T')[0] : ''
-    return d && d >= corte                        // finalizada: só se for recente
+    if (ehAtiva(p.etapa)) return true
+    const base = p.data_cadastro || p.na_etapa_desde
+    const d = base ? String(base).split('T')[0] : ''
+    return !d || d >= INICIO_SAFRA
   })
 }
 
@@ -1048,10 +1127,10 @@ function filtrarPorJanela(props) {
 // COLABORADORES
 // ============================================================
 // ── Equipe do Giro Fácil: dois papéis por proposta ──
-// Equipe atual. BERNARDO e ISABELA saíram — ficam fora das listas de atribuição.
+// Equipe atual. BERNARDO, ISABELA e LETICIA saíram — ficam fora das listas de atribuição.
 // As cores deles seguem em COLABORADORES só para propostas antigas não ficarem cinzas.
 const ANALISTAS = ['FABIANO','FERNANDO','JULIANA','NIVALDO']
-const ESTAGIARIOS = ['ANA PAULA','ANDRESSA','LETICIA','MARCOS']
+const ESTAGIARIOS = ['ANA PAULA','ANDRESSA','MARCOS']
 
 
 const COLABORADORES = {
@@ -1409,9 +1488,229 @@ function setTab(tab) {
   document.getElementById('view-propostas').style.display = tab==='propostas' ? '' : 'none'
   document.getElementById('view-painel').style.display = tab==='painel' ? '' : 'none'
   document.getElementById('view-historico').style.display = tab==='historico' ? '' : 'none'
+  document.getElementById('view-importacao').style.display = tab==='importacao' ? '' : 'none'
+  if (tab === 'importacao') renderImportacao()
   if (tab === 'propostas') carregarPropostas()
   if (tab === 'painel') carregarPainel()
   if (tab === 'historico') carregarHistorico()
+}
+
+// ══════════════════════════════════════════════════════════
+// ABA IMPORTAÇÃO HISTÓRICA
+// Carrega a base antiga do FomentoNet (desde 01/01/2025).
+// Não mexe no processamento do dia nem sobrescreve analista,
+// estagiário ou observação já atribuídos.
+// ══════════════════════════════════════════════════════════
+let linhasHist = []
+let modoSoNome = false
+
+function limparNomeCliente(txt) {
+  let t = String(txt ?? '').trim()
+  if (!t) return ''
+  t = t.replace(/^[\d./\-\s]+/, '')        // documento no começo
+  t = t.replace(/\s+[\d./\-]{9,}$/, '')     // documento no fim
+  return t.trim()
+}
+
+function renderImportacao() {
+  const el = document.getElementById('view-importacao')
+  if (el.dataset.pronto) return
+  el.dataset.pronto = '1'
+  el.innerHTML = `
+  <div class="card">
+    <div class="card-title">📚 Importação de Base Histórica</div>
+    <div class="alert alert-info" style="margin-bottom:14px">
+      Selecione todos os arquivos de uma vez (andamento, concedidos, recusados, transferências — um por ano ou um só com tudo).
+      Só entram propostas <b>cadastradas a partir de 01/01/2025</b>.
+      Quem já tem analista, estagiário ou observação no sistema <b>mantém o que tem</b>.<br>
+      <small>Planilha só com <b>Código + Nome do Cliente</b> (sem Etapa) atualiza apenas o nome das propostas.</small>
+    </div>
+    <div class="input-file-area" id="drop-hist" onclick="document.getElementById('file-hist').click()"
+      ondragover="event.preventDefault();this.classList.add('over')"
+      ondragleave="this.classList.remove('over')"
+      ondrop="event.preventDefault();this.classList.remove('over');processarArquivosHist([...(event.dataTransfer.files||[])])">
+      <input type="file" id="file-hist" accept=".xlsx,.xls,.csv" multiple style="display:none" onchange="processarArquivosHist([...(event.target.files||[])])"/>
+      <div class="file-icon">📚</div>
+      <div class="file-label-main">Clique ou arraste os arquivos</div>
+      <div class="file-label-sub">pode selecionar vários de uma vez · .xlsx, .xls ou .csv</div>
+      <div class="file-name" id="nome-hist"></div>
+    </div>
+    <div id="preview-hist" style="margin-top:12px;font-size:13px;line-height:1.7"></div>
+    <div id="status-hist" class="alert alert-info" style="margin-top:12px">Nenhum arquivo selecionado.</div>
+    <div id="prog-hist-wrap" style="display:none;margin-top:10px">
+      <div id="prog-hist-label" style="font-size:12px;color:#475569"></div>
+      <div class="progress-bar"><div class="progress-fill" id="prog-hist-fill" style="width:0%"></div></div>
+    </div>
+    <button class="btn btn-primary" id="btn-import-hist" disabled onclick="importarHistorico()" style="margin-top:12px">📥 Importar para o sistema</button>
+    <div id="resultado-hist" style="margin-top:14px"></div>
+  </div>`
+}
+
+async function processarArquivosHist(files) {
+  if (!files.length) return
+  linhasHist = []
+  modoSoNome = false
+  const prev = document.getElementById('preview-hist')
+  const status = document.getElementById('status-hist')
+  const btn = document.getElementById('btn-import-hist')
+  btn.disabled = true
+  document.getElementById('resultado-hist').innerHTML = ''
+  document.getElementById('nome-hist').textContent =
+    files.length === 1 ? '✓ ' + files[0].name : `✓ ${files.length} arquivos selecionados`
+
+  const porArquivo = [], erros = []
+  let foraDoPeriodo = 0
+  for (let i = 0; i < files.length; i++) {
+    const f = files[i]
+    prev.innerHTML = `⏳ Lendo ${i+1} de ${files.length}: ${f.name}...`
+    try {
+      const rows = await lerPlanilha(f)
+      if (!rows.length) { porArquivo.push({ nome: f.name, qtd: 0 }); continue }
+      const cab = Object.keys(rows[0] || {})
+      const temCodigo = achouColuna(cab, COLUNAS_NECESSARIAS[0].nomes)
+      const temEtapa  = achouColuna(cab, ['Etapa'])
+      const temNome   = achouColuna(cab, ['Nome do Cliente','Razão Social','Razao Social','Nome'])
+      if (temCodigo && temNome && !temEtapa) {
+        modoSoNome = true
+        const soNomes = rows.map(r => ({
+          codigo: String(getCol(r,'Código da Operação','Codigo da Operação','Codigo da Operacao','Código da Operacao')).trim(),
+          nome: limparNomeCliente(getCol(r,'Nome do Cliente','Razão Social','Razao Social','Nome')),
+        })).filter(r => r.codigo && r.nome)
+        porArquivo.push({ nome: f.name, qtd: soNomes.length })
+        linhasHist = linhasHist.concat(soNomes)
+        continue
+      }
+      const faltando = COLUNAS_NECESSARIAS.filter(cl => !achouColuna(cab, cl.nomes)).map(cl => cl.label)
+      if (faltando.length) { erros.push(`${f.name}: faltam ${faltando.join(', ')}`); continue }
+      let linhas = transformar(rows).filter(r => r.codigo && String(r.codigo).trim())
+      // Base desde 2025: finalizadas cadastradas antes ficam de fora
+      const antes = linhas.length
+      linhas = linhas.filter(r => {
+        if (ehAtiva(r.etapa)) return true
+        const d = (r.dataCadastro && !isNaN(r.dataCadastro.getTime())) ? r.dataCadastro : r.naEtapaDe
+        return !d || isNaN(d.getTime()) || d >= new Date(INICIO_SAFRA + 'T00:00:00')
+      })
+      foraDoPeriodo += antes - linhas.length
+      porArquivo.push({ nome: f.name, qtd: linhas.length })
+      linhasHist = linhasHist.concat(linhas)
+    } catch(err) { erros.push(`${f.name}: ${err.message}`) }
+  }
+
+  if (!linhasHist.length) {
+    prev.innerHTML = erros.length ? `❌ Nenhum arquivo pôde ser lido:<br>${erros.join('<br>')}` : 'Nenhuma proposta para importar.'
+    status.className = 'alert alert-danger'
+    status.textContent = 'Corrija os arquivos e envie novamente.'
+    return
+  }
+  const mapaCod = {}
+  linhasHist.forEach(r => { mapaCod[String(r.codigo).trim()] = r })
+  const duplicados = linhasHist.length - Object.keys(mapaCod).length
+  linhasHist = Object.values(mapaCod)
+
+  if (modoSoNome) {
+    prev.innerHTML = `✅ <b>${linhasHist.length}</b> nomes para atualizar · só o nome muda, o resto fica intacto`
+    status.className = 'alert alert-success'
+    status.innerHTML = `✅ Pronto para atualizar <b>${linhasHist.length}</b> nomes.`
+    btn.textContent = '📝 Atualizar nomes'
+    btn.disabled = false
+    return
+  }
+  const porEtapa = {}
+  linhasHist.forEach(r => { const e = (r.etapa||'—').trim(); porEtapa[e] = (porEtapa[e]||0)+1 })
+  const topo = Object.entries(porEtapa).sort((a,b)=>b[1]-a[1]).slice(0,6)
+  prev.innerHTML = `
+    ✅ <b>${linhasHist.length}</b> propostas únicas de <b>${porArquivo.length}</b> arquivo${porArquivo.length>1?'s':''}<br>
+    ${duplicados ? `🔁 ${duplicados} código(s) repetido(s) entre arquivos — mantida a última ocorrência<br>` : ''}
+    ${foraDoPeriodo ? `📅 ${foraDoPeriodo} finalizada(s) cadastrada(s) antes de 2025 — ficam de fora<br>` : ''}
+    ${erros.length ? `⚠️ Ignorados: ${erros.join(' · ')}<br>` : ''}
+    Por arquivo: ${porArquivo.map(a => `<b>${a.nome}</b> (${a.qtd})`).join(' · ')}<br>
+    Etapas: ${topo.map(([e,n]) => `<b>${e}</b> (${n})`).join(' · ')}`
+  status.className = 'alert alert-success'
+  status.innerHTML = `✅ Pronto para importar <b>${linhasHist.length}</b> propostas.`
+  btn.textContent = '📥 Importar para o sistema'
+  btn.disabled = false
+}
+
+function setProgHist(pct, txt) {
+  document.getElementById('prog-hist-wrap').style.display = 'block'
+  document.getElementById('prog-hist-fill').style.width = pct + '%'
+  document.getElementById('prog-hist-label').textContent = txt
+}
+
+async function importarHistorico() {
+  if (!linhasHist.length) return
+  const btn = document.getElementById('btn-import-hist')
+  const status = document.getElementById('status-hist')
+  btn.disabled = true
+  try {
+    setProgHist(5, 'Verificando o que já existe no sistema...')
+    const existentes = await sbAll('fgf_propostas?select=codigo,nome,responsavel,responsavel_final,estagiario,observacao,observacoes_anteriores,linha_credito,municipio,data_cadastro')
+    const mapa = {}
+    ;(existentes || []).forEach(p => { mapa[String(p.codigo).trim()] = p })
+
+    if (modoSoNome) {
+      let feitas = 0, naoEncontradas = 0
+      for (const r of linhasHist) {
+        feitas++
+        if (!mapa[r.codigo]) { naoEncontradas++; continue }
+        await sb(`fgf_propostas?codigo=eq.${encodeURIComponent(r.codigo)}`, { method: 'PATCH', prefer: 'return=minimal', body: { nome: r.nome } })
+        if (feitas % 20 === 0) setProgHist(5 + Math.round(feitas / linhasHist.length * 92), `Atualizando ${feitas} de ${linhasHist.length}`)
+      }
+      setProgHist(100, 'Concluído!')
+      status.className = 'alert alert-success'
+      status.innerHTML = `✅ ${linhasHist.length - naoEncontradas} nomes atualizados · ${naoEncontradas} códigos não estão no sistema.`
+      btn.disabled = false
+      return
+    }
+
+    setProgHist(15, 'Preparando os dados...')
+    const iso = d => { try { return d && !isNaN(d.getTime()) ? d.toISOString().split('T')[0] : null } catch(e) { return null } }
+    let novas = 0, atualizadas = 0
+    const registros = linhasHist.map(r => {
+      const chave = String(r.codigo).trim()
+      const ja = mapa[chave]
+      if (ja) atualizadas++; else novas++
+      return {
+        codigo: chave,
+        nome: limparNomeCliente(r.nome) || (ja ? (ja.nome || '') : ''),
+        etapa: r.etapa,
+        valor: parseValor(r.valor),
+        linha_credito: r.linhaCredito || (ja ? (ja.linha_credito || '') : ''),
+        municipio: r.municipio || (ja ? (ja.municipio || '') : ''),
+        na_etapa_desde: iso(r.naEtapaDe),
+        data_cadastro: iso(r.dataCadastro) || (ja ? ja.data_cadastro : null),
+        // Preserva quem já está atribuído; proposta nova entra sem ninguém
+        responsavel: ja ? (ja.responsavel || 'N/A') : 'N/A',
+        responsavel_final: ja ? (ja.responsavel_final || 'N/A') : 'N/A',
+        estagiario: ja ? (ja.estagiario || 'N/A') : 'N/A',
+        observacao: ja ? (ja.observacao || '') : '',
+        observacoes_anteriores: ja ? (ja.observacoes_anteriores || '') : '',
+      }
+    })
+    const LOTE = 500
+    for (let i = 0; i < registros.length; i += LOTE) {
+      await sb('fgf_propostas?on_conflict=codigo', {
+        method: 'POST', prefer: 'resolution=merge-duplicates,return=minimal', body: registros.slice(i, i + LOTE)
+      })
+      const feitas = Math.min(i + LOTE, registros.length)
+      setProgHist(15 + Math.round(feitas / registros.length * 83), `Importando ${feitas.toLocaleString('pt-BR')} de ${registros.length.toLocaleString('pt-BR')}`)
+    }
+    setProgHist(100, 'Concluído!')
+    status.className = 'alert alert-success'
+    status.innerHTML = '✅ Importação concluída.'
+    document.getElementById('resultado-hist').innerHTML = `
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Lidas</div><div class="stat-value">${registros.length}</div></div>
+        <div class="stat-card"><div class="stat-label">Novas no sistema</div><div class="stat-value" style="color:#166534">${novas}</div></div>
+        <div class="stat-card"><div class="stat-label">Já existiam</div><div class="stat-value" style="color:#92400e">${atualizadas}</div><div class="stat-sub">atualizadas, atribuições mantidas</div></div>
+      </div>`
+    showToast(`✓ ${registros.length} propostas importadas`)
+  } catch(e) {
+    status.className = 'alert alert-danger'
+    status.textContent = '❌ Erro na importação: ' + e.message
+    showToast('Erro: ' + e.message, 'error')
+  }
+  btn.disabled = false
 }
 
 // ============================================================
@@ -1437,11 +1736,11 @@ function setTurno(t) {
 function renderProcessar() {
   document.getElementById('view-processar').innerHTML = `
   <div class="card">
-    <div class="card-title">📂 Upload das Planilhas<span class="ajuda ajuda-baixo ajuda-dir" data-ajuda="A planilha PRECISA ter: Codigo da Operacao, Etapa, Valor Solicitado, Na Etapa Desde, Linha de Credito e Municipio. Pode e deve trazer o Nome / Razao Social. CPF/CNPJ e Email sao ignorados pelo sistema. Concedido e Recusado sao filtrados automaticamente: antes do dia 15 entram o mes anterior e o atual; do dia 15 em diante, so o mes atual.">?</span></div>
+    <div class="card-title">📂 Upload das Planilhas<span class="ajuda ajuda-baixo ajuda-dir" data-ajuda="A planilha PRECISA ter: Codigo da Operacao, Etapa, Valor Solicitado, Na Etapa Desde, Linha de Credito e Municipio. Pode e deve trazer o Nome / Razao Social. CPF/CNPJ e Email sao ignorados pelo sistema. Concedido e Recusado: entram as propostas cadastradas a partir de 01/01/2025.">?</span></div>
     <div class="upload-grid-4">
       ${TIPOS_ARQUIVO.map(t => `
       <div>
-        <label>${t.label}${t.finalizado ? `<span class="tag-filtro" title="Só entram as propostas com Na Etapa Desde dentro da janela vigente">só ${descricaoJanelaCorte()}</span>` : ''}</label>
+        <label>${t.label}${t.finalizado ? `<span class="tag-filtro" title="Só entram as propostas cadastradas a partir de 01/01/2025">desde 2025</span>` : ''}</label>
         <div class="input-file-area" id="drop-${t.id}" onclick="document.getElementById('file-${t.id}').click()"
           ondragover="event.preventDefault();this.classList.add('over')"
           ondragleave="this.classList.remove('over')"
@@ -1522,7 +1821,8 @@ function achouColuna(cabecalhos, nomes) {
 async function validarPlanilha(file) {
   try {
     const rows = await lerPlanilha(file)
-    if (!rows.length) return { ok: false, erro: 'A planilha está vazia (nenhuma linha de dados).' }
+    // Planilha vazia é válida: significa que não houve propostas naquele dia
+    if (!rows.length) return { ok: true, vazia: true, linhas: 0, colunas: 0, faltando: [], proibidas: [], encontradas: [], erro: null }
 
     const cabecalhos = Object.keys(rows[0])
     const faltando = COLUNAS_NECESSARIAS.filter(c => !achouColuna(cabecalhos, c.nomes)).map(c => c.label)
@@ -1569,6 +1869,15 @@ async function processarArquivo(file, tipo) {
       <div class="fp-linha"><span class="fp-icone">❌</span> <b>${v.erro}</b></div>
       ${v.faltando && v.faltando.length ? `<div class="fp-cols">Faltando: <span class="fp-col-faltando">${v.faltando.join(', ')}</span></div>` : ''}`
     document.getElementById('btn-processar').disabled = true
+    return
+  }
+
+  if (v.vazia) {
+    prev.className = 'file-preview'
+    prev.innerHTML = tipo === 'andamento'
+      ? `<div class="fp-linha" style="color:#92400e"><span class="fp-icone">⚠️</span> <b>Planilha vazia</b> — nenhuma proposta em andamento. Aceita, mas confira se é isso mesmo.</div>`
+      : `<div class="fp-linha"><span class="fp-icone">⚪</span> <b>Planilha vazia</b> — nenhuma proposta hoje. Tudo certo, pode processar.</div>`
+    if (typeof atualizarBotaoProcessar === 'function') atualizarBotaoProcessar()
     return
   }
 
@@ -1620,10 +1929,14 @@ function atualizarBotaoProcessar() {
 
 function lerPlanilha(file) {
   return new Promise((res, rej) => {
+    if (!file || file.size === 0) { res([]); return }   // arquivo sem nenhum conteúdo
     const reader = new FileReader()
     reader.onload = e => {
       try {
-        const wb = XLSX.read(e.target.result, { type:'binary', cellDates:true, cellNF:false, cellText:false })
+        // raw:true → no CSV o texto chega exatamente como está ("06/01/2025", "70.000,00").
+        // Sem isso a biblioteca lia as datas no formato americano (06/01 virava 1º de junho,
+        // com um dia a menos por fuso) e o valor "70.000,00" virava 70.
+        const wb = XLSX.read(e.target.result, { type:'binary', raw:true, cellDates:true, cellNF:false, cellText:false })
         const ws = wb.Sheets[wb.SheetNames[0]]
         const rows = XLSX.utils.sheet_to_json(ws, { defval:'', raw:false })
         res(rows)
@@ -1645,6 +1958,7 @@ function transformar(rows) {
     etapa: getCol(row,'Etapa'),
     valor: getCol(row,'Valor Solicitado','Valor'),
     naEtapaDe: parseData(getCol(row,'Na Etapa Desde','Na Etapa De')),
+    dataCadastro: parseData(getCol(row,'Data de Cadastro','Data Cadastro','Data de Cad','Data do Cadastro')),
     linhaCredito: normalizarLinhaCredito(getCol(row,'Linha de Crédito','Linha de Credito','Linha do Crédito','Linha')),
     municipio: String(getCol(row,'Município','Municipio','Cidade')||'').trim(),
   }))
@@ -1677,10 +1991,12 @@ function descricaoJanelaCorte(hoje = new Date()) {
 }
 
 // Mantém apenas as propostas dentro da janela vigente, pela data "Na Etapa Desde"
+// Concedidas/recusadas: entram as cadastradas a partir de 01/01/2025
+// (histórico completo desde 2025, igual ao microcrédito)
 function filtrarUltimosMeses(rows) {
-  const corte = dataCorteConcedidoRecusado()
+  const corte = new Date(INICIO_SAFRA + 'T00:00:00')
   return rows.filter(r => {
-    const d = r.naEtapaDe
+    const d = (r.dataCadastro && !isNaN(r.dataCadastro.getTime())) ? r.dataCadastro : r.naEtapaDe
     if (!d || isNaN(d.getTime())) return true   // sem data: mantém, para não perder registro
     return d >= corte
   })
@@ -1764,7 +2080,7 @@ async function processarPlanilhas() {
 
     setProgresso(40, 'Processando dados...')
     // Junta os 4 arquivos. Nos de finalizados (Concedido/Recusado) aplica
-    // automaticamente o corte dos 2 últimos meses pela data "Na Etapa Desde".
+    // automaticamente o corte: só entram as cadastradas desde 01/01/2025.
     let todas = []
     let cortadas = 0
     enviados.forEach((t, i) => {
@@ -1779,7 +2095,10 @@ async function processarPlanilhas() {
     const merged = deduplicar(todas)
 
     // Buscar atribuições manuais já salvas no banco para preservá-las
-    const propostasExistentes = await sbAll('fgf_propostas?select=codigo,etapa,nome,responsavel,responsavel_final,estagiario,observacao,observacoes_anteriores')
+    const propostasExistentes = await sbAll('fgf_propostas?select=codigo,etapa,nome,responsavel,responsavel_final,estagiario,observacao,observacoes_anteriores,data_cadastro')
+    // Data de cadastro já salva: não se perde se a planilha do dia vier sem a coluna
+    const mapaCadastro = {}
+    ;(propostasExistentes || []).forEach(p => { if (p.data_cadastro) mapaCadastro[String(p.codigo).trim()] = p.data_cadastro })
     // TODAS as propostas já existentes entram no mapa — inclusive as que estão
     // sem analista, porque podem ter estagiário. E o estagiário PRECISA vir junto,
     // senão o processamento apaga a atribuição.
@@ -1814,6 +2133,10 @@ async function processarPlanilhas() {
       na_etapa_desde: (() => {
         try { return r.naEtapaDe && !isNaN(r.naEtapaDe.getTime()) ? r.naEtapaDe.toISOString().split('T')[0] : null }
         catch(e) { return null }
+      })(),
+      data_cadastro: (() => {
+        try { return r.dataCadastro && !isNaN(r.dataCadastro.getTime()) ? r.dataCadastro.toISOString().split('T')[0] : (mapaCadastro[String(r.codigo).trim()] || null) }
+        catch(e) { return mapaCadastro[String(r.codigo).trim()] || null }
       })(),
       observacoes_anteriores: r.observacoesAnteriores || '',
       observacao: r.observacao || '',
@@ -1901,6 +2224,7 @@ async function processarPlanilhas() {
 // ============================================================
 let todasPropostas = []
 let filtroColab = 'TODOS'
+let mostrarArquivadas = false
 let mostrarFinalizadas = false  // por padrão, esconde as finalizadas do fluxo do dia a dia
 let filtroEtapa = ''
 let filtroLinhaCredito = ''
@@ -1941,6 +2265,9 @@ function renderPropostas() {
       </button>
       <button class="btn btn-secondary btn-sm" id="btn-finalizadas" onclick="toggleFinalizadas()" title="Mostrar ou esconder propostas concedidas, recusadas e excluídas">
         <span id="lbl-finalizadas">👁 Mostrar finalizadas</span>
+      </button>
+      <button class="btn btn-secondary btn-sm" id="btn-arquivadas" onclick="toggleArquivadas()" title="Ver as propostas arquivadas (somem da lista e do painel, mas não são apagadas)">
+        <span id="lbl-arquivadas">${mostrarArquivadas ? '↩ Voltar às ativas' : '📦 Arquivadas'}</span>
       </button>
       <div class="export-group">
         <button class="btn btn-secondary btn-sm" onclick="exportarExcel()" title="Exportar para Excel">📊 Excel</button>
@@ -1998,7 +2325,7 @@ function renderPropostas() {
 async function carregarPropostas() {
   try {
     const data = await sbAll('fgf_propostas?select=*&order=codigo.asc')
-    // Mantém todas as ativas + finalizadas dos últimos 6 meses.
+    // Mantém todas as ativas + finalizadas cadastradas desde 2025.
     // normalizarPropostas garante que CICERA apareça como ANDRESSA em toda a tela.
     todasPropostas = normalizarPropostas(filtrarPorJanela(data || []))
     popularSelectEtapas()
@@ -2072,6 +2399,9 @@ function getLinhasFiltradas() {
     )
   }
   rows = aplicarFiltrosData(rows)
+  // Arquivadas: somem de tudo, menos quando o botão "Arquivadas" está ativo
+  rows = rows.filter(p => mostrarArquivadas ? !!p.arquivada : !p.arquivada)
+  if (mostrarArquivadas) return rows
   // Esconde finalizadas (Concedido/Recusado/Excluído) do fluxo do dia a dia,
   // exceto quando: o botão "Mostrar finalizadas" está ativo, o usuário
   // filtrou explicitamente por uma etapa finalizada, OU há uma busca textual ativa
@@ -2376,7 +2706,7 @@ function renderTabelaPropostas() {
     const obsCell = `<td><div class="obs-cell${obs ? '' : ' vazia'}" title="Clique para editar"
         onclick="abrirModal('${p.codigo}')">
         <span class="obs-edit">✏</span>
-        <div class="obs-txt">${obs ? esc(obs) : '+ adicionar observação'}</div>
+        <div class="obs-txt">${obs ? `<span class="obs-data">${dataObs(p.observacao_em)}</span>${esc(obs)}` : '+ adicionar observação'}</div>
       </div></td>`
 
     const etapasFin = ['concedido','excluído','excluido','recusado']
@@ -2393,10 +2723,12 @@ function renderTabelaPropostas() {
       ${respCell}
       ${estCell}
       <td class="td-cnpj" style="font-weight:700">${esc(p.codigo)||'—'}</td>
-      <td class="td-nome" title="${esc(p.nome||'')}">${esc(p.nome) || '—'}</td>
+      <td class="td-nome" title="${esc(p.nome||'')}">${p.nome
+        ? `${esc(p.nome)} <span onclick="editarNome('${p.codigo}')" title="Editar nome" style="cursor:pointer;color:#94a3b8;font-size:11px">✎</span>`
+        : `<span onclick="editarNome('${p.codigo}')" title="Digitar o nome do cliente" style="cursor:pointer;color:#94a3b8;font-style:italic;font-size:12px;font-weight:400">+ adicionar nome</span>`}</td>
       <td>${linhaBadge(p.linha_credito)}</td>
       <td class="td-mun">${esc(p.municipio) || '—'}</td>
-      <td class="td-etapa">${etapaBadge(p.etapa)}</td>
+      <td class="td-etapa" onclick="abrirModalEtapaProposta('${p.codigo}')" title="Clique para mudar a etapa" style="cursor:pointer">${etapaBadge(p.etapa)}</td>
       <td class="td-valor">${formatValor(p.valor)}</td>
       ${celulaData(p)}
       ${obsCell}
@@ -2687,6 +3019,22 @@ function fecharModal(e) {
   modalCodigo = null
 }
 
+// Edição manual do nome / razão social (para quem veio sem nome)
+async function editarNome(codigo) {
+  const p = todasPropostas.find(x => String(x.codigo) === String(codigo))
+  const atual = p ? (p.nome || '') : ''
+  const novo = prompt(`Nome / razão social da proposta ${codigo}:`, atual)
+  if (novo === null) return
+  const valor = limparNomeCliente(novo).toUpperCase()
+  if (valor === atual) return
+  try {
+    await sb(`fgf_propostas?codigo=eq.${encodeURIComponent(codigo)}`, { method: 'PATCH', prefer: 'return=minimal', body: { nome: valor } })
+    if (p) p.nome = valor
+    renderTabelaPropostas()
+    showToast(valor ? '✓ Nome salvo' : '✓ Nome apagado')
+  } catch(e) { showToast('Erro ao salvar: ' + e.message, 'error') }
+}
+
 async function salvarObservacao() {
   if (!modalCodigo) return
   const obs = document.getElementById('modal-textarea').value.trim()
@@ -2698,17 +3046,20 @@ async function salvarObservacao() {
   try {
     // Agora que a observacao e fixa, "anteriores" guarda a versao que foi
     // substituida — e o unico momento em que ela muda.
-    const corpo = { observacao: obs }
+    // Data/hora do comentário: aparece na frente do texto ("29/10 - ...")
+    const agora = new Date().toISOString()
+    const corpo = { observacao: obs, observacao_em: obs ? agora : null }
     if (anterior) corpo.observacoes_anteriores = anterior
     await sb(`fgf_propostas?codigo=eq.${encodeURIComponent(modalCodigo)}`, {
       method: 'PATCH',
       prefer: 'return=minimal',
       body: corpo
     })
-    const idx = todasPropostas.findIndex(p => p.codigo === modalCodigo)
+    const idx = todasPropostas.findIndex(p => String(p.codigo) === String(modalCodigo))
     if (idx !== -1) {
       if (anterior) todasPropostas[idx].observacoes_anteriores = anterior
       todasPropostas[idx].observacao = obs
+      todasPropostas[idx].observacao_em = obs ? agora : null
     }
     document.getElementById('modal-obs').style.display = 'none'
     modalCodigo = null
@@ -2758,6 +3109,138 @@ function selecionarTodosFiltrados() {
   showToast(`${selecionadas.size} propostas selecionadas`)
 }
 
+// ══ Ações em lote e por proposta (iguais às do microcrédito) ══
+const inCodigos = lote => `codigo=in.(${lote.map(c => `"${c}"`).join(',')})`
+
+async function patchLote(codigos, corpo, aplicarLocal) {
+  let ok = 0, erros = 0
+  for (let i = 0; i < codigos.length; i += 200) {
+    const lote = codigos.slice(i, i + 200)
+    try {
+      await sb(`fgf_propostas?${inCodigos(lote)}`, { method: 'PATCH', prefer: 'return=minimal', body: corpo })
+      const set = new Set(lote)
+      todasPropostas.forEach(p => { if (set.has(String(p.codigo))) aplicarLocal(p) })
+      ok += lote.length
+    } catch(e) { erros += lote.length; console.error(e) }
+  }
+  return { ok, erros }
+}
+
+// Tira analista E estagiário das selecionadas
+async function enviarLoteNA() {
+  const codigos = [...selecionadas]
+  if (!codigos.length) return
+  if (!confirm(`Tirar analista e estagiário de ${codigos.length} proposta${codigos.length!==1?'s':''}? Elas vão para N/A.`)) return
+  const r = await patchLote(codigos, { responsavel: 'N/A', responsavel_final: 'N/A', estagiario: 'N/A' },
+    p => { p.responsavel = 'N/A'; p.responsavel_final = 'N/A'; p.estagiario = 'N/A' })
+  selecionadas.clear()
+  showToast(`✓ ${r.ok} enviada${r.ok!==1?'s':''} para N/A${r.erros?` · ${r.erros} com erro`:''}`, r.erros && !r.ok ? 'error' : undefined)
+  renderTabelaPropostas(); renderStatsPropostas()
+}
+
+function toggleArquivadas() {
+  mostrarArquivadas = !mostrarArquivadas
+  selecionadas.clear()
+  const lbl = document.getElementById('lbl-arquivadas')
+  if (lbl) lbl.textContent = mostrarArquivadas ? '↩ Voltar às ativas' : '📦 Arquivadas'
+  if (mostrarArquivadas) carregarArquivadas()
+  pagAtual = 1
+  renderTabelaPropostas(); renderStatsPropostas()
+}
+
+let arquivadasCarregadas = false
+async function carregarArquivadas() {
+  if (arquivadasCarregadas) return
+  try {
+    const achadas = await sbAll('fgf_propostas?select=*&arquivada=eq.true')
+    arquivadasCarregadas = true
+    const jaTem = new Set(todasPropostas.map(p => String(p.codigo)))
+    const novas = (achadas || []).filter(p => !jaTem.has(String(p.codigo)))
+    if (novas.length) todasPropostas = todasPropostas.concat(novas)
+    if (mostrarArquivadas) { renderTabelaPropostas(); renderStatsPropostas() }
+  } catch(e) { showToast('Para usar o arquivo, rode o SQL fgf_arquivada.sql no Supabase', 'error') }
+}
+
+async function arquivarLote(arquivar) {
+  const codigos = [...selecionadas]
+  if (!codigos.length) return
+  const txt = arquivar
+    ? `Arquivar ${codigos.length} proposta${codigos.length!==1?'s':''}?\n\nElas somem da lista e do painel, mas NÃO são apagadas. Dá para ver e desarquivar no botão "📦 Arquivadas".`
+    : `Desarquivar ${codigos.length} proposta${codigos.length!==1?'s':''}?`
+  if (!confirm(txt)) return
+  const r = await patchLote(codigos, { arquivada: arquivar }, p => { p.arquivada = arquivar })
+  selecionadas.clear()
+  if (r.erros && !r.ok) showToast('Erro ao arquivar. Rode o SQL fgf_arquivada.sql no Supabase.', 'error')
+  else showToast(`✓ ${r.ok} proposta${r.ok!==1?'s':''} ${arquivar ? 'arquivada' : 'desarquivada'}${r.ok!==1?'s':''}${r.erros?` · ${r.erros} com erro`:''}`)
+  renderTabelaPropostas(); renderStatsPropostas()
+}
+
+// Exclui do sistema, guardando cópia em backup_excluidas
+async function excluirLote() {
+  const codigos = [...selecionadas]
+  if (!codigos.length) return
+  if (!confirm(`Excluir ${codigos.length} proposta${codigos.length!==1?'s':''} do sistema?\n\nUma cópia fica guardada no banco (backup_excluidas), então dá para restaurar depois.`)) return
+  let ok = 0, erros = 0
+  for (let i = 0; i < codigos.length; i += 200) {
+    const lote = codigos.slice(i, i + 200)
+    try {
+      const copias = todasPropostas.filter(p => lote.includes(String(p.codigo)))
+      if (copias.length) {
+        try { await sb('backup_excluidas', { method: 'POST', prefer: 'return=minimal',
+          body: copias.map(c => ({ codigo: 'FGF-' + c.codigo, dados: c })) }) } catch(e) {}
+      }
+      await sb(`fgf_propostas?${inCodigos(lote)}`, { method: 'DELETE', prefer: 'return=minimal' })
+      const set = new Set(lote)
+      todasPropostas = todasPropostas.filter(p => !set.has(String(p.codigo)))
+      ok += lote.length
+    } catch(e) { erros += lote.length; console.error(e) }
+  }
+  selecionadas.clear()
+  showToast(`✓ ${ok} proposta${ok!==1?'s':''} excluída${ok!==1?'s':''}${erros?` · ${erros} com erro`:''}`)
+  renderTabelaPropostas(); renderStatsPropostas()
+}
+
+// Mudar etapa: uma proposta (clique na etapa) ou várias (lote)
+let mudarEtapaCodigos = null
+let mudarEtapaEhLote = false
+function abrirModalMudarEtapa(codigos, info, atual) {
+  mudarEtapaCodigos = codigos
+  document.getElementById('me-info').textContent = info
+  const opcoes = [...FUNIL_ETAPAS, 'Concedido', 'Recusado', 'Excluído']
+  document.getElementById('me-select').innerHTML = opcoes.map(e =>
+    `<option value="${e}" ${e === atual ? 'selected' : ''}>${e}</option>`).join('')
+  document.getElementById('modal-mudar-etapa').style.display = 'flex'
+}
+function abrirModalEtapaProposta(codigo) {
+  const p = todasPropostas.find(x => String(x.codigo) === String(codigo))
+  if (!p) return
+  mudarEtapaEhLote = false
+  abrirModalMudarEtapa([String(codigo)], `${p.codigo}${p.nome ? ' · ' + p.nome : ''}`, normalizarNomeEtapa(p.etapa) || p.etapa || '')
+}
+function abrirModalEtapaLote() {
+  if (!selecionadas.size) return
+  const n = selecionadas.size
+  mudarEtapaEhLote = true
+  abrirModalMudarEtapa([...selecionadas], `${n} proposta${n!==1?'s':''} selecionada${n!==1?'s':''}`, '')
+}
+function fecharModalEtapaProposta(e) {
+  if (e && e.target !== document.getElementById('modal-mudar-etapa')) return
+  document.getElementById('modal-mudar-etapa').style.display = 'none'
+  mudarEtapaCodigos = null
+}
+async function salvarEtapaProposta() {
+  if (!mudarEtapaCodigos) return
+  const nova = document.getElementById('me-select').value
+  const btn = document.getElementById('me-salvar')
+  btn.disabled = true; btn.textContent = 'Salvando...'
+  const r = await patchLote(mudarEtapaCodigos, { etapa: nova }, p => { p.etapa = nova })
+  btn.disabled = false; btn.textContent = 'Salvar'
+  if (mudarEtapaEhLote) selecionadas.clear()
+  showToast(r.erros && !r.ok ? 'Erro ao mudar a etapa' : `✓ ${r.ok} proposta${r.ok!==1?'s':''} em ${nova}${r.erros?` · ${r.erros} com erro`:''}`, r.erros && !r.ok ? 'error' : undefined)
+  fecharModalEtapaProposta()
+  renderTabelaPropostas(); renderStatsPropostas()
+}
+
 function renderBarraLote() {
   const cont = document.getElementById('lote-bar-container')
   if (!cont) return
@@ -2771,6 +3254,12 @@ function renderBarraLote() {
       <div class="lote-acoes">
         ${n < totalFiltrado ? `<button class="btn-lote" onclick="selecionarTodosFiltrados()">Selecionar todas as ${totalFiltrado}</button>` : ''}
         <button class="btn-lote primario" onclick="abrirModalRespLote()">👤 Reatribuir para...</button>
+        <button class="btn-lote" onclick="enviarLoteNA()">🚫 Enviar para N/A</button>
+        <button class="btn-lote" onclick="abrirModalEtapaLote()">🔀 Mudar etapa</button>
+        ${mostrarArquivadas
+          ? `<button class="btn-lote" onclick="arquivarLote(false)">↩ Desarquivar</button>`
+          : `<button class="btn-lote" onclick="arquivarLote(true)">📦 Arquivar</button>`}
+        <button class="btn-lote perigo" onclick="excluirLote()">🗑️ Excluir do sistema</button>
         <button class="btn-lote" onclick="limparSelecao()">✕ Limpar</button>
       </div>
     </div>`
@@ -2865,15 +3354,16 @@ function exportarExcel() {
       'Município': p.municipio || '',
       'Etapa': p.etapa || '',
       'Valor (R$)': valorNum(p),
+      'Data de Cadastro': formatData(p.data_cadastro),
       'Na Etapa Desde': formatData(p.na_etapa_desde),
       'Dias na Etapa': dias !== null ? dias : '',
       'Situação': ativa ? (dias !== null && dias >= DIAS_LIMITE_PARADA ? 'PARADA' : 'Em tratativa') : 'Finalizada',
-      'Observação': p.observacao || '',
+      'Observação': (p.observacao_em && p.observacao ? dataObs(p.observacao_em) : '') + (p.observacao || ''),
     }
   })
 
   const ws = XLSX.utils.json_to_sheet(dados)
-  ws['!cols'] = [ {wch:14},{wch:14},{wch:18},{wch:38},{wch:16},{wch:18},{wch:26},{wch:14},{wch:15},{wch:13},{wch:14},{wch:40} ]
+  ws['!cols'] = [ {wch:14},{wch:14},{wch:18},{wch:38},{wch:16},{wch:18},{wch:26},{wch:14},{wch:15},{wch:15},{wch:13},{wch:14},{wch:40} ]
 
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, 'Propostas')
@@ -2995,7 +3485,7 @@ async function carregarPainel() {
       sbAll('fgf_propostas?select=*'),
       sb('fgf_historico?select=*&order=criado_em.desc&limit=12')
     ])
-    // Mesma janela da aba Propostas: ativas + finalizadas dos últimos 6 meses
+    // Mesma janela da aba Propostas: ativas + finalizadas desde 2025
     dadosPainel.propostas = normalizarPropostas(filtrarPorJanela(props || []))
     dadosPainel.historico = hist || []
     renderPainel()
@@ -3038,18 +3528,34 @@ function renderPainel() {
         <option value="">🏷️ Todas as linhas</option>
         ${LINHAS_CREDITO.map(l => `<option value="${l}" ${painelFiltroLinha===l?'selected':''}>${l}</option>`).join('')}
       </select>
-      ${(painelFiltroColab||painelFiltroEtapa||painelFiltroLinha) ? `<button class="btn btn-secondary btn-sm" onclick="painelFiltroColab='';painelFiltroEtapa='';painelFiltroLinha='';renderPainel()">✕ Limpar</button>` : ''}
+      ${temFiltroPainel() ? `<button class="btn btn-secondary btn-sm" onclick="limparFiltrosPainel()">✕ Limpar</button>` : ''}
+    </div>
+    <div class="painel-filtros painel-filtros-data">
+      <div class="pf-data">
+        <span class="pf-data-lbl">📅 Data de Cadastro</span>
+        <input type="date" class="fa-input" value="${painelCadIni}" max="9999-12-31" onchange="if(dataPronta(this.value)){painelCadIni=this.value; renderPainel()}"/>
+        <span>até</span>
+        <input type="date" class="fa-input" value="${painelCadFim}" max="9999-12-31" onchange="if(dataPronta(this.value)){painelCadFim=this.value; renderPainel()}"/>
+      </div>
+      <div class="pf-data">
+        <span class="pf-data-lbl">⏱ Na Etapa Desde</span>
+        <input type="date" class="fa-input" value="${painelEtapaIni}" max="9999-12-31" onchange="if(dataPronta(this.value)){painelEtapaIni=this.value; renderPainel()}"/>
+        <span>até</span>
+        <input type="date" class="fa-input" value="${painelEtapaFim}" max="9999-12-31" onchange="if(dataPronta(this.value)){painelEtapaFim=this.value; renderPainel()}"/>
+      </div>
     </div>`
 
   // ══ CARDS DE RESUMO ══
-  const pctConc = ((d.concedidas.length/totalP)*100).toFixed(1)
-  const pctNaoConc = ((d.naoConcedidas.length/totalP)*100).toFixed(1)
+  // Percentual sobre as já decididas (concedidas + recusadas + excluídas)
+  const totalDecididas = d.concedidas.length + d.naoConcedidas.length
+  const pctConc = totalDecididas ? ((d.concedidas.length/totalDecididas)*100).toFixed(1) : '0.0'
+  const pctNaoConc = totalDecididas ? ((d.naoConcedidas.length/totalDecididas)*100).toFixed(1) : '0.0'
   const resumo = `
     <div class="dash-grid">
       <div class="dash-card accent-azul"><div class="dash-label">Total de Propostas</div><div class="dash-value">${props.length}</div></div>
       <div class="dash-card accent-verde"><div class="dash-label">Em Tratativa</div><div class="dash-value">${d.ativas.length}</div><div class="dash-sub">${formatValor(d.valorAtivo)}</div></div>
-      <div class="dash-card accent-roxo"><div class="dash-label">Concedidas</div><div class="dash-value">${d.concedidas.length}</div><div class="dash-sub">${formatValor(d.valorConcedido)} · ${pctConc}%</div></div>
-      <div class="dash-card accent-vermelho"><div class="dash-label">Recusadas + Excluídas<span class="ajuda ajuda-baixo" data-ajuda="Recusado e Excluído são somados juntos como propostas que não seguiram adiante. O percentual é sobre o total de propostas do filtro.">?</span></div><div class="dash-value">${d.naoConcedidas.length}</div><div class="dash-sub">${formatValor(d.valorNaoConcedido)} · ${pctNaoConc}%</div></div>
+      <div class="dash-card accent-roxo"><div class="dash-label">Concedidas<span class="ajuda ajuda-baixo" data-ajuda="Percentual sobre as propostas já decididas: concedidas dividido por concedidas mais recusadas mais excluídas.">?</span></div><div class="dash-value">${d.concedidas.length}</div><div class="dash-sub">${formatValor(d.valorConcedido)} · ${pctConc}%</div></div>
+      <div class="dash-card accent-vermelho"><div class="dash-label">Recusadas + Excluídas<span class="ajuda ajuda-baixo" data-ajuda="Recusado e Excluído contam juntos. O percentual é sobre as propostas já decididas (concedidas + recusadas + excluídas).">?</span></div><div class="dash-value">${d.naoConcedidas.length}</div><div class="dash-sub">${formatValor(d.valorNaoConcedido)} · ${pctNaoConc}%</div></div>
       <div class="dash-card accent-parada"><div class="dash-label">⚠️ Paradas 15+ dias<span class="ajuda ajuda-baixo" data-ajuda="Propostas ativas há 15 dias ou mais na mesma etapa. O detalhamento aparece na seção 'Propostas Mais Paradas' abaixo.">?</span></div><div class="dash-value" style="color:${d.paradas.length>0?'#dc2626':'#16a34a'}">${d.paradas.length}</div><div class="dash-sub">precisam de atenção</div></div>
       <div class="dash-card accent-cinza"><div class="dash-label">Média de Dias Parados<span class="ajuda ajuda-baixo ajuda-esq" data-ajuda="Média de dias que as propostas ativas estão paradas na etapa. Quanto menor, mais ágil o andamento.">?</span></div><div class="dash-value">${d.mediaDias}<span style="font-size:14px;font-weight:600;color:#9ca3af"> dias</span></div><div class="dash-sub">média das ativas</div></div>
     </div>`
@@ -3064,16 +3570,29 @@ function renderPainel() {
   }
 
   // Monta uma linha de etapa no estilo FomentoNet (nome à esquerda, barra, % à direita)
-  const maxEtapaCol = Math.max(1, ...ETAPAS_INTEIRAS.concat(ETAPAS_EXTENSOES).map(et => (d.etapaMap[et]||{}).count || 0))
+  // Seção Etapas: filtros gerais + filtro próprio de Data de Cadastro
+  const propsEtapas = filtroDataEtapas(props)
+  const totalEtapas = propsEtapas.length || 1
+  const etapaMapSec = {}
+  propsEtapas.forEach(p => {
+    const bruto = (p.etapa||'—').trim() || '—'
+    const e = posicaoFunil(bruto) !== -1 ? normalizarNomeEtapa(bruto) : bruto
+    if (!etapaMapSec[e]) etapaMapSec[e] = { count: 0, valor: 0 }
+    etapaMapSec[e].count++
+    etapaMapSec[e].valor += valorNum(p)
+  })
+  const maxEtapaCol = Math.max(1, ...ETAPAS_INTEIRAS.concat(ETAPAS_EXTENSOES).map(et => (etapaMapSec[et]||{}).count || 0))
   const etapaLinha = (etapa) => {
-    const dd = d.etapaMap[etapa] || { count: 0, valor: 0 }
-    const pctTotal = totalP ? ((dd.count/totalP)*100).toFixed(2) : '0.00'
+    const dd = etapaMapSec[etapa] || { count: 0, valor: 0 }
+    const pctTotal = ((dd.count/totalEtapas)*100).toFixed(2)
     const larguraBarra = maxEtapaCol ? Math.round((dd.count/maxEtapaCol)*100) : 0
     const cor = dd.count > 0 ? corEtapaFunil(etapa) : '#e5e7eb'
     // Cor do badge de %: laranja se for uma das maiores, verde caso contrário
     const badgeCor = dd.count === 0 ? '#9ca3af' : (larguraBarra >= 60 ? '#ea580c' : (larguraBarra >= 25 ? '#eab308' : '#16a34a'))
     return `<div class="etapa-linha">
-      <div class="etapa-nome">${etapa} <span class="etapa-qtd">(${dd.count})</span></div>
+      <div class="etapa-nome">${etapa} ${dd.count > 0
+        ? `<button class="etapa-qtd-btn" onclick="verPropostasDaEtapa('${etapa.replace(/'/g,"\\'")}')" title="Ver as propostas desta etapa">${dd.count} 👁</button>`
+        : `<span class="etapa-qtd">(0)</span>`}</div>
       <div class="etapa-barra-track">
         <div class="etapa-barra-fill" style="width:${Math.max(larguraBarra,1)}%;background:${cor}"></div>
       </div>
@@ -3084,7 +3603,14 @@ function renderPainel() {
   const etapas = `
     <div class="painel-secao">
       <div class="painel-secao-titulo">📋 Etapas<span class="ajuda ajuda-baixo ajuda-dir" data-ajuda="Todas as etapas oficiais do fluxo. À esquerda as etapas principais (1 a 13), à direita as subetapas de regularização. Mostra quantas propostas há em cada uma e o percentual do total.">?</span></div>
-      <div class="painel-secao-sub">Listagem das propostas por etapa — quantidade e percentual sobre o total</div>
+      <div class="painel-secao-sub">Listagem das propostas por etapa — clique no número para ver a lista</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:6px 0 12px;font-size:13px">
+        <span style="font-weight:600">Data de Cadastro (só desta seção):</span>
+        <input type="date" value="${etapasCadIni}" max="9999-12-31" onchange="if(dataPronta(this.value)) setFiltroEtapas('ini', this.value)" style="padding:4px 6px;border:1px solid #d1d5db;border-radius:6px">
+        <span>até</span>
+        <input type="date" value="${etapasCadFim}" max="9999-12-31" onchange="if(dataPronta(this.value)) setFiltroEtapas('fim', this.value)" style="padding:4px 6px;border:1px solid #d1d5db;border-radius:6px">
+        ${(etapasCadIni||etapasCadFim) ? `<button onclick="etapasCadIni='';etapasCadFim='';renderPainel()" style="padding:4px 10px;border:1px solid #d1d5db;border-radius:6px;background:#fff;cursor:pointer">Limpar</button><span style="color:#6b7280">${propsEtapas.length} proposta(s) no período</span>` : ''}
+      </div>
       <div class="etapas-colunas">
         <div class="etapas-col">
           <div class="etapas-col-titulo">Etapas principais</div>
@@ -3106,7 +3632,11 @@ function renderPainel() {
   ETAPAS_INTEIRAS.forEach(et => { ativasPorEtapa[et] = 0 })
   d.ativas.forEach(p => {
     const norm = normalizarNomeEtapa(p.etapa)
-    if (ativasPorEtapa[norm] !== undefined) ativasPorEtapa[norm]++
+    if (ativasPorEtapa[norm] !== undefined) { ativasPorEtapa[norm]++; return }
+    // Subetapa (ex: 6.1, 12.1) conta na etapa principal correspondente
+    const num = parseInt(String(norm).match(/^(\d+)/)?.[1] || '', 10)
+    const pai = ETAPAS_INTEIRAS.find(et => parseInt(et, 10) === num)
+    if (pai) ativasPorEtapa[pai]++
   })
 
   let acumulado = 0
@@ -3114,28 +3644,33 @@ function renderPainel() {
     // Quem chegou nessa fase = total de ativas - as que ficaram nas fases anteriores
     const restante = ativasTotal - acumulado
     acumulado += ativasPorEtapa[etapa]  // soma quem parou nesta fase, para descontar na próxima
-    return { etapa, valor: restante, ordem: i+1 }
+    return { etapa, valor: restante, ordem: i+1, parou: ativasPorEtapa[etapa] }
   })
+  const funilBase = ETAPAS_INTEIRAS.reduce((s, et) => s + ativasPorEtapa[et], 0)
+  const decididas = d.concedidas.length + d.naoConcedidas.length
+  const pctBifConc = decididas ? ((d.concedidas.length/decididas)*100).toFixed(1) : '0.0'
+  const pctBifNao  = decididas ? ((d.naoConcedidas.length/decididas)*100).toFixed(1) : '0.0'
+  const maxBif = Math.max(1, d.concedidas.length, d.naoConcedidas.length)
   const maxFunil = Math.max(1, ...funilFases.map(f => f.valor))
 
   // Gradiente de cores do funil (topo largo/quente -> base estreita/fria)
   const funilCores = ['#DC2626','#EA580C','#D97706','#CA8A04','#65A30D','#16A34A','#059669','#0D9488','#0891B2','#0284C7','#2563EB','#4F46E5','#7C3AED']
   const funil = `
     <div class="painel-secao">
-      <div class="painel-secao-titulo">🔻 Funil<span class="ajuda ajuda-baixo ajuda-dir" data-ajuda="Mostra quantas propostas ativas já passaram por cada fase ou estão à frente dela. A fase 1 tem todas as ativas; cada fase seguinte desconta as que pararam nas anteriores. Vai do maior (fase 1) ao menor (fase 13).">?</span></div>
-      <div class="painel-secao-sub">Propostas ativas que já alcançaram cada fase (${ativasTotal} ativas no total)</div>
+      <div class="painel-secao-titulo">🔻 Funil da Safra 2025–2026<span class="ajuda ajuda-baixo ajuda-dir" data-ajuda="As fases contam só as EM ANDAMENTO: cada fase soma quem está nela mais quem já está nas fases seguintes. Subetapas contam na etapa principal. Concedidas e recusadas/excluídas aparecem no desfecho, como histórico desde 2025.">?</span></div>
+      <div class="painel-secao-sub">${funilBase} em andamento no funil · ${decididas} já decididas (histórico desde 2025)</div>
       <div class="funilv-wrap">
         ${funilFases.map((f, i) => {
           // Largura fielmente proporcional ao valor (valores iguais = largura igual;
           // como a lógica é cumulativa decrescente, nunca fica mais largo que a fase de cima).
           const prop = maxFunil ? (f.valor/maxFunil)*100 : 0
           const larg = f.valor > 0 ? Math.max(prop, 6) : 4
-          const pctTotal = ativasTotal ? ((f.valor/ativasTotal)*100).toFixed(1) : '0.0'
+          const pctTotal = funilBase ? ((f.valor/funilBase)*100).toFixed(1) : '0.0'
           const cor = funilCores[i] || '#7C3AED'
           const corProx = funilCores[i+1] || cor
           const estreito = larg < 12
           return `<div class="funilv-fase">
-            <div class="funilv-info-esq">${f.etapa}</div>
+            <div class="funilv-info-esq">${f.etapa}${f.parou ? `<span class="funilv-parou" title="${f.parou} nesta fase">${f.parou} aqui</span>` : ''}</div>
             <div class="funilv-barra-area">
               <div class="funilv-trapezio" style="width:${larg}%;--cor:${cor};--cor-prox:${corProx}">
                 ${estreito ? '' : `<span class="funilv-valor">${f.valor}</span>`}
@@ -3145,6 +3680,23 @@ function renderPainel() {
             <div class="funilv-info-dir">${pctTotal}%</div>
           </div>`
         }).join('')}
+        <div class="funilv-bifurcacao">
+          <div class="bif-conector"><span class="bif-linha"></span><span class="bif-rotulo">Desfecho</span><span class="bif-linha"></span></div>
+          <div class="bif-lados">
+            <div class="bif-lado bif-ok">
+              <div class="bif-titulo">✅ Concedidas</div>
+              <div class="bif-barra" style="width:${Math.max((d.concedidas.length/maxBif)*100, 8)}%;background:linear-gradient(180deg,#16A34A,#15803D)"></div>
+              <div class="bif-num">${d.concedidas.length.toLocaleString('pt-BR')}</div>
+              <div class="bif-pct">${pctBifConc}% das decididas</div>
+            </div>
+            <div class="bif-lado bif-nao">
+              <div class="bif-titulo">❌ Recusadas + Excluídas</div>
+              <div class="bif-barra" style="width:${Math.max((d.naoConcedidas.length/maxBif)*100, 8)}%;background:linear-gradient(180deg,#DC2626,#991B1B)"></div>
+              <div class="bif-num">${d.naoConcedidas.length.toLocaleString('pt-BR')}</div>
+              <div class="bif-pct">${pctBifNao}% das decididas</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>`
 
@@ -3249,7 +3801,9 @@ function renderPainel() {
 
 // Evolução: conta propostas por data de "Na Etapa Desde" nos 5 dias anteriores ao último processamento
 function renderEvolucao() {
-  const props = dadosPainel.propostas
+  // Respeita os filtros do painel e inclui as finalizadas da safra
+  // (uma proposta cadastrada há 5 dias e já recusada também entrou naquele dia)
+  const props = propostasPainelFiltradas()
   // Data de referência: último processamento (ou hoje)
   let dataRef = new Date()
   if (dadosPainel.historico.length) {
@@ -3258,44 +3812,86 @@ function renderEvolucao() {
   }
   dataRef.setHours(0,0,0,0)
 
-  // Monta os últimos 5 dias
+  // Últimos 14 dias — com mais pontos a linha mostra a tendência
+  const DIAS_GRAFICO = 14
   const dias = []
-  for (let i = 4; i >= 0; i--) {
+  for (let i = DIAS_GRAFICO - 1; i >= 0; i--) {
     const d = new Date(dataRef)
     d.setDate(d.getDate() - i)
-    const iso = d.toISOString().split('T')[0]
-    dias.push({ iso, label: d.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'}), count: 0, valor: 0 })
+    dias.push({
+      iso: d.toISOString().split('T')[0],
+      label: d.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit'}),
+      count: 0, valor: 0
+    })
   }
 
-  // Conta propostas cuja na_etapa_desde cai em cada dia
+  // Conta pela data de cadastro: é quando a proposta de fato entrou
   props.forEach(p => {
-    if (!p.na_etapa_desde) return
-    const dt = String(p.na_etapa_desde).split('T')[0]
+    const base = p.data_cadastro || p.na_etapa_desde
+    if (!base) return
+    const dt = String(base).split('T')[0]
     const dia = dias.find(x => x.iso === dt)
     if (dia) { dia.count++; dia.valor += valorNum(p) }
   })
 
-  const totalPeriodo = dias.reduce((s,d) => s + d.count, 0)
-  const mediaPeriodo = Math.round(totalPeriodo / 5)
+  const total = dias.reduce((s,d) => s + d.count, 0)
+  const media = Math.round(total / DIAS_GRAFICO)
   const maxDia = Math.max(1, ...dias.map(d => d.count))
+  const ultimo = dias[dias.length-1].count
+  const penultimo = dias.length > 1 ? dias[dias.length-2].count : 0
+  const variacao = ultimo - penultimo
+
+  // Coordenadas do gráfico
+  const L = 44, R = 16, T = 18, B = 30        // margens
+  const W = 900, H = 240
+  const larg = W - L - R, alt = H - T - B
+  const px = i => L + (dias.length === 1 ? larg/2 : (i / (dias.length - 1)) * larg)
+  const py = v => T + alt - (v / maxDia) * alt
+
+  const pontos = dias.map((d,i) => ({ x: px(i), y: py(d.count), ...d }))
+  const linha = pontos.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
+  const area = `${L},${T+alt} ${linha} ${pontos[pontos.length-1].x.toFixed(1)},${T+alt}`
+
+  // Linhas horizontais de referência
+  const marcas = [0, 0.25, 0.5, 0.75, 1].map(f => ({ v: Math.round(maxDia*f), y: py(maxDia*f) }))
 
   return `
     <div class="painel-secao">
-      <div class="painel-secao-titulo">📈 Propostas Novas por Dia<span class="ajuda ajuda-baixo ajuda-dir" data-ajuda="Conta quantas propostas foram criadas em cada um dos 5 dias anteriores ao ultimo processamento, com base na data Na Etapa Desde.">?</span></div>
-      <div class="painel-secao-sub">Propostas criadas nos 5 dias anteriores ao último processamento (${dataRef.toLocaleDateString('pt-BR')})</div>
+      <div class="painel-secao-titulo">📈 Propostas Novas por Dia<span class="ajuda ajuda-baixo ajuda-dir" data-ajuda="Quantas propostas foram cadastradas em cada um dos ultimos 14 dias, contando pela Data de Cadastro. Passe o mouse nos pontos para ver o valor.">?</span></div>
+      <div class="painel-secao-sub">Últimos ${DIAS_GRAFICO} dias até ${dataRef.toLocaleDateString('pt-BR')}</div>
       <div class="evo-resumo">
-        <div class="evo-resumo-item"><span class="evo-resumo-num">${totalPeriodo}</span><span class="evo-resumo-lbl">no período (5 dias)</span></div>
-        <div class="evo-resumo-item"><span class="evo-resumo-num">${mediaPeriodo}</span><span class="evo-resumo-lbl">média por dia</span></div>
+        <div class="evo-resumo-item"><span class="evo-resumo-num">${total}</span><span class="evo-resumo-lbl">no período</span></div>
+        <div class="evo-resumo-item"><span class="evo-resumo-num">${media}</span><span class="evo-resumo-lbl">média por dia</span></div>
+        <div class="evo-resumo-item">
+          <span class="evo-resumo-num" style="color:${variacao > 0 ? '#16a34a' : variacao < 0 ? '#dc2626' : '#64748b'}">
+            ${variacao > 0 ? '▲' : variacao < 0 ? '▼' : '='} ${Math.abs(variacao)}
+          </span>
+          <span class="evo-resumo-lbl">vs. dia anterior</span>
+        </div>
       </div>
-      <div class="evo-wrap">
-        ${dias.map(d => {
-          const altura = Math.max((d.count/maxDia)*100, 2)
-          return `<div class="evo-col">
-            <div class="evo-val">${d.count}</div>
-            <div class="evo-bar" style="height:${altura}%" title="${d.count} propostas · ${formatValor(d.valor)} em ${d.label}"></div>
-            <div class="evo-data">${d.label}</div>
-          </div>`
-        }).join('')}
+      <div class="grafico-wrap">
+        <svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" class="grafico-svg">
+          <defs>
+            <linearGradient id="gradArea" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#2563EB" stop-opacity=".22"/>
+              <stop offset="100%" stop-color="#2563EB" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          ${marcas.map(m => `
+            <line x1="${L}" y1="${m.y.toFixed(1)}" x2="${W-R}" y2="${m.y.toFixed(1)}" class="g-grade"/>
+            <text x="${L-8}" y="${(m.y+4).toFixed(1)}" class="g-eixo-y">${m.v}</text>`).join('')}
+          <polygon points="${area}" fill="url(#gradArea)"/>
+          <polyline points="${linha}" class="g-linha"/>
+          ${pontos.map((p,i) => `
+            <g class="g-ponto-grupo">
+              <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="9" fill="transparent"/>
+              <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4.5" class="g-ponto"/>
+              <text x="${p.x.toFixed(1)}" y="${(p.y-11).toFixed(1)}" class="g-valor">${p.count}</text>
+              <title>${p.label}: ${p.count} proposta${p.count!==1?'s':''} · ${formatValor(p.valor)}</title>
+            </g>`).join('')}
+          ${pontos.map((p,i) => (i % 2 === 0 || i === pontos.length-1)
+            ? `<text x="${p.x.toFixed(1)}" y="${H-10}" class="g-eixo-x">${p.label}</text>` : '').join('')}
+        </svg>
       </div>
     </div>`
 }
@@ -3305,15 +3901,79 @@ function renderEvolucao() {
 let painelFiltroColab = ''
 let painelFiltroEtapa = ''
 let painelFiltroLinha = ''
+// Filtros de data do painel (início e fim opcionais)
+let painelCadIni = '', painelCadFim = ''      // Data de Cadastro
+let painelEtapaIni = '', painelEtapaFim = ''  // Na Etapa Desde
+let etapasCadIni = '', etapasCadFim = ''      // filtro próprio da seção Etapas
+
+// Só aplica a data quando o ano estiver completo (senão o campo trava ao digitar)
+function dataPronta(v) {
+  if (!v) return true
+  const ano = parseInt(String(v).split('-')[0], 10)
+  return ano >= 2000 && ano <= 2100
+}
+function filtroDataEtapas(lista) {
+  const soData = v => v ? String(v).split('T')[0] : ''
+  let r = lista
+  if (etapasCadIni) r = r.filter(p => soData(p.data_cadastro) && soData(p.data_cadastro) >= etapasCadIni)
+  if (etapasCadFim) r = r.filter(p => soData(p.data_cadastro) && soData(p.data_cadastro) <= etapasCadFim)
+  return r
+}
+function setFiltroEtapas(campo, valor) {
+  if (campo === 'ini') etapasCadIni = valor; else etapasCadFim = valor
+  renderPainel()
+}
+function verPropostasDaEtapa(etapa) {
+  const props = filtroDataEtapas(propostasPainelFiltradas()).filter(p => {
+    const bruto = (p.etapa||'—').trim() || '—'
+    const norm = posicaoFunil(bruto) !== -1 ? normalizarNomeEtapa(bruto) : bruto
+    return norm === etapa
+  }).sort((a,b) => String(a.codigo).localeCompare(String(b.codigo)))
+  document.getElementById('modal-etapa-titulo').textContent = etapa
+  document.getElementById('modal-etapa-sub').textContent =
+    `${props.length} proposta${props.length !== 1 ? 's' : ''} · ${formatValor(props.reduce((s,p)=>s+valorNum(p),0))}`
+  document.getElementById('modal-etapa-lista').innerHTML = props.length
+    ? `<table class="lista-etapa">
+        <thead><tr><th>Código</th><th>Cliente</th><th>Analista</th><th>Estagiário</th><th style="text-align:right">Valor</th></tr></thead>
+        <tbody>${props.map(p => `<tr>
+          <td class="le-cod">${esc(p.codigo)}</td>
+          <td class="le-razao">${esc(p.nome) || '—'}</td>
+          <td class="le-resp">${p.responsavel || 'N/A'}</td>
+          <td class="le-resp">${p.estagiario || 'N/A'}</td>
+          <td class="le-valor">${formatValor(p.valor)}</td>
+        </tr>`).join('')}</tbody>
+      </table>`
+    : '<div class="painel-empty">Nenhuma proposta nesta etapa.</div>'
+  document.getElementById('modal-etapa').style.display = 'flex'
+}
+function fecharModalEtapa(e) {
+  if (e && e.target !== document.getElementById('modal-etapa')) return
+  document.getElementById('modal-etapa').style.display = 'none'
+}
+
+function limparFiltrosPainel() {
+  painelFiltroColab = ''; painelFiltroEtapa = ''; painelFiltroLinha = ''
+  painelCadIni = ''; painelCadFim = ''; painelEtapaIni = ''; painelEtapaFim = ''
+  etapasCadIni = ''; etapasCadFim = ''
+  renderPainel()
+}
+function temFiltroPainel() {
+  return !!(painelFiltroColab || painelFiltroEtapa || painelFiltroLinha || painelCadIni || painelCadFim || painelEtapaIni || painelEtapaFim)
+}
 
 function propostasPainelFiltradas() {
-  let props = [...dadosPainel.propostas]
+  let props = dadosPainel.propostas.filter(p => !p.arquivada)
   // Filtrar por pessoa considera os dois papéis (analista ou estagiário)
   if (painelFiltroColab) props = props.filter(p =>
     normalizarPessoa(p.responsavel) === painelFiltroColab ||
     normalizarPessoa(p.estagiario) === painelFiltroColab)
   if (painelFiltroEtapa) props = props.filter(p => (p.etapa||'').trim() === painelFiltroEtapa)
   if (painelFiltroLinha) props = props.filter(p => normalizarLinhaCredito(p.linha_credito) === painelFiltroLinha)
+  const soData = v => v ? String(v).split('T')[0] : ''
+  if (painelCadIni)   props = props.filter(p => soData(p.data_cadastro)  && soData(p.data_cadastro)  >= painelCadIni)
+  if (painelCadFim)   props = props.filter(p => soData(p.data_cadastro)  && soData(p.data_cadastro)  <= painelCadFim)
+  if (painelEtapaIni) props = props.filter(p => soData(p.na_etapa_desde) && soData(p.na_etapa_desde) >= painelEtapaIni)
+  if (painelEtapaFim) props = props.filter(p => soData(p.na_etapa_desde) && soData(p.na_etapa_desde) <= painelEtapaFim)
   return props
 }
 
