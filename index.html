@@ -98,6 +98,7 @@
   .obs-cell:hover { background: #eef2ff; box-shadow: inset 0 0 0 1px #c7d2fe; }
   .obs-cell .obs-txt { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
   .obs-data { font-weight: 700; color: #64748b; }
+  .selo-transf { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background: #EDE9FE; color: #6D28D9; font-size: 11px; font-weight: 700; vertical-align: middle; }
   .obs-cell.vazia { color: #b6bdc7; font-style: italic; }
   .obs-cell .obs-edit { float: right; margin-left: 6px; color: #94a3b8; font-size: 11px; }
   /* Com table-layout:fixed, quem tem nowrap transborda por cima da coluna do
@@ -976,7 +977,7 @@
     <h1>FOMENTO PARANÁ — Fomento Giro Fácil</h1>
     <span>Processamento Automatizado — FGF</span>
   </div>
-  <span class="header-badge">FGF v2.8</span>
+  <span class="header-badge">FGF v2.9</span>
 </header>
 
 <nav>
@@ -1608,7 +1609,7 @@ async function processarArquivosHist(files) {
       let linhas = transformar(rows).filter(r => r.codigo && String(r.codigo).trim())
       // Base desde 2025: finalizadas cadastradas antes ficam de fora
       const antes = linhas.length
-      linhas = linhas.filter(r => cadastradaDesde2025(r.dataCadastro, r.naEtapaDe) && !ehTransferencia(r.agencia))
+      linhas = linhas.filter(r => cadastradaDesde2025(r.dataCadastro, r.naEtapaDe))
       foraDoPeriodo += antes - linhas.length
       porArquivo.push({ nome: f.name, qtd: linhas.length })
       linhasHist = linhasHist.concat(linhas)
@@ -1688,7 +1689,7 @@ async function importarHistorico() {
   btn.disabled = true
   try {
     setProgHist(5, 'Verificando o que já existe no sistema...')
-    const existentes = await sbAll('fgf_propostas?select=codigo,nome,responsavel,responsavel_final,estagiario,observacao,observacoes_anteriores,linha_credito,municipio,data_cadastro')
+    const existentes = await sbAll('fgf_propostas?select=codigo,nome,responsavel,responsavel_final,estagiario,observacao,observacoes_anteriores,linha_credito,municipio,data_cadastro,transferencia')
     const mapa = {}
     ;(existentes || []).forEach(p => { mapa[String(p.codigo).trim()] = p })
 
@@ -1729,6 +1730,7 @@ async function importarHistorico() {
         estagiario: ja ? (ja.estagiario || 'N/A') : 'N/A',
         observacao: ja ? (ja.observacao || '') : '',
         observacoes_anteriores: ja ? (ja.observacoes_anteriores || '') : '',
+        transferencia: ehTransferencia(r.agencia) || !!(ja && ja.transferencia),
       }
     })
     const LOTE = 500
@@ -1763,10 +1765,11 @@ async function importarHistorico() {
 // Os 4 arquivos do Giro Fácil
 const TIPOS_ARQUIVO = [
   { id: 'andamento',      label: 'Projetos em Andamento',  icone: '📊', finalizado: false },
+  { id: 'transferencias', label: 'Fomento Transferências', icone: '🔄', finalizado: false, transferencia: true },
   { id: 'concedido',      label: 'Fomento Concedido',      icone: '✅', finalizado: true  },
   { id: 'recusado',       label: 'Fomento Recusado',       icone: '❌', finalizado: true  },
 ]
-const arquivos = { andamento: null, concedido: null, recusado: null }
+const arquivos = { andamento: null, transferencias: null, concedido: null, recusado: null }
 
 // Turno do processamento (sugere pelo horário, mas pode trocar)
 let turnoAtual = new Date().getHours() < 12 ? 'Manhã' : 'Tarde'
@@ -2039,9 +2042,10 @@ function descricaoJanelaCorte(hoje = new Date()) {
 // Concedidas/recusadas: entram as cadastradas a partir de 01/01/2025
 // (histórico completo desde 2025, igual ao microcrédito)
 function filtrarUltimosMeses(rows) {
-  return rows.filter(r => cadastradaDesde2025(r.dataCadastro, r.naEtapaDe) && !ehTransferencia(r.agencia))
+  return rows.filter(r => cadastradaDesde2025(r.dataCadastro, r.naEtapaDe))
 }
-// Transferências (AGENCIA DE FOMENTO TRANSFERÊNCIAS) não fazem parte do sistema
+// Proposta recebida por transferência (agência "AGENCIA DE FOMENTO TRANSFERÊNCIAS").
+// Ela se comporta como qualquer proposta interna — só ganha o selo ⇄.
 function ehTransferencia(agencia) {
   return (agencia || '').toString().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').includes('TRANSFER')
 }
@@ -2134,12 +2138,18 @@ async function processarPlanilhas() {
       const antes = linhas.length
       linhas = filtrarUltimosMeses(linhas)
       cortadas += antes - linhas.length
+      // Veio na planilha de transferências OU a agência indica transferência
+      linhas.forEach(r => { r.transferencia = !!t.transferencia || ehTransferencia(r.agencia) })
       todas = todas.concat(linhas)
     })
+    // Se o código apareceu como transferência em qualquer planilha, fica marcado
+    const codTransf = new Set(todas.filter(r => r.transferencia).map(r => String(r.codigo).trim()))
     const merged = deduplicar(todas)
 
     // Buscar atribuições manuais já salvas no banco para preservá-las
-    const propostasExistentes = await sbAll('fgf_propostas?select=codigo,etapa,nome,responsavel,responsavel_final,estagiario,observacao,observacoes_anteriores,data_cadastro')
+    const propostasExistentes = await sbAll('fgf_propostas?select=codigo,etapa,nome,responsavel,responsavel_final,estagiario,observacao,observacoes_anteriores,data_cadastro,transferencia')
+    // Uma vez transferência, sempre transferência (o selo não some)
+    ;(propostasExistentes || []).forEach(p => { if (p.transferencia) codTransf.add(String(p.codigo).trim()) })
     // Data de cadastro já salva: não se perde se a planilha do dia vier sem a coluna
     const mapaCadastro = {}
     ;(propostasExistentes || []).forEach(p => { if (p.data_cadastro) mapaCadastro[String(p.codigo).trim()] = p.data_cadastro })
@@ -2166,6 +2176,7 @@ async function processarPlanilhas() {
     const comVlookup = aplicarVlookup(merged, referencia, mapaAtribuicoes)
 
     const propostas = comVlookup.map(r => ({
+      transferencia: codTransf.has(String(r.codigo).trim()),
       responsavel: r.responsavel || 'N/A',
       estagiario: r.estagiario || 'N/A',
       codigo: r.codigo,
@@ -2766,7 +2777,7 @@ function renderTabelaPropostas() {
       <td class="check-col"><input type="checkbox" class="row-check" ${estaSel?'checked':''} onclick="toggleSelecionada('${p.codigo}', this.checked)"/></td>
       ${respCell}
       ${estCell}
-      <td class="td-cnpj" style="font-weight:700">${esc(p.codigo)||'—'}</td>
+      <td class="td-cnpj" style="font-weight:700">${p.transferencia ? '<span class="selo-transf" title="Recebida por transferência">⇄</span> ' : ''}${esc(p.codigo)||'—'}</td>
       <td class="td-nome" title="${esc(p.nome||'')}">${p.nome
         ? `${esc(p.nome)} <span onclick="editarNome('${p.codigo}')" title="Editar nome" style="cursor:pointer;color:#94a3b8;font-size:11px">✎</span>`
         : `<span onclick="editarNome('${p.codigo}')" title="Digitar o nome do cliente" style="cursor:pointer;color:#94a3b8;font-style:italic;font-size:12px;font-weight:400">+ adicionar nome</span>`}</td>
@@ -3402,6 +3413,7 @@ function exportarExcel() {
       'Na Etapa Desde': formatData(p.na_etapa_desde),
       'Dias na Etapa': dias !== null ? dias : '',
       'Situação': ativa ? (dias !== null && dias >= DIAS_LIMITE_PARADA ? 'PARADA' : 'Em tratativa') : 'Finalizada',
+      'Transferência': p.transferencia ? 'Sim' : '',
       'Observação': (p.observacao_em && p.observacao ? dataObs(p.observacao_em) : '') + (p.observacao || ''),
     }
   })
