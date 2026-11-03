@@ -977,7 +977,7 @@
     <h1>FOMENTO PARANÁ — Fomento Giro Fácil</h1>
     <span>Processamento Automatizado — FGF</span>
   </div>
-  <span class="header-badge">FGF v2.9</span>
+  <span class="header-badge">FGF v3.0</span>
 </header>
 
 <nav>
@@ -1765,11 +1765,10 @@ async function importarHistorico() {
 // Os 4 arquivos do Giro Fácil
 const TIPOS_ARQUIVO = [
   { id: 'andamento',      label: 'Projetos em Andamento',  icone: '📊', finalizado: false },
-  { id: 'transferencias', label: 'Fomento Transferências', icone: '🔄', finalizado: false, transferencia: true },
   { id: 'concedido',      label: 'Fomento Concedido',      icone: '✅', finalizado: true  },
   { id: 'recusado',       label: 'Fomento Recusado',       icone: '❌', finalizado: true  },
 ]
-const arquivos = { andamento: null, transferencias: null, concedido: null, recusado: null }
+const arquivos = { andamento: null, concedido: null, recusado: null }
 
 // Turno do processamento (sugere pelo horário, mas pode trocar)
 let turnoAtual = new Date().getHours() < 12 ? 'Manhã' : 'Tarde'
