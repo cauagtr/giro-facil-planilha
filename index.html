@@ -1180,7 +1180,51 @@ function ehAtiva(etapa) { return !ehFinalizada(etapa) }
 // ── Linhas de crédito (coluna C da planilha) ──
 // Normaliza o texto da planilha para um rótulo padrão
 const LINHAS_CREDITO = ['FNT Giro Fácil', 'FGF Próprio', 'Recupera FDE FGF', 'Fungetur']
+
+// ══ CONFIGURAÇÃO CENTRAL (editada no site do Administrador) ══
+// Colaboradores e linhas de crédito vêm das tabelas config_colaboradores e
+// config_linhas do Supabase. Se não der para ler, vale a lista fixa deste arquivo.
+const SISTEMA_CONFIG = 'fgf'
+let REGRAS_LINHA = null
+const semAcentoUp = t => (t ?? '').toString().normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase()
+async function carregarConfigCentral() {
+  try {
+    const comPrazo = pr => Promise.race([pr, new Promise((_, rej) => setTimeout(() => rej(new Error('tempo esgotado')), 5000))])
+    const [cols, lins] = await comPrazo(Promise.all([
+      sb(`config_colaboradores?select=*&sistema=eq.${SISTEMA_CONFIG}&order=ordem.asc`),
+      sb(`config_linhas?select=*&sistema=eq.${SISTEMA_CONFIG}&order=prioridade.asc`),
+    ]))
+    if (cols && cols.length) {
+      cols.forEach(c => { COLABORADORES[c.nome] = c.cor })
+      ANALISTAS.splice(0, ANALISTAS.length, ...cols.filter(c => c.ativo && c.papel === 'analista').map(c => c.nome))
+      ESTAGIARIOS.splice(0, ESTAGIARIOS.length, ...cols.filter(c => c.ativo && c.papel === 'estagiario').map(c => c.nome))
+      COLAB_LIST.splice(0, COLAB_LIST.length, ...ANALISTAS, ...ESTAGIARIOS, 'N/A')
+    }
+    if (lins && lins.length) {
+      REGRAS_LINHA = lins.map(l => ({
+        nome: l.nome, cor: l.cor, ativa: !!l.ativa,
+        palavras: String(l.palavras || '').split(',').map(x => semAcentoUp(x).trim()).filter(Boolean),
+      }))
+      LINHAS_CREDITO.splice(0, LINHAS_CREDITO.length, ...REGRAS_LINHA.filter(l => l.ativa).map(l => l.nome))
+    }
+    return true
+  } catch(e) {
+    console.warn('Configuração central indisponível — usando a lista fixa.', e)
+    return false
+  }
+}
+// Linha da planilha → nome oficial, pelas regras do Admin (null = usar a regra fixa)
+function linhaPelaConfig(txt) {
+  if (!REGRAS_LINHA) return null
+  const u = semAcentoUp(txt).trim()
+  if (!u) return ''
+  const r = REGRAS_LINHA.find(l => l.palavras.length && l.palavras.every(pv => u.includes(pv)))
+  return r ? r.nome : (txt ?? '').toString().trim()
+}
+
 function normalizarLinhaCredito(txt) {
+  const pelaConfig = linhaPelaConfig(txt)
+  if (pelaConfig !== null) return pelaConfig
   const t = (txt||'').toString().toUpperCase().trim()
   if (!t) return ''
   if (t.includes('FUNGETUR')) return 'Fungetur'
@@ -1190,6 +1234,7 @@ function normalizarLinhaCredito(txt) {
   return txt.toString().trim()  // mantém original se não reconhecer
 }
 function corLinhaCredito(linha) {
+  if (REGRAS_LINHA) { const r = REGRAS_LINHA.find(l => l.nome === linha); if (r) return r.cor }
   if (linha === 'FNT Giro Fácil') return '#2563EB'
   if (linha === 'Fungetur') return '#059669'
   if (linha === 'FGF Próprio') return '#7C3AED'
@@ -1609,7 +1654,7 @@ async function processarArquivosHist(files) {
       let linhas = transformar(rows).filter(r => r.codigo && String(r.codigo).trim())
       // Base desde 2025: finalizadas cadastradas antes ficam de fora
       const antes = linhas.length
-      linhas = linhas.filter(r => cadastradaDesde2025(r.dataCadastro, r.naEtapaDe))
+      linhas = linhas.filter(r => cadastradaDesde2025(r.dataCadastro, r.naEtapaDe) && linhaPermitida(r.linhaCredito))
       foraDoPeriodo += antes - linhas.length
       porArquivo.push({ nome: f.name, qtd: linhas.length })
       linhasHist = linhasHist.concat(linhas)
@@ -2041,7 +2086,13 @@ function descricaoJanelaCorte(hoje = new Date()) {
 // Concedidas/recusadas: entram as cadastradas a partir de 01/01/2025
 // (histórico completo desde 2025, igual ao microcrédito)
 function filtrarUltimosMeses(rows) {
-  return rows.filter(r => cadastradaDesde2025(r.dataCadastro, r.naEtapaDe))
+  return rows.filter(r => cadastradaDesde2025(r.dataCadastro, r.naEtapaDe) && linhaPermitida(r.linhaCredito))
+}
+// Linha desativada no Admin não entra. Sem config, ou linha em branco, entra.
+function linhaPermitida(txt) {
+  const t = (txt || '').toString().trim()
+  if (!t || !REGRAS_LINHA) return true
+  return LINHAS_CREDITO.includes(normalizarLinhaCredito(t))
 }
 // Proposta recebida por transferência (agência "AGENCIA DE FOMENTO TRANSFERÊNCIAS").
 // Ela se comporta como qualquer proposta interna — só ganha o selo ⇄.
@@ -2088,7 +2139,9 @@ function aplicarVlookup(rows, ref, mapaAtribuicoes = {}) {
 
     // Proposta nova: tenta herdar da referência do processamento anterior
     const r = ref.find(x => String(x.codigo).trim() === chave)
-    const respRef = (r && vale(r.responsavel_final)) ? normalizarPessoa(r.responsavel_final) : 'N/A'
+    // Só herda da referência se a pessoa ainda estiver ativa (removidos no Admin não voltam)
+    const respRefBruto = (r && vale(r.responsavel_final)) ? normalizarPessoa(r.responsavel_final) : 'N/A'
+    const respRef = ANALISTAS.includes(respRefBruto) ? respRefBruto : 'N/A'
     return {
       ...row,
       observacao: r ? (r.observacao || '') : '',
@@ -2096,7 +2149,7 @@ function aplicarVlookup(rows, ref, mapaAtribuicoes = {}) {
       nome: (row.nome || '').trim(),
       responsavel: respRef,
       responsavelFinal: respRef,
-      estagiario: (r && vale(r.estagiario)) ? (normalizarPessoa(r.estagiario) || 'N/A') : 'N/A',
+      estagiario: (r && vale(r.estagiario) && ESTAGIARIOS.includes(normalizarPessoa(r.estagiario))) ? normalizarPessoa(r.estagiario) : 'N/A',
     }
   })
 }
@@ -4475,9 +4528,13 @@ document.addEventListener('keydown', e => {
   if (mObs && mObs.style.display === 'flex') { fecharModal(); return }
 })
 
-renderProcessar()
-renderPropostas()
-renderHistorico()
+// Lê a configuração central antes de desenhar a tela
+;(async () => {
+  await carregarConfigCentral()
+  renderProcessar()
+  renderPropostas()
+  renderHistorico()
+})()
 </script>
 </body>
 </html>
