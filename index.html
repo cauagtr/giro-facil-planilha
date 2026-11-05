@@ -1181,6 +1181,22 @@ function ehAtiva(etapa) { return !ehFinalizada(etapa) }
 // Normaliza o texto da planilha para um rótulo padrão
 const LINHAS_CREDITO = ['FNT Giro Fácil', 'FGF Próprio', 'Recupera FDE FGF', 'Fungetur']
 
+// ══ COLABORADORES INATIVOS NÃO APARECEM ══
+// Analista ou estagiário removido da equipe no Administrador não aparece em
+// lugar nenhum: na tela, a proposta é mostrada como "N/A". O banco não é alterado aqui.
+function ocultarInativos(lista) {
+  const an = new Set(ANALISTAS), es = new Set(ESTAGIARIOS)
+  ;(lista || []).forEach(p => {
+    const r = normalizarPessoa(p.responsavel) || 'N/A'
+    if (r !== 'N/A' && !an.has(r)) { p.responsavel = 'N/A'; p.responsavel_final = 'N/A' }
+    const rf = normalizarPessoa(p.responsavel_final) || ''
+    if (rf && rf !== 'N/A' && !an.has(rf)) p.responsavel_final = 'N/A'
+    const e = normalizarPessoa(p.estagiario) || 'N/A'
+    if (e !== 'N/A' && !es.has(e)) p.estagiario = 'N/A'
+  })
+  return lista
+}
+
 // ══ CONFIGURAÇÃO CENTRAL (editada no site do Administrador) ══
 // Colaboradores e linhas de crédito vêm das tabelas config_colaboradores e
 // config_linhas do Supabase. Se não der para ler, vale a lista fixa deste arquivo.
@@ -2434,7 +2450,7 @@ async function carregarPropostas() {
     const data = await sbAll('fgf_propostas?select=*&order=codigo.asc')
     // Mantém todas as ativas + finalizadas cadastradas desde 2025.
     // normalizarPropostas garante que CICERA apareça como ANDRESSA em toda a tela.
-    todasPropostas = normalizarPropostas(filtrarPorJanela(data || []))
+    todasPropostas = ocultarInativos(normalizarPropostas(filtrarPorJanela(data || [])))
     popularSelectEtapas()
     renderTabelaPropostas()
     renderStatsPropostas()
@@ -3263,7 +3279,7 @@ async function carregarArquivadas() {
     arquivadasCarregadas = true
     const jaTem = new Set(todasPropostas.map(p => String(p.codigo)))
     const novas = (achadas || []).filter(p => !jaTem.has(String(p.codigo)))
-    if (novas.length) todasPropostas = todasPropostas.concat(novas)
+    if (novas.length) todasPropostas = todasPropostas.concat(ocultarInativos(novas))
     if (mostrarArquivadas) { renderTabelaPropostas(); renderStatsPropostas() }
   } catch(e) { showToast('Para usar o arquivo, rode o SQL fgf_arquivada.sql no Supabase', 'error') }
 }
@@ -3594,7 +3610,7 @@ async function carregarPainel() {
       sb('fgf_historico?select=*&order=criado_em.desc&limit=12')
     ])
     // Mesma janela da aba Propostas: ativas + finalizadas desde 2025
-    dadosPainel.propostas = normalizarPropostas(filtrarPorJanela(props || []))
+    dadosPainel.propostas = ocultarInativos(normalizarPropostas(filtrarPorJanela(props || [])))
     dadosPainel.historico = hist || []
     renderPainel()
   } catch(e) {
