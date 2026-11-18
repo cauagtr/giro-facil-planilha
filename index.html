@@ -851,6 +851,13 @@
 }
 
   /* Filtros do painel */
+  .ext-upload { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; background: #f8fafc; border: 1.5px dashed #94a3b8; border-radius: 10px; padding: 12px 16px; margin-bottom: 14px; font-size: 13px; }
+  .ext-upload .ext-sub { color: var(--text-muted); font-size: 12px; }
+  .ext-upload #ext-status { flex-basis: 100%; }
+  .ext-upload #ext-status:empty { display: none; }
+  .painel-fonte { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .painel-fonte button { border: none; background: #fff; padding: 6px 12px; font-family: inherit; font-size: 12.5px; font-weight: 600; color: #475569; cursor: pointer; }
+  .painel-fonte button.ativo { background: var(--azul); color: #fff; }
   .painel-filtros { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
   .painel-filtros .fa-input { max-width: 240px; }
 
@@ -981,12 +988,13 @@
     <h1>FOMENTO PARANÁ — Fomento Giro Fácil</h1>
     <span>Processamento Automatizado — FGF</span>
   </div>
-  <span class="header-badge">FGF v3.2</span>
+  <span class="header-badge">FGF v3.3</span>
 </header>
 
 <nav>
   <button class="tab-btn active" onclick="setTab('processar')" id="tab-processar">⚙ Processar</button>
   <button class="tab-btn" onclick="setTab('propostas')" id="tab-propostas">📋 Propostas</button>
+  <button class="tab-btn" onclick="setTab('externa')" id="tab-externa">🏛 Conc. Externa</button>
   <button class="tab-btn" onclick="setTab('painel')" id="tab-painel">📊 Painel Gerencial</button>
   <button class="tab-btn" onclick="setTab('historico')" id="tab-historico">🕒 Histórico</button>
   <button class="tab-btn" onclick="setTab('importacao')" id="tab-importacao">📚 Importação Histórica</button>
@@ -1621,12 +1629,20 @@ function setTab(tab) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'))
   document.getElementById(`tab-${tab}`).classList.add('active')
   document.getElementById('view-processar').style.display = tab==='processar' ? '' : 'none'
-  document.getElementById('view-propostas').style.display = tab==='propostas' ? '' : 'none'
+  // A aba Conc. Externa usa a MESMA tela da aba Propostas, trocando a fonte de dados
+  document.getElementById('view-propostas').style.display = (tab==='propostas' || tab==='externa') ? '' : 'none'
   document.getElementById('view-painel').style.display = tab==='painel' ? '' : 'none'
   document.getElementById('view-historico').style.display = tab==='historico' ? '' : 'none'
   document.getElementById('view-importacao').style.display = tab==='importacao' ? '' : 'none'
   if (tab === 'importacao') renderImportacao()
-  if (tab === 'propostas') carregarPropostas()
+  if (tab === 'propostas' || tab === 'externa') {
+    const mudou = trocarFonte(tab === 'externa' ? 'externa' : 'propostas')
+    if (mudou || !document.getElementById('tabela-propostas')) {
+      renderPropostas()
+      document.querySelectorAll('.filtro-btn').forEach(b => b.classList.toggle('active', b.id === 'filtro-' + filtroColab))
+    }
+    carregarPropostas()
+  }
   if (tab === 'painel') carregarPainel()
   if (tab === 'historico') carregarHistorico()
 }
@@ -2459,6 +2475,29 @@ async function processarPlanilhas() {
 // ============================================================
 // ABA PROPOSTAS
 // ============================================================
+// ══ FONTE DA TELA DE PROPOSTAS ══
+// 'propostas' = fgf_propostas (dia a dia) · 'externa' = fgf_conc_externa (Concessão Externa).
+// As duas abas usam a mesma tela; cada uma guarda os próprios filtros.
+let FONTE = 'propostas'
+const ehExterna = () => FONTE === 'externa'
+const TABELA = () => ehExterna() ? 'fgf_conc_externa' : 'fgf_propostas'
+let filtroAgencia = ''
+const estadosFonte = {}
+function trocarFonte(nova) {
+  if (nova === FONTE) return false
+  estadosFonte[FONTE] = { todasPropostas, filtroColab, mostrarArquivadas, mostrarFinalizadas, filtroEtapa, filtroLinhaCredito,
+    filtroSearch, filtroDataIni, filtroDataFim, filtroValorMin, filtroValorMax, pagAtual, selecionadas, sortCol, sortDir,
+    arquivadasCarregadas, filtroAgencia }
+  const e = estadosFonte[nova] || { todasPropostas: [], filtroColab: 'TODOS', mostrarArquivadas: false, mostrarFinalizadas: false,
+    filtroEtapa: '', filtroLinhaCredito: '', filtroSearch: '', filtroDataIni: '', filtroDataFim: '', filtroValorMin: '',
+    filtroValorMax: '', pagAtual: 1, selecionadas: new Set(), sortCol: 'codigo', sortDir: nova === 'externa' ? -1 : 1, arquivadasCarregadas: false, filtroAgencia: '' }
+  ;({ todasPropostas, filtroColab, mostrarArquivadas, mostrarFinalizadas, filtroEtapa, filtroLinhaCredito,
+      filtroSearch, filtroDataIni, filtroDataFim, filtroValorMin, filtroValorMax, pagAtual, selecionadas, sortCol, sortDir,
+      arquivadasCarregadas, filtroAgencia } = e)
+  FONTE = nova
+  return true
+}
+
 let todasPropostas = []
 let filtroColab = 'TODOS'
 let mostrarArquivadas = false
@@ -2480,7 +2519,8 @@ let modalCodigo = null
 function renderPropostas() {
   document.getElementById('view-propostas').innerHTML = `
   <div class="card">
-    <div class="card-title">📋 Propostas</div>
+    <div class="card-title">${ehExterna() ? '🏛 Concessão Externa' : '📋 Propostas'}</div>
+    ${ehExterna() ? htmlUploadExterna() : ''}
     <div class="filtros-row">
       <button class="filtro-btn active" id="filtro-TODOS" style="background:#003366;color:#fff;border-color:#003366" onclick="setFiltroColab('TODOS')">Todos<span class="ajuda ajuda-dir" style="background:rgba(255,255,255,.25);color:#fff" data-ajuda="Mostra apenas propostas que já têm um responsável atribuído. As sem responsável aparecem nos filtros 'Novas' e 'N/A'." onclick="event.stopPropagation()">?</span></button>
       ${COLAB_LIST.filter(c => c !== 'N/A').map(c => {
@@ -2496,13 +2536,13 @@ function renderPropostas() {
       }).join('')}
     </div>
     <div class="filtros-row">
-      <input type="text" class="search-input" placeholder="🔍 Buscar por código ou etapa..." oninput="setSearch(this.value)" value="${filtroSearch}"/>
+      <input type="text" class="search-input" placeholder="${ehExterna() ? '🔍 Buscar por número, nome, etapa ou agência...' : '🔍 Buscar por código ou etapa...'}" oninput="setSearch(this.value)" value="${esc(filtroSearch)}"/>
       <button class="btn btn-secondary btn-sm btn-filtro-toggle" id="btn-fa-toggle" onclick="toggleFiltrosAvancados()">
         ⚙ Filtros <span id="fa-badge"></span>
       </button>
-      <button class="btn btn-secondary btn-sm" id="btn-finalizadas" onclick="toggleFinalizadas()" title="Mostrar ou esconder propostas concedidas, recusadas e excluídas">
-        <span id="lbl-finalizadas">👁 Mostrar finalizadas</span>
-      </button>
+      ${ehExterna() ? '' : `<button class="btn btn-secondary btn-sm" id="btn-finalizadas" onclick="toggleFinalizadas()" title="Mostrar ou esconder propostas concedidas, recusadas e excluídas">
+        <span id="lbl-finalizadas">${mostrarFinalizadas ? '🙈 Esconder finalizadas' : '👁 Mostrar finalizadas'}</span>
+      </button>`}
       <button class="btn btn-secondary btn-sm" id="btn-arquivadas" onclick="toggleArquivadas()" title="Ver as propostas arquivadas (somem da lista e do painel, mas não são apagadas)">
         <span id="lbl-arquivadas">${mostrarArquivadas ? '↩ Voltar às ativas' : '📦 Arquivadas'}</span>
       </button>
@@ -2542,9 +2582,16 @@ function renderPropostas() {
           <label>🏷️ Linha de Crédito</label>
           <select class="fa-input" id="fa-linha" onchange="aplicarFiltrosAvancados()">
             <option value="">Todas as linhas</option>
-            ${LINHAS_CREDITO.map(l => `<option value="${l}" ${filtroLinhaCredito===l?'selected':''}>${l}</option>`).join('')}
+            ${opcoesLinhaFiltro().map(l => `<option value="${esc(l)}" ${filtroLinhaCredito===l?'selected':''}>${esc(l)}</option>`).join('')}
           </select>
         </div>
+        ${ehExterna() ? `<div class="fa-campo">
+          <label>🏢 Agência</label>
+          <select class="fa-input" id="fa-agencia" onchange="aplicarFiltrosAvancados()">
+            <option value="">Todas as agências</option>
+            ${opcoesAgenciaFiltro().map(a => `<option value="${esc(a)}" ${filtroAgencia===a?'selected':''}>${esc(a)}</option>`).join('')}
+          </select>
+        </div>` : ''}
       </div>
       <div class="fa-acoes">
         <button class="btn btn-secondary btn-sm" onclick="limparFiltrosAvancados()">✕ Limpar filtros</button>
@@ -2559,17 +2606,172 @@ function renderPropostas() {
   </div>`
 }
 
+// Linhas no filtro: Propostas = linhas do Giro Fácil; Conc. Externa = as que vieram na planilha
+function opcoesLinhaFiltro() {
+  if (!ehExterna()) return LINHAS_CREDITO
+  return [...new Set(todasPropostas.map(p => rotuloLinhaExterna(p.linha_credito)))].sort((a, b) => a.localeCompare(b, 'pt-BR'))
+}
+function opcoesAgenciaFiltro() {
+  return [...new Set(todasPropostas.map(p => (p.agencia || '').trim() || '(sem agência)'))].sort((a, b) => a.localeCompare(b, 'pt-BR'))
+}
+function popularSelectsExterna() {
+  const l = document.getElementById('fa-linha')
+  if (l) { const v = filtroLinhaCredito; l.innerHTML = '<option value="">Todas as linhas</option>' + opcoesLinhaFiltro().map(x => `<option value="${esc(x)}">${esc(x)}</option>`).join(''); l.value = v }
+  const a = document.getElementById('fa-agencia')
+  if (a) { const v = filtroAgencia; a.innerHTML = '<option value="">Todas as agências</option>' + opcoesAgenciaFiltro().map(x => `<option value="${esc(x)}">${esc(x)}</option>`).join(''); a.value = v }
+}
+
+// ══ UPLOAD DA CONC. EXTERNA ══
+// Planilha "Relatório Acompanhamento Projetos". Colunas usadas:
+// Numero Proposta, Linha de Financiamento, Valor Proposta, Razão Social, Município,
+// Na etapa desde, Situação, Analista Responsável, Correspondente (= agência).
+// CNPJ, e-mail, data de cadastro, faturamento, CNAE e início de atividade NÃO são lidos.
+// Cada envio ACUMULA: o que não vier na planilha continua no sistema.
+function htmlUploadExterna() {
+  return `<div class="ext-upload">
+    <div><b>📥 Enviar planilha da Concessão Externa</b><br><span class="ext-sub">Relatório Acompanhamento Projetos (CSV ou Excel). Novas entram, as que já existem são atualizadas e nenhuma sai.</span></div>
+    <label class="btn btn-primary btn-sm" style="cursor:pointer">Escolher arquivo
+      <input type="file" id="file-externa" accept=".xlsx,.xls,.csv" style="display:none" onchange="processarConcExterna(this.files[0]); this.value=''"/>
+    </label>
+    <div id="ext-status"></div>
+  </div>`
+}
+
+// Nome da planilha ("Cicera Andressa Pereira") → pessoa ATIVA da equipe do Giro Fácil.
+// Confere o nome composto ("ANA PAULA") e o primeiro nome. Quem não é da equipe ativa vira N/A.
+function pessoaDaEquipe(nomeCompleto) {
+  const toks = semAcentoObs(nomeCompleto).replace(/[^A-Z ]/g, ' ').split(/\s+/).filter(Boolean)
+  if (!toks.length) return null
+  for (const c of [toks.slice(0, 2).join(' '), toks[0]]) {
+    const n = normalizarPessoa(c)   // CICERA → ANDRESSA
+    if (ANALISTAS.includes(n)) return { papel: 'analista', nome: n }
+    if (ESTAGIARIOS.includes(n)) return { papel: 'estagiario', nome: n }
+  }
+  return null
+}
+
+function transformarExterna(rows) {
+  const iso = d => d ? `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}` : null
+  return rows.map(row => {
+    const linhaBruta = String(getCol(row, 'Linha de Financiamento', 'Linha de Crédito') || '')
+    return {
+      codigo: String(getCol(row, 'Numero Proposta', 'Número Proposta', 'Numero da Proposta', 'Número da Proposta')).trim(),
+      // "BNDES AUTOMATICO, BNDES AUTOMATICO" → "BNDES AUTOMATICO"
+      linha_credito: [...new Set(linhaBruta.split(',').map(x => x.trim()).filter(Boolean))].join(', '),
+      valor: parseValor(getCol(row, 'Valor Proposta', 'Valor')) || 0,
+      nome: limparNomeCliente(getCol(row, 'Razão Social', 'Razao Social', 'Nome do Cliente')),
+      municipio: String(getCol(row, 'Município', 'Municipio') || '').trim(),
+      na_etapa_desde: iso(parseData(getCol(row, 'Na etapa desde', 'Na Etapa Desde'))),
+      etapa: String(getCol(row, 'Situação', 'Situacao') || '').trim(),
+      agencia: String(getCol(row, 'Correspondente', 'Agência', 'Agencia') || '').trim(),
+      _pessoa: pessoaDaEquipe(getCol(row, 'Analista Responsável', 'Analista Responsavel')),
+    }
+  }).filter(r => r.codigo)
+}
+
+async function processarConcExterna(file) {
+  const st = document.getElementById('ext-status')
+  if (!file) return
+  st.innerHTML = `<div class="alert alert-info"><span class="spinner"></span> Lendo ${esc(file.name)}...</div>`
+  try {
+    const rows = await lerPlanilha(file)
+    const cab = rows.length ? Object.keys(rows[0]) : []
+    if (!achouColunaExt(cab, ['Numero Proposta', 'Número Proposta', 'Numero da Proposta', 'Número da Proposta'])) {
+      st.innerHTML = `<div class="alert alert-danger">❌ Essa planilha não parece a da Concessão Externa: falta a coluna <b>Numero Proposta</b>.</div>`
+      return
+    }
+    const vistos = new Set()
+    const linhas = transformarExterna(rows).filter(r => !vistos.has(r.codigo) && vistos.add(r.codigo))
+    if (!linhas.length) { st.innerHTML = `<div class="alert alert-warning">A planilha não tem nenhuma proposta.</div>`; return }
+
+    st.innerHTML = `<div class="alert alert-info"><span class="spinner"></span> Conferindo o que já está no sistema...</div>`
+    const existentes = await sbAll('fgf_conc_externa?select=codigo,responsavel,estagiario')
+    const mapa = {}
+    ;(existentes || []).forEach(p => { mapa[String(p.codigo).trim()] = p })
+    const vale = v => v && String(v).trim() && String(v).trim() !== 'N/A'
+    const agora = new Date().toISOString()
+    let novas = 0
+    const corpo = linhas.map(r => {
+      const ja = mapa[r.codigo]
+      if (!ja) novas++
+      const doArq = r._pessoa || {}
+      // O que já foi atribuído no sistema MANDA; a planilha só preenche o que está vazio
+      const resp = ja && vale(ja.responsavel) ? normalizarPessoa(ja.responsavel) : (doArq.papel === 'analista' ? doArq.nome : 'N/A')
+      const est = ja && vale(ja.estagiario) ? normalizarPessoa(ja.estagiario) : (doArq.papel === 'estagiario' ? doArq.nome : 'N/A')
+      const { _pessoa, ...dados } = r
+      return { ...dados, responsavel: resp, responsavel_final: resp, estagiario: est, atualizado_em: agora }
+    })
+
+    for (let i = 0; i < corpo.length; i += 500) {
+      st.innerHTML = `<div class="alert alert-info"><span class="spinner"></span> Salvando ${Math.min(i + 500, corpo.length)}/${corpo.length}...</div>`
+      await sb('fgf_conc_externa?on_conflict=codigo', { method: 'POST', prefer: 'resolution=merge-duplicates,return=minimal', body: corpo.slice(i, i + 500) })
+    }
+    guardarArquivos([file], 'Concessão Externa')
+    try {
+      await sb('fgf_historico', { method: 'POST', prefer: 'return=minimal',
+        body: { arquivos_enviados: ['Conc. Externa · ' + file.name], turno: turnoAtual, total_propostas: corpo.length } })
+    } catch(e) {}
+
+    const comEquipe = corpo.filter(c => c.responsavel !== 'N/A' || c.estagiario !== 'N/A').length
+    st.innerHTML = `<div class="alert alert-success">✅ <b>${corpo.length.toLocaleString('pt-BR')}</b> propostas processadas:
+      <b>${novas.toLocaleString('pt-BR')}</b> novas e <b>${(corpo.length - novas).toLocaleString('pt-BR')}</b> atualizadas.
+      ${comEquipe.toLocaleString('pt-BR')} com alguém da equipe e ${(corpo.length - comEquipe).toLocaleString('pt-BR')} ficaram como N/A (analista de fora da equipe ativa ou em branco).</div>`
+    showToast(`Concessão Externa: ${corpo.length} propostas processadas`)
+    if (ehExterna()) carregarPropostas()
+  } catch(e) {
+    console.error(e)
+    const semTabela = /fgf_conc_externa/.test(String(e.message))
+    st.innerHTML = `<div class="alert alert-danger">❌ ${semTabela ? 'A tabela da Concessão Externa ainda não existe. Rode o SQL <b>fgf_conc_externa.sql</b> no Supabase.' : 'Erro: ' + esc(e.message)}</div>`
+  }
+}
+function achouColunaExt(cab, nomes) {
+  const n = cab.map(c => semAcentoObs(c).trim())
+  return nomes.some(x => n.includes(semAcentoObs(x).trim()))
+}
+
+// ══ LINHA NA CONC. EXTERNA ══
+// Linha ativa do Giro Fácil = cor viva (cor do cadastro de linhas);
+// qualquer outra (BNDES, Inovacred, Finame...) = cinza, com o nome da planilha.
+function linhaAtivaExterna(txt) {
+  const t = (txt || '').toString().trim()
+  if (!t) return ''
+  const norm = normalizarLinhaCredito(t)
+  if (!LINHAS_CREDITO.includes(norm)) return ''
+  // "CEASAPR RECUPERA" não é o Recupera FDE do Giro Fácil
+  if (norm === 'Recupera FDE FGF' && !/FDE|FGF/i.test(t)) return ''
+  return norm
+}
+function rotuloLinhaExterna(txt) {
+  const t = (txt || '').toString().trim()
+  return linhaAtivaExterna(t) || t || '(sem linha)'
+}
+function linhaBadgeExterna(txt) {
+  const t = (txt || '').toString().trim()
+  if (!t) return '<span style="color:#cbd5e1;font-size:11px">—</span>'
+  const ativa = linhaAtivaExterna(t)
+  if (ativa) { const cor = corLinhaCredito(ativa); return `<span class="linha-badge" style="background:${cor}15;color:${cor};border-color:${cor}55">${esc(ativa)}</span>` }
+  return `<span class="linha-badge" title="Linha fora do Giro Fácil" style="background:#f1f5f9;color:#64748b;border-color:#cbd5e1">${esc(t)}</span>`
+}
+
 async function carregarPropostas() {
   try {
-    const data = await sbAll('fgf_propostas?select=*&order=codigo.asc')
-    // Mantém todas as ativas + finalizadas cadastradas desde 2025.
+    const fonteDoPedido = FONTE
+    const data = await sbAll(`${TABELA()}?select=*&order=codigo.asc`)
+    if (fonteDoPedido !== FONTE) return   // trocou de aba enquanto carregava
+    // Propostas: mantém todas as ativas + finalizadas cadastradas desde 2025.
+    // Conc. Externa: entra tudo (não tem corte de data).
     // normalizarPropostas garante que CICERA apareça como ANDRESSA em toda a tela.
-    todasPropostas = ocultarInativos(normalizarPropostas(filtrarPorJanela(data || [])))
+    todasPropostas = ocultarInativos(normalizarPropostas(ehExterna() ? (data || []) : filtrarPorJanela(data || [])))
     popularSelectEtapas()
+    if (ehExterna()) popularSelectsExterna()
     renderTabelaPropostas()
     renderStatsPropostas()
     atualizarBadgeFiltros()
   } catch(e) {
+    if (ehExterna() && /fgf_conc_externa/.test(String(e.message))) {
+      document.getElementById('tabela-propostas').innerHTML = `<div class="alert alert-danger">⚠️ A tabela da Concessão Externa ainda não existe. Rode o SQL <b>fgf_conc_externa.sql</b> no Supabase.</div>`
+      return
+    }
     document.getElementById('tabela-propostas').innerHTML = `<div class="alert alert-danger">❌ Erro ao carregar: ${e.message}</div>`
   }
 }
@@ -2600,7 +2802,12 @@ function aplicarFiltrosData(rows) {
     rows = rows.filter(p => (p.etapa||'').trim() === filtroEtapa)
   }
   if (filtroLinhaCredito) {
-    rows = rows.filter(p => normalizarLinhaCredito(p.linha_credito) === filtroLinhaCredito)
+    rows = ehExterna()
+      ? rows.filter(p => rotuloLinhaExterna(p.linha_credito) === filtroLinhaCredito)
+      : rows.filter(p => normalizarLinhaCredito(p.linha_credito) === filtroLinhaCredito)
+  }
+  if (ehExterna() && filtroAgencia) {
+    rows = rows.filter(p => ((p.agencia || '').trim() || '(sem agência)') === filtroAgencia)
   }
   return rows
 }
@@ -2615,6 +2822,8 @@ function getLinhasFiltradas() {
       const e = (p.estagiario||'N/A').toUpperCase().trim()
       return (a === 'N/A' || e === 'N/A') && ehAtiva(p.etapa)
     })
+  } else if (filtroColab === 'TODOS' && ehExterna()) {
+    // Conc. Externa: "Todos" mostra tudo (a maioria vem sem analista da equipe)
   } else if (filtroColab === 'TODOS') {
     // Exige responsável apenas das ATIVAS. Finalizadas (concedido/recusado/excluído)
     // são histórico e não precisam de responsável para aparecer.
@@ -2639,6 +2848,8 @@ function getLinhasFiltradas() {
   // Arquivadas: somem de tudo, menos quando o botão "Arquivadas" está ativo
   rows = rows.filter(p => mostrarArquivadas ? !!p.arquivada : !p.arquivada)
   if (mostrarArquivadas) return rows
+  // Conc. Externa: nada é escondido — vêm em andamento e finalizadas, todas aparecem
+  if (ehExterna()) return rows
   // Esconde finalizadas (Concedido/Recusado/Excluído) do fluxo do dia a dia,
   // exceto quando: o botão "Mostrar finalizadas" está ativo, o usuário
   // filtrou explicitamente por uma etapa finalizada, OU há uma busca textual ativa
@@ -2659,13 +2870,14 @@ function getLinhasVisiveis() {
     rows = rows.filter(p =>
       String(p.codigo||'').toLowerCase().includes(q) ||
       (p.nome||'').toLowerCase().includes(q) ||
-      (p.etapa||'').toLowerCase().includes(q)
+      (p.etapa||'').toLowerCase().includes(q) ||
+      (ehExterna() && (p.agencia||'').toLowerCase().includes(q))
     )
   }
   rows.sort((a,b) => {
     let va = a[sortCol] ?? '', vb = b[sortCol] ?? ''
     if (typeof va === 'number' && typeof vb === 'number') return (va-vb)*sortDir
-    return String(va).localeCompare(String(vb), 'pt-BR') * sortDir
+    return String(va).localeCompare(String(vb), 'pt-BR', { numeric: true }) * sortDir
   })
   return rows
 }
@@ -2705,6 +2917,7 @@ function contarFiltrosAtivos() {
   if (filtroValorMax !== '') n++
   if (filtroEtapa) n++
   if (filtroLinhaCredito) n++
+  if (ehExterna() && filtroAgencia) n++
   return n
 }
 
@@ -2752,6 +2965,7 @@ function aplicarFiltrosAvancados() {
   filtroValorMax = document.getElementById('fa-valor-max')?.value || ''
   filtroEtapa = document.getElementById('fa-etapa')?.value || ''
   filtroLinhaCredito = document.getElementById('fa-linha')?.value || ''
+  filtroAgencia = document.getElementById('fa-agencia')?.value || ''
   renderTabelaPropostas()
   renderStatsPropostas()
   atualizarBadgeFiltros()
@@ -2760,8 +2974,8 @@ function aplicarFiltrosAvancados() {
 function limparFiltrosAvancados() {
   pagAtual = 1
   filtroDataIni = ''; filtroDataFim = ''; filtroValorMin = ''; filtroValorMax = ''
-  filtroEtapa = ''; filtroLinhaCredito = ''
-  const ids = ['fa-data-ini','fa-data-fim','fa-valor-min','fa-valor-max','fa-etapa','fa-linha']
+  filtroEtapa = ''; filtroLinhaCredito = ''; filtroAgencia = ''
+  const ids = ['fa-data-ini','fa-data-fim','fa-valor-min','fa-valor-max','fa-etapa','fa-linha','fa-agencia']
   ids.forEach(id => { const e = document.getElementById(id); if (e) e.value = '' })
   renderTabelaPropostas()
   renderStatsPropostas()
@@ -2829,6 +3043,18 @@ function renderStatsPropostas() {
     <div class="dash-card accent-parada"><div class="dash-label">⚠️ Paradas 15+ dias<span class="ajuda ajuda-baixo" data-ajuda="Propostas ativas que estão há 15 dias ou mais na mesma etapa sem avançar. Só conta propostas em andamento.">?</span></div><div class="dash-value" style="color:${paradas>0?'#dc2626':'#16a34a'}">${paradas}</div><div class="dash-sub">propostas ativas</div></div>
     <div class="dash-card accent-cinza"><div class="dash-label">Média de Dias Parados<span class="ajuda ajuda-baixo ajuda-esq" data-ajuda="Média de quantos dias as propostas ativas estão paradas na etapa atual. Ajuda a medir a velocidade de andamento.">?</span></div><div class="dash-value">${mediaDias}<span style="font-size:14px;font-weight:600;color:#9ca3af"> dias</span></div><div class="dash-sub">média das ativas na etapa</div></div>`
 
+  // Conc. Externa: não tem finalizadas nem "em tratativa" separado — mostra quem é da equipe
+  if (ehExterna()) {
+    const comEquipe = linhas.filter(p => (p.responsavel && p.responsavel !== 'N/A') || (p.estagiario && p.estagiario !== 'N/A')).length
+    cards = `
+    <div class="dash-card accent-azul"><div class="dash-label">${rotuloTotal}</div><div class="dash-value">${total.toLocaleString('pt-BR')}</div></div>
+    <div class="dash-card accent-verde"><div class="dash-label">Com a equipe<span class="ajuda ajuda-baixo" data-ajuda="Com analista ou estagiário da equipe ativa do Giro Fácil.">?</span></div><div class="dash-value">${comEquipe.toLocaleString('pt-BR')}</div><div class="dash-sub">analista ou estagiário</div></div>
+    <div class="dash-card accent-cinza"><div class="dash-label">Sem ninguém da equipe<span class="ajuda ajuda-baixo" data-ajuda="Aparecem como N/A: o analista da planilha não é da equipe ativa do Giro Fácil, ou veio em branco.">?</span></div><div class="dash-value">${(total - comEquipe).toLocaleString('pt-BR')}</div><div class="dash-sub">N/A</div></div>
+    <div class="dash-card accent-roxo"><div class="dash-label">Valor Total</div><div class="dash-value" style="font-size:19px">${formatValor(valorTotal)}</div><div class="dash-sub">todas do filtro</div></div>
+    <div class="dash-card accent-parada"><div class="dash-label">⚠️ Paradas 15+ dias<span class="ajuda ajuda-baixo" data-ajuda="Há 15 dias ou mais na mesma situação, pela coluna Na etapa desde. As que vêm sem essa data não entram na conta.">?</span></div><div class="dash-value" style="color:${paradas>0?'#dc2626':'#16a34a'}">${paradas.toLocaleString('pt-BR')}</div><div class="dash-sub">com data na etapa</div></div>
+    <div class="dash-card accent-cinza"><div class="dash-label">Média de Dias Parados<span class="ajuda ajuda-baixo ajuda-esq" data-ajuda="Soma dos dias na situação atual ÷ quantidade de propostas que têm a data Na etapa desde.">?</span></div><div class="dash-value">${mediaDias.toLocaleString('pt-BR')}<span style="font-size:14px;font-weight:600;color:#9ca3af"> dias</span></div><div class="dash-sub">das que têm data</div></div>`
+  }
+
   el.innerHTML = `
     <div class="dash-header">
       <div class="dash-title">📈 Painel de Indicadores</div>
@@ -2865,7 +3091,19 @@ function renderTabelaPropostas() {
 
   // A largura de cada coluna e fixa (table-layout: fixed) para a tabela caber
   // inteira na tela: o texto quebra em mais linhas em vez de rolar para o lado.
-  const cols = [
+  const cols = ehExterna() ? [
+    {key:'responsavel', label:'Analista', w:'9%'},
+    {key:'estagiario', label:'Estagiário', w:'9%'},
+    {key:'codigo', label:'Nº Proposta', w:'5.5%'},
+    {key:'nome', label:'Cliente / Razão Social', w:'13%'},
+    {key:'linha_credito', label:'Linha', w:'8%', ajuda:'Linhas ativas do Giro Fácil aparecem coloridas; as outras (BNDES, Inovacred, Finame...) em cinza.'},
+    {key:'municipio', label:'Município', w:'7%'},
+    {key:'agencia', label:'Agência', w:'9%', ajuda:'Coluna Correspondente da planilha: de qual agência ou correspondente veio a proposta.'},
+    {key:'etapa', label:'Situação', w:'9.5%'},
+    {key:'valor', label:'Valor', align:'right', w:'8%'},
+    {key:'na_etapa_desde', label:'Na Etapa Desde', w:'8%', ajuda:'Data em que a proposta entrou na situação atual. Os dias entre parenteses mostram ha quanto tempo esta parada.'},
+    {key:'observacao', label:'Observação', w:'15%'},
+  ] : [
     {key:'responsavel', label:'Analista', w:'10%'},
     {key:'estagiario', label:'Estagiário', w:'10%'},
     {key:'codigo', label:'Código', w:'5.5%'},
@@ -2963,9 +3201,12 @@ function renderTabelaPropostas() {
       <td class="td-nome" title="${esc(p.nome||'')}">${p.nome
         ? `${esc(p.nome)} <span onclick="editarNome('${p.codigo}')" title="Editar nome" style="cursor:pointer;color:#94a3b8;font-size:11px">✎</span>`
         : `<span onclick="editarNome('${p.codigo}')" title="Digitar o nome do cliente" style="cursor:pointer;color:#94a3b8;font-style:italic;font-size:12px;font-weight:400">+ adicionar nome</span>`}</td>
-      <td>${linhaBadge(p.linha_credito)}</td>
+      <td>${ehExterna() ? linhaBadgeExterna(p.linha_credito) : linhaBadge(p.linha_credito)}</td>
       <td class="td-mun">${esc(p.municipio) || '—'}</td>
-      <td class="td-etapa" onclick="abrirModalEtapaProposta('${p.codigo}')" title="Clique para mudar a etapa" style="cursor:pointer">${etapaBadge(p.etapa)}</td>
+      ${ehExterna() ? `<td style="font-size:11.5px;color:#475569">${esc(p.agencia) || '—'}</td>` : ''}
+      ${ehExterna()
+        ? `<td class="td-etapa">${etapaBadge(esc(p.etapa))}</td>`
+        : `<td class="td-etapa" onclick="abrirModalEtapaProposta('${p.codigo}')" title="Clique para mudar a etapa" style="cursor:pointer">${etapaBadge(p.etapa)}</td>`}
       <td class="td-valor">${formatValor(p.valor)}</td>
       ${celulaData(p)}
       ${obsCell}
@@ -3163,12 +3404,12 @@ async function escolherResp(novo) {
 async function atribuirEstagiario(codigo, nome) {
   if (!nome) return   // 'N/A' é permitido: significa desatribuir
   try {
-    await sb(`fgf_propostas?codigo=eq.${encodeURIComponent(codigo)}`, {
+    await sb(`${TABELA()}?codigo=eq.${encodeURIComponent(codigo)}`, {
       method: 'PATCH', prefer: 'return=minimal',
       body: { estagiario: nome }
     })
     // Atualiza também a referência, para persistir entre processamentos
-    const refs = await sb('fgf_referencia?select=id,dados&order=criado_em.desc&limit=1')
+    const refs = ehExterna() ? null : await sb('fgf_referencia?select=id,dados&order=criado_em.desc&limit=1')
     if (refs && refs[0]) {
       const dados = refs[0].dados || []
       const i = dados.findIndex(r => String(r.codigo).trim() === String(codigo).trim())
@@ -3194,14 +3435,14 @@ async function atribuirResponsavel(codigo, resp, selectEl) {
   if (!resp) return
   try {
     // 1. Salva na tabela propostas
-    await sb(`fgf_propostas?codigo=eq.${encodeURIComponent(codigo)}`, {
+    await sb(`${TABELA()}?codigo=eq.${encodeURIComponent(codigo)}`, {
       method: 'PATCH',
       prefer: 'return=minimal',
       body: { responsavel: resp, responsavel_final: resp }
     })
 
     // 2. Atualiza a fgf_referencia mais recente para persistir entre reprocessamentos
-    const refs = await sb('fgf_referencia?select=id,dados&order=criado_em.desc&limit=1')
+    const refs = ehExterna() ? null : await sb('fgf_referencia?select=id,dados&order=criado_em.desc&limit=1')
     if (refs && refs[0]) {
       const refId = refs[0].id
       const dados = refs[0].dados || []
@@ -3277,7 +3518,7 @@ async function editarNome(codigo) {
   const valor = limparNomeCliente(novo).toUpperCase()
   if (valor === atual) return
   try {
-    await sb(`fgf_propostas?codigo=eq.${encodeURIComponent(codigo)}`, { method: 'PATCH', prefer: 'return=minimal', body: { nome: valor } })
+    await sb(`${TABELA()}?codigo=eq.${encodeURIComponent(codigo)}`, { method: 'PATCH', prefer: 'return=minimal', body: { nome: valor } })
     if (p) p.nome = valor
     renderTabelaPropostas()
     showToast(valor ? '✓ Nome salvo' : '✓ Nome apagado')
@@ -3305,7 +3546,7 @@ async function salvarObservacao() {
     // A versão substituída leva junto quem tinha escrito
     const autorAnterior = anterior ? (obsComAutor(anterior, atual.observacao_por).autor || null) : null
     if (anterior) { corpo.observacoes_anteriores = anterior; corpo.observacao_anterior_por = autorAnterior }
-    const url = `fgf_propostas?codigo=eq.${encodeURIComponent(modalCodigo)}`
+    const url = `${TABELA()}?codigo=eq.${encodeURIComponent(modalCodigo)}`
     try {
       await sb(url, { method: 'PATCH', prefer: 'return=minimal', body: corpo })
     } catch(e) {
@@ -3378,7 +3619,7 @@ async function patchLote(codigos, corpo, aplicarLocal) {
   for (let i = 0; i < codigos.length; i += 200) {
     const lote = codigos.slice(i, i + 200)
     try {
-      await sb(`fgf_propostas?${inCodigos(lote)}`, { method: 'PATCH', prefer: 'return=minimal', body: corpo })
+      await sb(`${TABELA()}?${inCodigos(lote)}`, { method: 'PATCH', prefer: 'return=minimal', body: corpo })
       const set = new Set(lote)
       todasPropostas.forEach(p => { if (set.has(String(p.codigo))) aplicarLocal(p) })
       ok += lote.length
@@ -3413,7 +3654,7 @@ let arquivadasCarregadas = false
 async function carregarArquivadas() {
   if (arquivadasCarregadas) return
   try {
-    const achadas = await sbAll('fgf_propostas?select=*&arquivada=eq.true')
+    const achadas = await sbAll(`${TABELA()}?select=*&arquivada=eq.true`)
     arquivadasCarregadas = true
     const jaTem = new Set(todasPropostas.map(p => String(p.codigo)))
     const novas = (achadas || []).filter(p => !jaTem.has(String(p.codigo)))
@@ -3448,9 +3689,9 @@ async function excluirLote() {
       const copias = todasPropostas.filter(p => lote.includes(String(p.codigo)))
       if (copias.length) {
         try { await sb('backup_excluidas', { method: 'POST', prefer: 'return=minimal',
-          body: copias.map(c => ({ codigo: 'FGF-' + c.codigo, dados: c })) }) } catch(e) {}
+          body: copias.map(c => ({ codigo: (ehExterna() ? 'FGF-EXT-' : 'FGF-') + c.codigo, dados: c })) }) } catch(e) {}
       }
-      await sb(`fgf_propostas?${inCodigos(lote)}`, { method: 'DELETE', prefer: 'return=minimal' })
+      await sb(`${TABELA()}?${inCodigos(lote)}`, { method: 'DELETE', prefer: 'return=minimal' })
       const set = new Set(lote)
       todasPropostas = todasPropostas.filter(p => !set.has(String(p.codigo)))
       ok += lote.length
@@ -3540,7 +3781,7 @@ async function reatribuirLote(novoResp) {
     // 1. Atualiza cada proposta no banco
     for (const codigo of codigos) {
       try {
-        await sb(`fgf_propostas?codigo=eq.${encodeURIComponent(codigo)}`, {
+        await sb(`${TABELA()}?codigo=eq.${encodeURIComponent(codigo)}`, {
           method: 'PATCH', prefer: 'return=minimal',
           body: { responsavel: novoResp, responsavel_final: novoResp }
         })
@@ -3552,7 +3793,7 @@ async function reatribuirLote(novoResp) {
     }
 
     // 2. Atualiza a referência (uma única vez, com todos os códigos)
-    const refs = await sb('fgf_referencia?select=id,dados&order=criado_em.desc&limit=1')
+    const refs = ehExterna() ? null : await sb('fgf_referencia?select=id,dados&order=criado_em.desc&limit=1')
     if (refs && refs[0]) {
       const refId = refs[0].id
       const dados = refs[0].dados || []
@@ -3623,12 +3864,22 @@ function exportarExcel() {
       'Observação': textoObs(p),
     }
   })
+  // Conc. Externa: sem data de cadastro/transferência; com agência
+  if (ehExterna()) dados.forEach((d, i) => {
+    delete d['Data de Cadastro']; delete d['Transferência']
+    d['Código da Operação'] = undefined; delete d['Código da Operação']
+    const p = rows[i]
+    const ord = { 'Analista': d['Analista'], 'Estagiário': d['Estagiário'], 'Nº Proposta': p.codigo || '', 'Cliente / Razão Social': d['Cliente / Razão Social'],
+      'Linha de Financiamento': p.linha_credito || '', 'Município': d['Município'], 'Agência': p.agencia || '', 'Situação (etapa)': d['Etapa'],
+      'Valor (R$)': d['Valor (R$)'], 'Na Etapa Desde': d['Na Etapa Desde'], 'Dias na Etapa': d['Dias na Etapa'], 'Observação': d['Observação'] }
+    Object.keys(d).forEach(k => delete d[k]); Object.assign(d, ord)
+  })
 
   const ws = XLSX.utils.json_to_sheet(dados)
   ws['!cols'] = [ {wch:14},{wch:14},{wch:18},{wch:38},{wch:16},{wch:18},{wch:26},{wch:14},{wch:15},{wch:15},{wch:13},{wch:14},{wch:40} ]
 
   const wb = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(wb, ws, 'Propostas')
+  XLSX.utils.book_append_sheet(wb, ws, ehExterna() ? 'Concessão Externa' : 'Propostas')
 
   // Aba de resumo
   const totalValor = rows.reduce((s,p) => s + valorNum(p), 0)
@@ -3648,7 +3899,7 @@ function exportarExcel() {
   XLSX.utils.book_append_sheet(wb, wsR, 'Resumo')
 
   const hoje = new Date().toISOString().split('T')[0]
-  const nome = `GiroFacil_${nomeContextoFiltro().replace(/[^a-zA-Z0-9]/g,'_')}_${hoje}.xlsx`
+  const nome = `GiroFacil_${ehExterna() ? 'ConcExterna_' : ''}${nomeContextoFiltro().replace(/[^a-zA-Z0-9]/g,'_')}_${hoje}.xlsx`
   XLSX.writeFile(wb, nome)
   showToast(`✓ ${rows.length} propostas exportadas`)
 }
@@ -3738,28 +3989,46 @@ function exportarPDF() {
 // ABA PAINEL GERENCIAL (Fase 4)
 // ============================================================
 let dadosPainel = { propostas: [], historico: [] }
+// O Painel Gerencial mostra as Propostas do dia a dia OU a Concessão Externa
+let PAINEL_FONTE = 'propostas'
+const painelExterna = () => PAINEL_FONTE === 'externa'
+function trocarPainelFonte(f) {
+  if (f === PAINEL_FONTE) return
+  PAINEL_FONTE = f
+  // Filtros do painel recomeçam: as opções (etapas, linhas) são outras
+  Object.values(painelExclui).forEach(x => x.clear())
+  painelCadIni = ''; painelCadFim = ''; painelEtapaIni = ''; painelEtapaFim = ''
+  carregarPainel()
+}
 
 async function carregarPainel() {
   const el = document.getElementById('view-painel')
   el.innerHTML = `<div class="card"><div class="empty"><div class="empty-icon">⏳</div><p>Carregando painel...</p></div></div>`
   try {
     const [props, hist] = await Promise.all([
-      sbAll('fgf_propostas?select=*'),
+      sbAll(painelExterna() ? 'fgf_conc_externa?select=*' : 'fgf_propostas?select=*'),
       sb('fgf_historico?select=*&order=criado_em.desc&limit=12')
     ])
-    // Mesma janela da aba Propostas: ativas + finalizadas desde 2025
-    dadosPainel.propostas = ocultarInativos(normalizarPropostas(filtrarPorJanela(props || [])))
+    // Propostas: mesma janela da aba Propostas (ativas + finalizadas desde 2025). Conc. Externa: tudo.
+    dadosPainel.propostas = ocultarInativos(normalizarPropostas(painelExterna() ? (props || []) : filtrarPorJanela(props || [])))
     dadosPainel.historico = hist || []
     renderPainel()
   } catch(e) {
-    el.innerHTML = `<div class="card"><div class="alert alert-danger">❌ Erro ao carregar painel: ${e.message}</div></div>`
+    el.innerHTML = `<div class="card">${seletorPainelFonte()}<div class="alert alert-danger" style="margin-top:12px">❌ Erro ao carregar painel: ${painelExterna() && /fgf_conc_externa/.test(String(e.message)) ? 'a tabela da Concessão Externa ainda não existe. Rode o SQL <b>fgf_conc_externa.sql</b> no Supabase.' : e.message}</div></div>`
   }
+}
+
+function seletorPainelFonte() {
+  return `<div class="painel-fonte" title="Escolha de qual base é o painel">
+    <button class="${painelExterna() ? '' : 'ativo'}" onclick="trocarPainelFonte('propostas')">📋 Propostas</button>
+    <button class="${painelExterna() ? 'ativo' : ''}" onclick="trocarPainelFonte('externa')">🏛 Conc. Externa</button>
+  </div>`
 }
 
 function renderPainel() {
   const el = document.getElementById('view-painel')
   if (!dadosPainel.propostas.length) {
-    el.innerHTML = `<div class="card"><div class="painel-empty">📭 Nenhuma proposta processada ainda.<br>Processe as planilhas na aba "⚙ Processar" para ver os indicadores.</div></div>`
+    el.innerHTML = `<div class="card">${seletorPainelFonte()}<div class="painel-empty">📭 Nenhuma proposta ${painelExterna() ? 'da Concessão Externa' : 'processada'} ainda.<br>${painelExterna() ? 'Envie a planilha na aba "🏛 Conc. Externa".' : 'Processe as planilhas na aba "⚙ Processar" para ver os indicadores.'}</div></div>`
     return
   }
 
@@ -3786,7 +4055,7 @@ function renderPainel() {
       ${temFiltroPainel() ? `<button class="btn btn-secondary btn-sm" onclick="limparFiltrosPainel()">✕ Limpar</button>` : ''}
     </div>
     <div class="painel-filtros painel-filtros-data">
-      <div class="pf-data">
+      <div class="pf-data" style="${painelExterna() ? 'display:none' : ''}">
         <span class="pf-data-lbl">📅 Data de Cadastro</span>
         <input type="date" class="fa-input" value="${painelCadIni}" max="9999-12-31" onchange="if(dataPronta(this.value)){painelCadIni=this.value; renderPainel()}"/>
         <span>até</span>
@@ -3806,7 +4075,16 @@ function renderPainel() {
   const valorDecidido = d.valorConcedido + d.valorNaoConcedido
   const pctConc = valorDecidido ? ((d.valorConcedido/valorDecidido)*100).toFixed(1) : '0.0'
   const pctNaoConc = valorDecidido ? ((d.valorNaoConcedido/valorDecidido)*100).toFixed(1) : '0.0'
-  const resumo = `
+  const comEquipeExt = props.filter(p => (p.responsavel && p.responsavel !== 'N/A') || (p.estagiario && p.estagiario !== 'N/A')).length
+  const resumo = painelExterna() ? `
+    <div class="dash-grid">
+      <div class="dash-card accent-azul"><div class="dash-label">Total de Propostas</div><div class="dash-value">${props.length.toLocaleString('pt-BR')}</div><div class="dash-sub">na Concessão Externa</div></div>
+      <div class="dash-card accent-roxo"><div class="dash-label">Valor Total<span class="ajuda ajuda-baixo" data-ajuda="Soma do Valor Proposta de todas as propostas do filtro.">?</span></div><div class="dash-value" style="font-size:19px">${formatValor(d.valorTotal)}</div><div class="dash-sub">todas as propostas</div></div>
+      <div class="dash-card accent-verde"><div class="dash-label">Com a equipe<span class="ajuda ajuda-baixo" data-ajuda="Propostas com analista ou estagiário da equipe ativa do Giro Fácil. % = com a equipe ÷ total.">?</span></div><div class="dash-value">${comEquipeExt.toLocaleString('pt-BR')}</div><div class="dash-sub">${props.length ? ((comEquipeExt / props.length) * 100).toFixed(1) : '0.0'}% do total</div></div>
+      <div class="dash-card accent-cinza"><div class="dash-label">Sem ninguém da equipe<span class="ajuda ajuda-baixo" data-ajuda="Sem analista e sem estagiário da equipe ativa (N/A). Inclui as do Osvaldo e de quem não é da equipe do Giro Fácil.">?</span></div><div class="dash-value">${(props.length - comEquipeExt).toLocaleString('pt-BR')}</div><div class="dash-sub">aparecem como N/A</div></div>
+      <div class="dash-card accent-parada"><div class="dash-label">⚠️ Paradas 15+ dias<span class="ajuda ajuda-baixo" data-ajuda="Propostas há 15 dias ou mais na mesma situação, pela coluna Na etapa desde. As que vêm sem essa data não entram na conta.">?</span></div><div class="dash-value" style="color:${d.paradas.length>0?'#dc2626':'#16a34a'}">${d.paradas.length.toLocaleString('pt-BR')}</div><div class="dash-sub">com data na etapa</div></div>
+      <div class="dash-card accent-cinza"><div class="dash-label">Média de Dias Parados<span class="ajuda ajuda-baixo ajuda-esq" data-ajuda="Soma dos dias na situação atual ÷ quantidade de propostas que têm a data Na etapa desde.">?</span></div><div class="dash-value">${d.mediaDias.toLocaleString('pt-BR')}<span style="font-size:14px;font-weight:600;color:#9ca3af"> dias</span></div><div class="dash-sub">média das que têm data</div></div>
+    </div>` : `
     <div class="dash-grid">
       <div class="dash-card accent-azul"><div class="dash-label">Total de Propostas</div><div class="dash-value">${props.length}</div></div>
       <div class="dash-card accent-verde"><div class="dash-label">Em Tratativa</div><div class="dash-value">${d.ativas.length}</div><div class="dash-sub">${formatValor(d.valorAtivo)}</div></div>
@@ -3856,7 +4134,7 @@ function renderPainel() {
     </div>`
   }
 
-  const etapas = `
+  let etapas = `
     <div class="painel-secao">
       <div class="painel-secao-titulo">📋 Etapas<span class="ajuda ajuda-baixo ajuda-dir" data-ajuda="Todas as etapas oficiais do fluxo. À esquerda as etapas principais (1 a 13), à direita as subetapas de regularização. Mostra quantas propostas há em cada uma e o percentual do total.">?</span></div>
       <div class="painel-secao-sub">Listagem das propostas por etapa — clique no número para ver a lista</div>
@@ -3904,7 +4182,7 @@ function renderPainel() {
 
   // Gradiente de cores do funil (topo largo/quente -> base estreita/fria)
   const funilCores = ['#DC2626','#EA580C','#D97706','#CA8A04','#65A30D','#16A34A','#059669','#0D9488','#0891B2','#0284C7','#2563EB','#4F46E5','#7C3AED']
-  const funil = `
+  let funil = `
     <div class="painel-secao">
       <div class="painel-secao-titulo">🔻 Funil da Safra 2025–2026<span class="ajuda ajuda-baixo ajuda-dir" data-ajuda="As fases contam só as EM ANDAMENTO: cada fase soma quem está nela mais quem já está nas fases seguintes. Subetapas contam na etapa principal. Concedidas e recusadas/excluídas aparecem no desfecho, como histórico desde 2025.">?</span></div>
       <div class="painel-secao-sub">${funilBase} em andamento no funil · ${decididas} já decididas (histórico desde 2025)</div>
@@ -3949,6 +4227,71 @@ function renderPainel() {
       </div>
     </div>`
 
+
+  // ══ CONC. EXTERNA: etapas e funil pelas situações da própria planilha ══
+  let porAgencia = ''
+  if (painelExterna()) {
+    const numEtapa = e => { const m = String(e).match(/^(\d+)(?:\.(\d+))?/); return m ? Number(m[1]) + (m[2] ? Number(m[2]) / 100 : 0) : 999 }
+    const lista = Object.keys(etapaMapSec).sort((a, b) => numEtapa(a) - numEtapa(b) || a.localeCompare(b, 'pt-BR'))
+    const maxE = Math.max(1, ...lista.map(e => etapaMapSec[e].count))
+    const linhaExt = e => {
+      const dd = etapaMapSec[e]
+      const larg = Math.round((dd.count / maxE) * 100)
+      const badgeCor = larg >= 60 ? '#ea580c' : (larg >= 25 ? '#eab308' : '#16a34a')
+      return `<div class="etapa-linha">
+        <div class="etapa-nome">${esc(e)} <button class="etapa-qtd-btn" onclick="verPropostasDaEtapa('${esc(e).replace(/'/g, "\\'")}')" title="Ver as propostas desta situação">${dd.count} 👁</button></div>
+        <div class="etapa-barra-track"><div class="etapa-barra-fill" style="width:${Math.max(larg, 1)}%;background:#3b82f6"></div></div>
+        <div class="etapa-pct" style="background:${badgeCor}">${((dd.count / totalEtapas) * 100).toFixed(2)}%</div>
+      </div>`
+    }
+    etapas = `
+    <div class="painel-secao">
+      <div class="painel-secao-titulo">📋 Situações<span class="ajuda ajuda-baixo ajuda-dir" data-ajuda="Coluna Situação da planilha da Concessão Externa, na ordem do número da etapa. % = propostas na situação ÷ total filtrado.">?</span></div>
+      <div class="painel-secao-sub">Propostas por situação — clique no número para ver a lista</div>
+      ${lista.map(linhaExt).join('')}
+    </div>`
+    // Funil: cada fase = quem está nela + quem já está nas fases seguintes
+    const totalF = props.length
+    let acum = 0
+    const fases = lista.map(e => { const v = totalF - acum; acum += etapaMapSec[e].count; return { etapa: e, valor: v, parou: etapaMapSec[e].count } })
+    const maxF = Math.max(1, ...fases.map(f => f.valor))
+    const cores = ['#DC2626','#EA580C','#D97706','#CA8A04','#65A30D','#16A34A','#059669','#0D9488','#0891B2','#0284C7','#2563EB','#4F46E5','#7C3AED']
+    funil = `
+    <div class="painel-secao">
+      <div class="painel-secao-titulo">🔻 Funil da Concessão Externa<span class="ajuda ajuda-baixo ajuda-dir" data-ajuda="Cada fase soma quem está nela mais quem já está nas fases seguintes, na ordem do número da situação. % = fase ÷ total filtrado.">?</span></div>
+      <div class="painel-secao-sub">${totalF.toLocaleString('pt-BR')} propostas, pela ordem das situações</div>
+      <div class="funilv-wrap">
+        ${fases.map((f, i) => {
+          const larg = f.valor > 0 ? Math.max((f.valor / maxF) * 100, 6) : 4
+          const cor = cores[i % cores.length], corProx = cores[(i + 1) % cores.length]
+          const estreito = larg < 12
+          return `<div class="funilv-fase">
+            <div class="funilv-info-esq">${esc(f.etapa)}${f.parou ? `<span class="funilv-parou">${f.parou} aqui</span>` : ''}</div>
+            <div class="funilv-barra-area">
+              <div class="funilv-trapezio" style="width:${larg}%;--cor:${cor};--cor-prox:${corProx}">${estreito ? '' : `<span class="funilv-valor">${f.valor.toLocaleString('pt-BR')}</span>`}</div>
+              ${estreito ? `<span class="funilv-valor-fora" style="color:${cor}">${f.valor.toLocaleString('pt-BR')}</span>` : ''}
+            </div>
+            <div class="funilv-info-dir">${totalF ? ((f.valor / totalF) * 100).toFixed(1) : '0.0'}%</div>
+          </div>`
+        }).join('')}
+      </div>
+    </div>`
+    // Por agência (coluna Correspondente)
+    const ag = {}
+    props.forEach(p => { const k = (p.agencia || '').trim() || '(sem agência)'; if (!ag[k]) ag[k] = { count: 0, valor: 0 }; ag[k].count++; ag[k].valor += valorNum(p) })
+    const agOrd = Object.entries(ag).sort((a, b) => b[1].count - a[1].count)
+    const top = agOrd.slice(0, 15), maxA = Math.max(1, ...top.map(([, v]) => v.count))
+    porAgencia = `
+    <div class="painel-secao">
+      <div class="painel-secao-titulo">🏢 Por Agência<span class="ajuda ajuda-baixo ajuda-dir" data-ajuda="Coluna Correspondente da planilha. Mostra as 15 com mais propostas. % = propostas da agência ÷ total filtrado.">?</span></div>
+      <div class="painel-secao-sub">${agOrd.length} agências/correspondentes${agOrd.length > 15 ? ' · mostrando as 15 maiores' : ''}</div>
+      ${top.map(([nome, v]) => `<div class="etapa-linha">
+        <div class="etapa-nome">${esc(nome)} <span class="etapa-qtd">${v.count} · ${formatValor(v.valor)}</span></div>
+        <div class="etapa-barra-track"><div class="etapa-barra-fill" style="width:${Math.max(Math.round((v.count / maxA) * 100), 1)}%;background:#0891b2"></div></div>
+        <div class="etapa-pct" style="background:#0891b2">${((v.count / (props.length || 1)) * 100).toFixed(1)}%</div>
+      </div>`).join('')}
+    </div>`
+  }
 
   // ══ DISTRIBUIÇÃO POR LINHA DE CRÉDITO ══
   const linhaEntries = Object.entries(d.linhaMap).sort((a,b) => b[1].count - a[1].count)
@@ -4025,13 +4368,14 @@ function renderPainel() {
     </div>`
 
   // ══ EVOLUÇÃO — propostas novas por dia (5 dias antes do último processamento) ══
-  const evolucao = renderEvolucao()
+  const evolucao = painelExterna() ? '' : renderEvolucao()
 
   el.innerHTML = `
     <div class="card">
       <div class="dash-header">
-        <div class="dash-title">📊 Painel Gerencial</div>
+        <div class="dash-title">📊 Painel Gerencial${painelExterna() ? ' — Concessão Externa' : ''}</div>
         <div style="display:flex;gap:6px;align-items:center">
+          ${seletorPainelFonte()}
           <button class="btn btn-secondary btn-sm" onclick="exportarPainelExcel()" title="Exportar indicadores para Excel">📊 Excel</button>
           <button class="btn btn-secondary btn-sm" onclick="exportarPainelPDF()" title="Exportar relatório gerencial em PDF">📄 Relatório PDF</button>
           <button class="btn btn-secondary btn-sm" onclick="carregarPainel()">↺ Atualizar</button>
@@ -4042,6 +4386,7 @@ function renderPainel() {
     </div>
     ${etapas}
     ${funil}
+    ${porAgencia}
     ${distLinha}
     ${carga}
     ${ranking}
@@ -4192,7 +4537,7 @@ const pessoasDaProposta = p => {
   return ps.length ? ps : ['N/A']
 }
 const chaveEtapa = p => { const b = (p.etapa||'').trim(); return posicaoFunil(b) !== -1 ? normalizarNomeEtapa(b) : (b || '—') }
-const chaveLinha = p => normalizarLinhaCredito(p.linha_credito) || '(sem linha)'
+const chaveLinha = p => painelExterna() ? rotuloLinhaExterna(p.linha_credito) : (normalizarLinhaCredito(p.linha_credito) || '(sem linha)')
 let painelOpcoesAtuais = { colab: [], etapa: [], linha: [] }
 
 function msFiltro(id, icone, rotulo, opcoes) {
@@ -4352,7 +4697,7 @@ function calcularDadosPainel() {
   // Distribuição por linha de crédito
   const linhaMap = {}
   props.forEach(p => {
-    const l = normalizarLinhaCredito(p.linha_credito) || '(sem linha)'
+    const l = chaveLinha(p)
     if (!linhaMap[l]) linhaMap[l] = { count: 0, valor: 0 }
     linhaMap[l].count++
     linhaMap[l].valor += valorNum(p)
