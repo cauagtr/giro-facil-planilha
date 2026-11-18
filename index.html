@@ -981,7 +981,7 @@
     <h1>FOMENTO PARANÁ — Fomento Giro Fácil</h1>
     <span>Processamento Automatizado — FGF</span>
   </div>
-  <span class="header-badge">FGF v3.1</span>
+  <span class="header-badge">FGF v3.2</span>
 </header>
 
 <nav>
@@ -2252,8 +2252,10 @@ async function processarPlanilhas() {
     // automaticamente o corte: só entram as cadastradas desde 01/01/2025.
     let todas = []
     let cortadas = 0
+    const codigosNasPlanilhas = new Set()   // tudo que veio, antes de qualquer corte
     enviados.forEach((t, i) => {
       let linhas = transformar(lidos[i])
+      linhas.forEach(r => { const c = String(r.codigo || '').trim(); if (c) codigosNasPlanilhas.add(c) })
       // Todas as planilhas: só propostas cadastradas desde 2025
       const antes = linhas.length
       linhas = filtrarUltimosMeses(linhas)
@@ -2267,7 +2269,21 @@ async function processarPlanilhas() {
     const merged = deduplicar(todas)
 
     // Buscar atribuições manuais já salvas no banco para preservá-las
-    const propostasExistentes = await sbAll('fgf_propostas?select=codigo,etapa,nome,responsavel,responsavel_final,estagiario,observacao,observacoes_anteriores,data_cadastro,transferencia')
+    // saiu_da_planilha: marca as que saíram da carteira sozinhas (ver abaixo).
+    // Se o SQL ainda não foi rodado, a coluna não existe: busca sem ela.
+    let temSaiuDaPlanilha = true
+    let propostasExistentes
+    try {
+      propostasExistentes = await sbAll('fgf_propostas?select=codigo,etapa,nome,responsavel,responsavel_final,estagiario,observacao,observacoes_anteriores,data_cadastro,transferencia,arquivada,saiu_da_planilha')
+    } catch(e) {
+      temSaiuDaPlanilha = false
+      propostasExistentes = await sbAll('fgf_propostas?select=codigo,etapa,nome,responsavel,responsavel_final,estagiario,observacao,observacoes_anteriores,data_cadastro,transferencia,arquivada')
+    }
+    // Ativas no sistema que não vieram em NENHUMA das planilhas enviadas
+    const sumiram = (propostasExistentes || [])
+      .filter(p => ehAtiva(p.etapa) && !p.arquivada && !codigosNasPlanilhas.has(String(p.codigo).trim()))
+      .map(p => ({ codigo: String(p.codigo).trim(), etapa: p.etapa, responsavel: p.responsavel_final || p.responsavel, estagiario: p.estagiario }))
+    const tresPlanilhas = TIPOS_ARQUIVO.every(t => arquivos[t.id])
     // Uma vez transferência, sempre transferência (o selo não some)
     ;(propostasExistentes || []).forEach(p => { if (p.transferencia) codTransf.add(String(p.codigo).trim()) })
     // Data de cadastro já salva: não se perde se a planilha do dia vier sem a coluna
@@ -2335,6 +2351,35 @@ async function processarPlanilhas() {
       setProgresso(55 + Math.round((salvas/propostas.length)*30), `Salvando... ${salvas}/${propostas.length}`)
     }
 
+    // ══ SAÍRAM DA CARTEIRA ══ (mesma regra do Microcrédito)
+    // Proposta ativa que não veio nem no Andamento, nem no Concedido, nem no
+    // Recusado não é mais nossa (ex.: transferida para outra agência). Sai da
+    // carteira: fica ARQUIVADA (some da lista e do painel, não é apagada).
+    // Só vale com as TRÊS planilhas: faltando Concedido ou Recusado, as
+    // finalizadas do dia também "sumiriam" e seriam arquivadas por engano.
+    // Se a proposta voltar a aparecer numa planilha, volta para a carteira sozinha.
+    let sairamDaCarteira = [], voltaram = []
+    if (temSaiuDaPlanilha) {
+      const hoje = new Date(); const hojeIso = `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}-${String(hoje.getDate()).padStart(2,'0')}`
+      voltaram = (propostasExistentes || []).filter(p => p.saiu_da_planilha && codigosNasPlanilhas.has(String(p.codigo).trim())).map(p => String(p.codigo).trim())
+      if (tresPlanilhas && sumiram.length) {
+        const ativas = (propostasExistentes || []).filter(p => ehAtiva(p.etapa) && !p.arquivada).length || 1
+        let seguir = true
+        // Muita proposta sumindo de uma vez costuma ser planilha errada ou incompleta
+        if (sumiram.length > Math.max(15, ativas * 0.1))
+          seguir = confirm(`${sumiram.length} propostas ativas não vieram em nenhuma das 3 planilhas.\n\nIsso é bastante (${Math.round(sumiram.length/ativas*100)}% das ativas). Confira se as planilhas estão completas.\n\nOK = tirar da carteira (ficam arquivadas, dá para desfazer)\nCancelar = manter na carteira por enquanto`)
+        if (seguir) sairamDaCarteira = sumiram.map(p => p.codigo)
+      }
+      const emLotes = async (cods, corpo) => {
+        for (let i = 0; i < cods.length; i += 100) {
+          const lote = cods.slice(i, i + 100)
+          await sb(`fgf_propostas?codigo=in.(${lote.map(c => `"${c}"`).join(',')})`, { method: 'PATCH', prefer: 'return=minimal', body: corpo })
+        }
+      }
+      if (sairamDaCarteira.length) { setProgresso(86, `Tirando ${sairamDaCarteira.length} da carteira...`); await emLotes(sairamDaCarteira, { arquivada: true, saiu_da_planilha: hojeIso }) }
+      if (voltaram.length) await emLotes(voltaram, { arquivada: false, saiu_da_planilha: null })
+    }
+
     setProgresso(88, 'Salvando histórico...')
     await sb('fgf_historico', {
       method: 'POST',
@@ -2378,7 +2423,24 @@ async function processarPlanilhas() {
         <div class="stat-card"><div class="stat-label">Sem Analista</div><div class="stat-value" style="color:${semAnalista>0?'#92400e':'#166534'}">${semAnalista}</div></div>
         <div class="stat-card"><div class="stat-label">Sem Estagiário</div><div class="stat-value" style="color:${semEstagiario>0?'#92400e':'#166534'}">${semEstagiario}</div></div>
         ${cortadas > 0 ? `<div class="stat-card"><div class="stat-label">Fora da janela</div><div class="stat-value" style="color:#64748b">${cortadas}</div><div class="stat-sub">descartadas</div></div>` : ''}
+        ${sairamDaCarteira.length ? `<div class="stat-card" style="background:#FFF7ED;border-color:#FDBA74"><div class="stat-label">📤 Saíram da carteira</div><div class="stat-value" style="color:#EA580C">${sairamDaCarteira.length}</div><div class="stat-sub">não vieram em nenhuma planilha</div></div>`
+          : sumiram.length ? `<div class="stat-card" style="background:#FFF7ED;border-color:#FDBA74"><div class="stat-label">⚠️ Sumiram das planilhas</div><div class="stat-value" style="color:#EA580C">${sumiram.length}</div><div class="stat-sub">continuam na carteira</div></div>` : ''}
+        ${voltaram.length ? `<div class="stat-card"><div class="stat-label">↩ Voltaram à carteira</div><div class="stat-value" style="color:#166534">${voltaram.length}</div><div class="stat-sub">reapareceram na planilha</div></div>` : ''}
       </div>
+      ${sumiram.length ? `
+      <div class="alert ${!temSaiuDaPlanilha ? 'alert-danger' : 'alert-warning'}" style="margin-top:14px">
+        ${sairamDaCarteira.length
+          ? `<b>${sairamDaCarteira.length} proposta${sairamDaCarteira.length>1?'s saíram':' saiu'} da carteira</b> porque não ${sairamDaCarteira.length>1?'vieram':'veio'} no Andamento, no Concedido nem no Recusado
+             (normalmente transferida para outra agência). ${sairamDaCarteira.length>1?'Foram arquivadas':'Foi arquivada'}: some da lista e do painel, mas não foi apagada —
+             veja em <b>📦 Arquivadas</b>. Se voltar a aparecer numa planilha, volta para a carteira sozinha.`
+          : `<b>${sumiram.length} proposta${sumiram.length>1?'s ativas não vieram':' ativa não veio'} em nenhuma planilha</b> e ${sumiram.length>1?'continuam':'continua'} na carteira.
+             ${!temSaiuDaPlanilha ? 'Para tirar da carteira, rode o SQL <b>fgf_saiu_da_planilha.sql</b> no Supabase.'
+               : !tresPlanilhas ? 'Para tirar da carteira, processe com as <b>três planilhas</b> (Andamento, Concedido e Recusado): sem uma delas não dá para saber se foi finalizada ou transferida.'
+               : 'Você escolheu manter. Confira se as planilhas estão completas.'}`}
+        <div style="margin-top:8px;font-size:11.5px;font-family:'IBM Plex Mono',monospace;color:#7c2d12">
+          ${sumiram.slice(0,20).map(p => `${p.codigo} (${p.responsavel || 'N/A'})`).join(' · ')}${sumiram.length>20 ? ` … e mais ${sumiram.length-20}` : ''}
+        </div>
+      </div>` : ''}
       <button class="btn btn-primary" onclick="setTab('propostas');carregarPropostas()">Ver Propostas →</button>`
 
     showToast(`${propostas.length} propostas processadas com sucesso!`)
@@ -2897,7 +2959,7 @@ function renderTabelaPropostas() {
       <td class="check-col"><input type="checkbox" class="row-check" ${estaSel?'checked':''} onclick="toggleSelecionada('${p.codigo}', this.checked)"/></td>
       ${respCell}
       ${estCell}
-      <td class="td-cnpj" style="font-weight:700">${p.transferencia ? '<span class="selo-transf" title="Recebida por transferência">⇄</span> ' : ''}${esc(p.codigo)||'—'}</td>
+      <td class="td-cnpj" style="font-weight:700">${p.transferencia ? '<span class="selo-transf" title="Recebida por transferência">⇄</span> ' : ''}${esc(p.codigo)||'—'}${p.arquivada && p.saiu_da_planilha ? `<span title="Saiu da carteira em ${formatData(p.saiu_da_planilha)}: não veio no Andamento, no Concedido nem no Recusado (provável transferência para outra agência)" style="display:inline-block;margin-left:5px;font-size:9.5px;font-weight:700;background:#FFF7ED;color:#C2410C;border:1px solid #FDBA74;border-radius:10px;padding:1px 6px;font-family:inherit">📤 saiu da planilha</span>` : ''}</td>
       <td class="td-nome" title="${esc(p.nome||'')}">${p.nome
         ? `${esc(p.nome)} <span onclick="editarNome('${p.codigo}')" title="Editar nome" style="cursor:pointer;color:#94a3b8;font-size:11px">✎</span>`
         : `<span onclick="editarNome('${p.codigo}')" title="Digitar o nome do cliente" style="cursor:pointer;color:#94a3b8;font-style:italic;font-size:12px;font-weight:400">+ adicionar nome</span>`}</td>
